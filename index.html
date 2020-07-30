@@ -65,11 +65,17 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
       function doIssuanceSession() {
         const attrs = document.getElementById('newattrs').value.split(',');
+        const fullCredential = document.getElementById('newcredential').value;
+        const attribute = fullCredential.split('.').pop();
+        const credential = fullCredential.replace(`.${attribute}`, '');
+        let attributes = {};
+        attributes[attribute] = attrs[0];
+        console.log(attributes);
         doSession({
           '@context': 'https://irma.app/ld/request/issuance/v2',
           'credentials': [{
-            'credential': 'inz-demo.inz.id',
-            'attributes': { 'number': attrs[0] }
+            'credential': credential,
+            'attributes': { [attribute]: attrs[0] }
           }]
         }).then(function(result) { showSuccess('Success'); });
       }
@@ -175,9 +181,11 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
       <h2>Demo 1: attribute issuance</h2>
       <p>
-          This will issue an <a href="https://github.com/robbyronk/inz-demo-scheme/blob/master/inz/Issues/id/description.xml"><code>inz-demo.inz.id</code></a> credential. Enter the attribute in below.
+          This will issue an <a href="https://github.com/InternetNZ/inz-demo-scheme/blob/master/inz-demo/description.xml"><code>inz-demo.inz.id</code></a> credential. Enter the attribute in below.
       </p>
-      <label for="newattrs" class="label">Attributes:</label>
+      <label for="newcredential" class="label">Attribute:</label>
+      <input id="newcredential" type="text" value="inz-demo.internetnz.id.number"><br/>
+      <label for="newattrs" class="label">value:</label>
       <input type="text" id="newattrs" value="1234"><br/>
       <button id="issuance">Issue attributes</button>
 
@@ -186,7 +194,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
           This will verify an INZ attribute. A label can optionally be included to clarify your attribute request to the user. When you also include a message, then that message will be signed with an attribute-based signature.
       </p>
       <label for="attr" class="label">Attribute:</label>
-      <input id="attr" type="text" value="inz-demo.inz.domain.name"><br/>
+      <input id="attr" type="text" value="inz-demo.internetnz.id.number"><br/>
       <label for="label" class="label">Label:</label>
       <input id="label" type="text"><br/>
       <label for="message" class="label">Message:</label>
