@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en_NZ">
+<head>
+    <meta charset="utf-8"/>
+    <title>IRMA attribute verification example</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="irma.js" defer></script>
+    <script type="text/javascript">
+      const IRMA_SERVER = 'https://irmago.internetnz.nz'
+      const AUTH_METHOD = 'publickey'
+      const REQUESTER_NAME = 'issuer'
+      const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAx3afG0L1zuU/sNRym8uAhI90u3KsHuwsAuuunzipN5AIaUjt
+w7AltEf+AdGD0ybjak1g/dXz5BirOYmd7l2RifgoF42cxWnV0Ft6AL2D52LMbFwH
+ElYs+mSfJszuMi+XNB2qJtUMrKxzSBlvVXGpU0ScAIG3bWQrughMsprpMwvuHIsZ
+7aL/Jg+EK37nxWkl6afTfRhC4unK4vADq3qbX4hWPvoq6gmO7yz6130bAaB5ZFb7
+F1Z6wD/n9qHOu70H9MB/HPE1XDblooxMrmr611GcW5GIDgM2ShD90ZQzE2QYiY4L
+X4XYd+Su1sGAjgdTQtO7LCK+ze7YSwQMA2NMbQIDAQABAoIBAE4SjCxrhTM6YDei
+sEly2hcI37QPKnfgEUoDXhJMZ0+sPN6ZARe7dsad9zpW+7ZGXnVZXEF+4TvCvCKF
+Tx/h1/mc/HRbpaVPy7UGWTa490w2S7WOP+ZZfLl1cSYKyKE0J4bqpZMViSR9S5JJ
+Al77Yj+Jd1Zrb5SNxN/IJ90w7V5g90dSy8D2uISkJpNUZkXJfsATzavRNvv3kYmC
+PsZQAdMBkPBm4niwVn4wZX3HSLokrotqYv62nYWGJtKy7JXV0FhScoYLvX6vf3YB
+u1xMuPsdRFQ6VJluJN3tu57xcAbS2wx0roItgG5p0UB7bo6rWjFp5OOLMYFy883g
+IzhLvIECgYEA+apyb2MdCqTN/4gFjVZitRRkHuDQJUarpJ93v5hwW5b0LnNvHSc+
+0zsH6kg7qogqr7bhqCA2pQbCTT2tiaGuBwDfi72IijcsRQflNf3/eaEoRMtpSOwc
+3Jphnw0lIc1FWS/D1V8sGEUhZxnASCyPwonAZ/5qcsLy7PrCvZXmqyUCgYEAzIYd
+bP0Q266EbhbuBS9bV8nIQj8fQCsWS53tn+wXYZCUHbdEIQvGjMYUV4ODAEm+MaAd
+t8oeoowQ8Q8AfgTCBK8H190XR0iE/1ER+lORVcgK7ew5PmqQlOKis08PypMsvYV2
+wDZH68AsT2txj8g9PDT7oUkafLKZWM2Fb+AavakCgYBMRFk41ZolijqzeKXZiy4U
+Cuqa1CpBeNkuLNiz2qlYEUD+f5zN1xNGC55bXz161qXTj5ZXeZ+3wdzRI6pDhPRY
+h1fCpF91eW04mTTXzYOhcC2Q9mJvOFGIwlBX+fgB32bz27eDEtOxhkyx5hfq9FHm
+J5ZzLjDuZcc3xVJ//667UQKBgQC3175Pn9MthVvpEZd29bCn4uuuEMtohNKPujBF
+VpVVz/40D+6fvdQF6m+SktaIxcC/HuxXrsmG11zLMu8AWAqG50anlUc9fkR+tELy
+v3eeoiig4Xw7TNMV4fraLzFEqLLI0VWDRce0dJPf9/amhhn1KrMdsXarrGcHWgae
+H9YpsQKBgQC0nbIuT2vcI268JAVZ6vBoCiHMNVlXZMi5n4KxjQaoXX2IuAtvstXD
+7BpTWazmP3HmRTNsTUWfyFWQ477I3DtgCOY3BVP8vZ4RbwHA8fqJ3BvfasWhzjs+
+KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
+-----END RSA PRIVATE KEY-----`
+
+      function doVerificationSession() {
+        const attr = document.getElementById('attr').value;
+        const label = document.getElementById('label').value;
+        const message = document.getElementById('message').value;
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': [
+            [
+              [attr]
+            ]
+          ],
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': [
+            [
+              [attr]
+            ]
+          ],
+          ...labelRequest
+        };
+        doSession(request).then(function (result) {
+          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+        });
+      }
+
+      function doIssuanceSession() {
+        //const attrs = document.getElementById('newattrs').value.split(',');
+        const attrs = document.getElementById('newattrs').value;
+        const fullCredential = document.getElementById('newcredential').value;
+        const attribute = fullCredential.split('.').pop();
+        const credential = fullCredential.replace(`.${attribute}`, '');
+        let attributes = {[attribute]: attrs};
+        //attributes[attribute] = attrs;
+        console.log(attributes);
+        doSession({
+          '@context': 'https://irma.app/ld/request/issuance/v2',
+          'credentials': [{
+            'credential': credential,
+            'attributes': attributes
+          }]
+        }).then(function (result) {
+          showSuccess('Success');
+        });
+      }
+
+      function doSession(request) {
+        clearOutput();
+        showSuccess('Demo running...');
+
+        const server = document.getElementById('server').value;
+        const authmethod = document.getElementById('method').value;
+        const key = document.getElementById(authmethod === 'publickey' ? 'key-pem' : 'key').value;
+        const requestorname = document.getElementById('requestor').value;
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function (pkg) {
+            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+          })
+          .then(function (result) {
+            console.log('Done', result);
+            return result;
+          })
+          .catch(function (err) {
+            showError(err);
+          });
+      }
+
+      window.onload = function () {
+        document.getElementById('server').value = IRMA_SERVER;
+        document.getElementById('issuance').addEventListener('click', doIssuanceSession);
+        document.getElementById('verification').addEventListener('click', doVerificationSession);
+        document.getElementById('method').addEventListener('change', methodChanged);
+
+        document.getElementById('method').value = AUTH_METHOD;
+        methodChanged();
+        document.getElementById('requestor').value = REQUESTER_NAME;
+        document.getElementById('key-pem').value = PRIVATE_KEY;
+      };
+
+      // UI handling functions
+      function clearOutput() {
+        const e = document.getElementById('result');
+        e.setAttribute('hidden', 'true');
+        e.classList.remove('succes', 'warning', 'error');
+      }
+
+      function showError(err) {
+        const e = document.getElementById('result');
+        e.removeAttribute('hidden');
+        e.classList.remove('success');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('error');
+          e.innerText = 'Error occurred: ' + String(err);
+        }
+        throw err;
+      }
+
+      function showSuccess(text) {
+        const e = document.getElementById('result');
+        e.innerHTML = text;
+        e.removeAttribute('hidden');
+        e.classList.add('success');
+      }
+
+      function methodChanged() {
+        switch (document.getElementById('method').value) {
+          case 'none':
+            hideElements('key-container', 'key-pem-container', 'requestor-container');
+            break;
+          case 'hmac':
+            hideElements('key-pem-container');
+            showElements('requestor-container', 'key-container');
+            break;
+          case 'token':
+            hideElements('key-pem-container', 'requestor-container');
+            showElements('key-container');
+            break;
+          case 'publickey':
+            hideElements('key-container');
+            showElements('key-pem-container', 'requestor-container');
+            break;
+        }
+      }
+
+      function hideElements() {
+        for (let i = 0; i < arguments.length; i++) document.getElementById(arguments[i]).setAttribute('hidden', 'true');
+      }
+
+      function showElements() {
+        for (let i = 0; i < arguments.length; i++) document.getElementById(arguments[i]).removeAttribute('hidden');
+      }
+    </script>
+</head>
+<body>
+<div id="container">
+    <h1>INZ DI demo (based on IRMA)</h1>
+
+    <p>
+        This page contains an INZ attribute issuance and verification demo.
+    </p>
+    <ul>
+        <li>You should have an <a href="https://github.com/privacybydesign/irmago/tree/master/server/irmad"><code>irma server</code></a> running, with either the
+            <code>no_auth</code> option enabled (default), or you can provide authentication details <a href="#authenticate-session-requests">below</a>.</li>
+        <li>Open the browser console to see log output and error messages.</li>
+    </ul>
+
+    <div id="result" class="status" hidden></div>
+
+    <h2>Demo 1: attribute issuance</h2>
+    <p>
+        This will issue an <a href="https://github.com/InternetNZ/inz-demo-scheme/blob/master/inz-demo/description.xml"><code>inz-demo.inz.id</code></a> credential. We prepared some attributes for our PoC:
+    </p>
+
+    <label for="newcredential" class="label">Attribute:</label>
+    <select id="newcredential">
+        <option value=""></option>
+        <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
+        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Primary Address (singleton)</option>
+    </select><br>
+    <label for="newattrs" class="label">value:</label>
+    <input type="text" id="newattrs" value="" placeholder="1234"><br>
+    <button id="issuance">Issue attributes</button>
+
+    <h2>Demo 2: attribute verification</h2>
+    <p>
+        This will verify an INZ attribute. A label can optionally be included to clarify your attribute request to the user. When you also include a message, then that message will be signed with an attribute-based signature.
+    </p>
+    <label for="attr" class="label">Attribute:</label>
+    <input id="attr" type="text" value="inz-demo.internetnz.id.number"><br/>
+    <label for="label" class="label">Label:</label>
+    <input id="label" type="text"><br/>
+    <label for="message" class="label">Message:</label>
+    <input id="message" type="text"><br/>
+    <button id="verification">Verify attribute</button>
+
+    <div id="servers">
+
+        <div>
+            <h3>IRMAGO server</h3>
+            <label for="server" class="label"><code>irma server</code> URL:</label>
+            <input id="server" type="text" value="https://irmago.internetnz.nz">
+        </div>
+
+        <h3 id="authenticate-session-requests">Authenticate session request</h3>
+        <p>
+            If the <code>no_auth</code> setting of your <code>irma server</code> is disabled, session requests sent to the
+            <code>irma server</code> need to be authenticated, by including an API token in a HTTP header, or signing the request into a <a href="https://jwt.io/">JWT</a>.
+        </p>
+
+        <label for="method" class="label">Method:</label>
+        <select id="method">
+            <option value="none">none</option>
+            <option value="token">token</option>
+            <option value="hmac">hmac</option>
+            <option value="publickey">publickey</option>
+        </select><br/>
+        <div id="requestor-container" hidden>
+            <label for="requestor" class="label">Requestor name:</label>
+            <input type="text" id="requestor"><br/>
+        </div>
+        <div id="key-container" hidden>
+            <label for="key" class="label">Key:</label>
+            <input type="text" id="key"><br/>
+        </div>
+        <div id="key-pem-container" hidden>
+            <label for="key-pem" class="label">Private key (PEM):</label>
+            <textarea id="key-pem" cols="45" rows="10"></textarea><br/>
+        </div>
+
+        <p>
+            <strong>Note:</strong>
+            This demo handles private keys in the user's browser. Do not do this in production!
+            You should sign the JWTs in your server's backend, or if you use an API token, <code>POST</code>
+            the session request directly from your backend to the <code>irma server</code>.
+        </p>
+
+    </div>
+
+</div>
+</body>
+</html>
