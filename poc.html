@@ -66,14 +66,20 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
       }
 
       function doIssuanceSession() {
-        //const attrs = document.getElementById('newattrs').value.split(',');
         const attrs = document.getElementById('newattrs').value;
         const fullCredential = document.getElementById('newcredential').value;
         const attribute = fullCredential.split('.').pop();
         const credential = fullCredential.replace(`.${attribute}`, '');
         let attributes = {[attribute]: attrs};
-        //attributes[attribute] = attrs;
-        console.log(attributes);
+        if (fullCredential === 'inz-demo.internetnz.membership.id') {
+          attributes = {
+            id: document.getElementById('newattrs').value,
+            type: 'Personal',
+            purchaseDate: '01/01/2020',
+            renewalDate: '01/01/2020',
+            validUntil: '01/02/2021',
+          };
+        }
         doSession({
           '@context': 'https://irma.app/ld/request/issuance/v2',
           'credentials': [{
@@ -198,9 +204,11 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
     <label for="newcredential" class="label">Attribute:</label>
     <select id="newcredential">
-        <option value=""></option>
+        <option value="">-- Choose a credential --</option>
         <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
-        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Primary Address (singleton)</option>
+        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
+        <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
+        <option value="inz-demo.internetnz.membership.id">Membership</option>
     </select><br>
     <label for="newattrs" class="label">value:</label>
     <input type="text" id="newattrs" value="" placeholder="1234"><br>
@@ -211,7 +219,17 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         This will verify an INZ attribute. A label can optionally be included to clarify your attribute request to the user. When you also include a message, then that message will be signed with an attribute-based signature.
     </p>
     <label for="attr" class="label">Attribute:</label>
-    <input id="attr" type="text" value="inz-demo.internetnz.id.number"><br/>
+    <select id="attr">
+        <option value="">-- Choose a credential --</option>
+        <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
+        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
+        <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
+        <option value="inz-demo.internetnz.membership.id">Membership ID</option>
+        <option value="inz-demo.internetnz.membership.type">Membership Type</option>
+        <option value="inz-demo.internetnz.membership.purchaseDate">Membership Purchase Date</option>
+        <option value="inz-demo.internetnz.membership.renewalDate">Membership Renewal Date</option>
+        <option value="inz-demo.internetnz.membership.validUntil">Membership Valid Until</option>
+    </select><br>
     <label for="label" class="label">Label:</label>
     <input id="label" type="text"><br/>
     <label for="message" class="label">Message:</label>
