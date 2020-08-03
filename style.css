@@ -19,7 +19,7 @@ h2, h3 {
 
 #container {
   margin: 50px auto;
-  width: 600px;
+  max-width: 600px;
 }
 
 .label {
