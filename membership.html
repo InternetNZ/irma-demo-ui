@@ -45,7 +45,8 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 -----END RSA PRIVATE KEY-----`;
 
       const ATTRIBUTE = {
-        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email'
+        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
+        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name.fullName',
       };
 
       let userMembershipAttributes = {};
@@ -195,14 +196,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         userMembershipAttributes = {};
       };
 
-      const verifyFakeRealMeEmail = function () {
-        console.log('verifyFakeRealMeEmail');
-        return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
-          .then((result) => {
-            setUserMembershipAttribute('email', result);
-          });
-      };
-
       const setUserMembershipAttribute = function (attribute, value) {
         userMembershipAttributes[attribute] = value;
         console.info('---UPDATED---');
@@ -214,11 +207,28 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         return result.disclosed[0][0].rawvalue || '';
       };
 
+      const verifyFakeRealMeEmail = function () {
+        console.log('verifyFakeRealMeEmail');
+        return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
+          .then((result) => {
+            setUserMembershipAttribute('email', result);
+          });
+      };
+
+      const verifyFakeInternalAffairsName = function () {
+        console.log('verifyFakeInternalAffairsName');
+        return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
+          .then((result) => {
+            setUserMembershipAttribute('name', result);
+          });
+      };
+
       window.onload = function () {
         document.getElementById('server').value = IRMA_SERVER;
         document.getElementById('issuance').addEventListener('click', doIssuanceSession);
         document.getElementById('verification').addEventListener('click', doVerificationSession);
         document.getElementById('verify-fakerealme-email').addEventListener('click', verifyFakeRealMeEmail);
+        document.getElementById('verify-fakeinternalaffairs-name').addEventListener('click', verifyFakeInternalAffairsName);
       };
     </script>
 </head>
@@ -234,7 +244,12 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
     <h2>E-mail</h2>
     <p>
-        <button id="verify-fakerealme-email" class="btn btn-info">Sign-in with Fake RealMe E-mail</button>
+        <button id="verify-fakerealme-email" class="btn btn-info">Verify Fake RealMe E-mail</button>
+    </p>
+
+    <h2>Name</h2>
+    <p>
+        <button id="verify-fakeinternalaffairs-name" class="btn btn-info">Verify Fake Internal Affairs Full Name</button>
     </p>
 
     <label for="newcredential" class="label">Attribute:</label>
