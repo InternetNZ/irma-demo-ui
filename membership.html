@@ -48,6 +48,8 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email'
       };
 
+      let userMembershipAttributes = {};
+
       function doVerificationSession() {
         const attr = document.getElementById('attr').value;
         const label = document.getElementById('label').value;
@@ -101,6 +103,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         };
         return doSession(request).then(function (result) {
           showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+          return getDiscloseResultRawValue(result);
         });
       }
 
@@ -134,11 +137,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         clearOutput();
         showSuccess('Demo running...');
 
-        // const server = document.getElementById('server').value;
-        // const authmethod = document.getElementById('method').value;
-        // const key = document.getElementById(authmethod === 'publickey' ? 'key-pem' : 'key').value;
-        // const requestorname = document.getElementById('requestor').value;
-
         const server = IRMA_SERVER;
         const authmethod = AUTH_METHOD_TOKEN;
         const key = PRIVATE_TOKEN;
@@ -156,20 +154,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
             showError(err);
           });
       }
-
-      window.onload = function () {
-        document.getElementById('server').value = IRMA_SERVER;
-        document.getElementById('issuance').addEventListener('click', doIssuanceSession);
-        document.getElementById('verification').addEventListener('click', doVerificationSession);
-        document.getElementById('verify-fakerealme-email').addEventListener('click', verifyFakeRealMeEmail);
-
-        document.getElementById('method').addEventListener('change', methodChanged);
-
-        document.getElementById('method').value = AUTH_METHOD;
-        methodChanged();
-        document.getElementById('requestor').value = REQUESTER_NAME;
-        document.getElementById('key-pem').value = PRIVATE_KEY;
-      };
 
       // UI handling functions
       function clearOutput() {
@@ -199,26 +183,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         e.classList.add('alert-success');
       }
 
-      function methodChanged() {
-        switch (document.getElementById('method').value) {
-          case 'none':
-            hideElements('key-container', 'key-pem-container', 'requestor-container');
-            break;
-          case 'hmac':
-            hideElements('key-pem-container');
-            showElements('requestor-container', 'key-container');
-            break;
-          case 'token':
-            hideElements('key-pem-container', 'requestor-container');
-            showElements('key-container');
-            break;
-          case 'publickey':
-            hideElements('key-container');
-            showElements('key-pem-container', 'requestor-container');
-            break;
-        }
-      }
-
       function hideElements() {
         for (let i = 0; i < arguments.length; i++) document.getElementById(arguments[i]).setAttribute('hidden', 'true');
       }
@@ -227,10 +191,35 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         for (let i = 0; i < arguments.length; i++) document.getElementById(arguments[i]).removeAttribute('hidden');
       }
 
-      function verifyFakeRealMeEmail() {
+      const clearUserMembershipAttributes = function () {
+        userMembershipAttributes = {};
+      };
+
+      const verifyFakeRealMeEmail = function () {
         console.log('verifyFakeRealMeEmail');
-        return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL);
-      }
+        return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
+          .then((result) => {
+            setUserMembershipAttribute('email', result);
+          });
+      };
+
+      const setUserMembershipAttribute = function (attribute, value) {
+        userMembershipAttributes[attribute] = value;
+        console.info('---UPDATED---');
+        console.info(userMembershipAttributes);
+      };
+
+      const getDiscloseResultRawValue = function (result) {
+        console.log(result);
+        return result.disclosed[0][0].rawvalue || '';
+      };
+
+      window.onload = function () {
+        document.getElementById('server').value = IRMA_SERVER;
+        document.getElementById('issuance').addEventListener('click', doIssuanceSession);
+        document.getElementById('verification').addEventListener('click', doVerificationSession);
+        document.getElementById('verify-fakerealme-email').addEventListener('click', verifyFakeRealMeEmail);
+      };
     </script>
 </head>
 <body>
@@ -296,32 +285,12 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
             <code>irma server</code> need to be authenticated, by including an API token in a HTTP header, or signing the request into a <a href="https://jwt.io/">JWT</a>.
         </p>
 
-        <label for="method" class="label">Method:</label>
-        <select id="method">
-            <option value="none">none</option>
-            <option value="token">token</option>
-            <option value="hmac">hmac</option>
-            <option value="publickey">publickey</option>
-        </select><br/>
-        <div id="requestor-container" hidden>
-            <label for="requestor" class="label">Requestor name:</label>
-            <input type="text" id="requestor"><br/>
-        </div>
-        <div id="key-container" hidden>
-            <label for="key" class="label">Key:</label>
-            <input type="text" id="key"><br/>
-        </div>
-        <div id="key-pem-container" hidden>
-            <label for="key-pem" class="label">Private key (PEM):</label>
-            <textarea id="key-pem" cols="45" rows="10"></textarea><br/>
-        </div>
-
-        <p>
-            <strong>Note:</strong>
-            This demo handles private keys in the user's browser. Do not do this in production!
-            You should sign the JWTs in your server's backend, or if you use an API token, <code>POST</code>
-            the session request directly from your backend to the <code>irma server</code>.
-        </p>
+<!--        <div>-->
+<!--            DEBUG:-->
+<!--            <hr>-->
+<!--            -->
+<!--            <code></code>-->
+<!--        </div>-->
 
     </div>
 
