@@ -8,6 +8,9 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
     <script src="irma.js" defer></script>
     <script type="text/javascript">
       const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
@@ -196,45 +199,55 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         userMembershipAttributes = {};
       };
 
-      const setUserMembershipAttribute = function (attribute, value) {
-        userMembershipAttributes[attribute] = value;
-        console.info('---UPDATED---');
-        console.info(userMembershipAttributes);
-      };
+      // const setUserMembershipAttribute = function (attribute, value) {
+      //   userMembershipAttributes[attribute] = value;
+      //   console.info('---UPDATED---');
+      //   console.info(userMembershipAttributes);
+      // };
 
       const getDiscloseResultRawValue = function (result) {
         console.log(result);
         return result.disclosed[0][0].rawvalue || '';
       };
 
-      const verifyFakeRealMeEmail = function () {
-        console.log('verifyFakeRealMeEmail');
-        return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
-          .then((result) => {
-            setUserMembershipAttribute('email', result);
-          });
-      };
-
-      const verifyFakeInternalAffairsName = function () {
-        console.log('verifyFakeInternalAffairsName');
-        return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
-          .then((result) => {
-            setUserMembershipAttribute('name', result);
-          });
-      };
-
       window.onload = function () {
-        document.getElementById('server').value = IRMA_SERVER;
-        document.getElementById('issuance').addEventListener('click', doIssuanceSession);
-        document.getElementById('verification').addEventListener('click', doVerificationSession);
-        document.getElementById('verify-fakerealme-email').addEventListener('click', verifyFakeRealMeEmail);
-        document.getElementById('verify-fakeinternalaffairs-name').addEventListener('click', verifyFakeInternalAffairsName);
+        let app = new Vue({
+          el: '#app',
+          data: {
+            message: 'Hello Vue!',
+            userMembershipAttributes: {
+              email: null,
+              name: null
+            }
+          },
+          methods: {
+            verifyFakeRealMeEmail: function () {
+              console.log('verifyFakeRealMeEmail');
+              return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
+                .then((result) => {
+                  app.userMembershipAttributes.email = result;
+                });
+            },
+
+            verifyFakeInternalAffairsName: function () {
+              console.log('verifyFakeInternalAffairsName');
+              return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
+                .then((result) => {
+                  app.userMembershipAttributes.name = result;
+                });
+            }
+          }
+        })
       };
     </script>
 </head>
 <body>
-<div id="container" class="container">
+<div id="app" class="container">
     <h1>INZ Membership demo (based on IRMA)</h1>
+
+    <div id="appsss">
+        {{ message }}
+    </div>
 
     <p>
         This page contains an INZ attribute issuance and verification demo.
@@ -244,69 +257,71 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
     <h2>E-mail</h2>
     <p>
-        <button id="verify-fakerealme-email" class="btn btn-info">Verify Fake RealMe E-mail</button>
+        <button id="verify-fakerealme-email" class="btn btn-info" v-on:click="verifyFakeRealMeEmail()">Verify Fake RealMe E-mail</button>
     </p>
 
-    <h2>Name</h2>
-    <p>
-        <button id="verify-fakeinternalaffairs-name" class="btn btn-info">Verify Fake Internal Affairs Full Name</button>
+    <h2 v-if="userMembershipAttributes.email">Name</h2>
+    <p v-if="userMembershipAttributes.email">
+        <button id="verify-fakeinternalaffairs-name" class="btn btn-info" v-on:click="verifyFakeInternalAffairsName()">Verify Fake Internal Affairs Full Name</button>
     </p>
 
-    <label for="newcredential" class="label">Attribute:</label>
-    <select id="newcredential">
-        <option value="">-- Choose a credential --</option>
-        <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
-        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
-        <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
-        <option value="inz-demo.internetnz.membership.id">Membership</option>
-    </select><br>
-    <label for="newattrs" class="label">value:</label>
-    <input type="text" id="newattrs" value="" placeholder="1234"><br>
-    <button id="issuance">Issue attributes</button>
+    <div>
+        <form>
+            <legend>Membership</legend>
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10">
+                    <input type="text" readonly class="form-control" id="staticEmail" v-model="userMembershipAttributes.email">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" readonly class="form-control" id="name" v-model="userMembershipAttributes.name">
+                </div>
+            </div>
+            <fieldset class="form-group">
+                <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Type</legend>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual">
+                            <label class="form-check-label" for="gridRadios1">
+                                Individual
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="Organization">
+                            <label class="form-check-label" for="gridRadios2">
+                                Organization
+                            </label>
+                        </div>
 
-    <h2>Demo 2: attribute verification</h2>
-    <p>
-        This will verify an INZ attribute. A label can optionally be included to clarify your attribute request to the user. When you also include a message, then that message will be signed with an attribute-based signature.
-    </p>
-    <label for="attr" class="label">Attribute:</label>
-    <select id="attr">
-        <option value="">-- Choose a credential --</option>
-        <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
-        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
-        <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
-        <option value="inz-demo.internetnz.membership.id">Membership ID</option>
-        <option value="inz-demo.internetnz.membership.type">Membership Type</option>
-        <option value="inz-demo.internetnz.membership.purchaseDate">Membership Purchase Date</option>
-        <option value="inz-demo.internetnz.membership.renewalDate">Membership Renewal Date</option>
-        <option value="inz-demo.internetnz.membership.validUntil">Membership Valid Until</option>
-    </select><br>
-    <label for="label" class="label">Label:</label>
-    <input id="label" type="text"><br/>
-    <label for="message" class="label">Message:</label>
-    <input id="message" type="text"><br/>
-    <button id="verification">Verify attribute</button>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="individual1" value="Individual">
+                            <label class="form-check-label" for="individual1">
+                                Individual 1
+                            </label>
+                            <input class="form-check-input" type="radio" name="gridRadios" id="individual2" value="Individual">
+                            <label class="form-check-label" for="individual2">
+                                Individual 5
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
 
-    <div id="servers">
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">&nbsp;</label>
+                <div class="col-sm-10">
+                    <button>Save</button>
+                </div>
+            </div>
+        </form>
 
         <div>
-            <h3>IRMAGO server</h3>
-            <label for="server" class="label"><code>irma server</code> URL:</label>
-            <input id="server" type="text" value="http://13.54.7.159:8088">
+            {{ userMembershipAttributes }}
         </div>
-
-        <h3 id="authenticate-session-requests">Authenticate session request</h3>
-        <p>
-            If the <code>no_auth</code> setting of your <code>irma server</code> is disabled, session requests sent to the
-            <code>irma server</code> need to be authenticated, by including an API token in a HTTP header, or signing the request into a <a href="https://jwt.io/">JWT</a>.
-        </p>
-
-<!--        <div>-->
-<!--            DEBUG:-->
-<!--            <hr>-->
-<!--            -->
-<!--            <code></code>-->
-<!--        </div>-->
-
     </div>
 
 </div>
