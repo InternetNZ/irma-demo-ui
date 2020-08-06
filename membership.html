@@ -265,7 +265,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         <button id="verify-fakeinternalaffairs-name" class="btn btn-info" v-on:click="verifyFakeInternalAffairsName()">Verify Fake Internal Affairs Full Name</button>
     </p>
 
-    <div>
+    <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
         <form>
             <legend>Membership</legend>
             <div class="form-group row">
@@ -285,28 +285,32 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
                     <legend class="col-form-label col-sm-2 pt-0">Type</legend>
                     <div class="col-sm-10">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual">
+                            <input
+                                    class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual"
+                                    v-model="userMembershipAttributes.type"
+                            >
                             <label class="form-check-label" for="gridRadios1">
                                 Individual
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="Organization">
+                            <input class="form-check-input" type="radio"
+                                   name="gridRadios" id="gridRadios2" value="Organization"
+                                   v-model="userMembershipAttributes.type"
+                            >
                             <label class="form-check-label" for="gridRadios2">
                                 Organization
                             </label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gridRadios" id="individual1" value="Individual">
-                            <label class="form-check-label" for="individual1">
-                                Individual 1
-                            </label>
-                            <input class="form-check-input" type="radio" name="gridRadios" id="individual2" value="Individual">
-                            <label class="form-check-label" for="individual2">
-                                Individual 5
-                            </label>
-                        </div>
+                        <br>
+                        <select class="custom-select" required
+                                v-if="userMembershipAttributes.type === 'Individual'">
+                            <option value="">Open this select menu</option>
+                            <option value="1">Individual - 1 year</option>
+                            <option value="5">Individual - 5 year</option>
+                            <option value="10">Individual - 10 years</option>
+                        </select>
                     </div>
                 </div>
             </fieldset>
@@ -318,10 +322,10 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
                 </div>
             </div>
         </form>
+    </div>
 
-        <div>
-            {{ userMembershipAttributes }}
-        </div>
+    <div>
+        {{ userMembershipAttributes }}
     </div>
 
 </div>
