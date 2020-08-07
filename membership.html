@@ -4,9 +4,18 @@
     <meta charset="utf-8"/>
     <title>IRMA attribute verification example</title>
 
-    <!--    <link rel="stylesheet" type="text/css" href="style-membership.css">-->
-
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css" media="all">
+    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_BYS6l8MYdx4ZFt71Bo-5FHQgBgF8GbKo_9xQnGiiRqI.css" media="all"/>
+    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_S1SKPYV-rmiTH7oD4myqMAsMOJcP3aNMY_ryOkm4ARo.css" media="all"/>
+<!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
+    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css" media="all"/>
+
+    <link type="text/css" rel="stylesheet" href="style-membership.css">
+
+    <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+
 
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -16,36 +25,9 @@
       const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
       const IRMA_SERVER = AWS_IRMA_SERVER;
       const AUTH_METHOD_TOKEN = 'token';
-      const AUTH_METHOD = 'publickey'
-      const REQUESTER_NAME = 'issuer'
+      //const AUTH_METHOD = 'publickey'
+      //const REQUESTER_NAME = 'issuer'
       const PRIVATE_TOKEN = 'secret-fake-token';
-      const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEAx3afG0L1zuU/sNRym8uAhI90u3KsHuwsAuuunzipN5AIaUjt
-w7AltEf+AdGD0ybjak1g/dXz5BirOYmd7l2RifgoF42cxWnV0Ft6AL2D52LMbFwH
-ElYs+mSfJszuMi+XNB2qJtUMrKxzSBlvVXGpU0ScAIG3bWQrughMsprpMwvuHIsZ
-7aL/Jg+EK37nxWkl6afTfRhC4unK4vADq3qbX4hWPvoq6gmO7yz6130bAaB5ZFb7
-F1Z6wD/n9qHOu70H9MB/HPE1XDblooxMrmr611GcW5GIDgM2ShD90ZQzE2QYiY4L
-X4XYd+Su1sGAjgdTQtO7LCK+ze7YSwQMA2NMbQIDAQABAoIBAE4SjCxrhTM6YDei
-sEly2hcI37QPKnfgEUoDXhJMZ0+sPN6ZARe7dsad9zpW+7ZGXnVZXEF+4TvCvCKF
-Tx/h1/mc/HRbpaVPy7UGWTa490w2S7WOP+ZZfLl1cSYKyKE0J4bqpZMViSR9S5JJ
-Al77Yj+Jd1Zrb5SNxN/IJ90w7V5g90dSy8D2uISkJpNUZkXJfsATzavRNvv3kYmC
-PsZQAdMBkPBm4niwVn4wZX3HSLokrotqYv62nYWGJtKy7JXV0FhScoYLvX6vf3YB
-u1xMuPsdRFQ6VJluJN3tu57xcAbS2wx0roItgG5p0UB7bo6rWjFp5OOLMYFy883g
-IzhLvIECgYEA+apyb2MdCqTN/4gFjVZitRRkHuDQJUarpJ93v5hwW5b0LnNvHSc+
-0zsH6kg7qogqr7bhqCA2pQbCTT2tiaGuBwDfi72IijcsRQflNf3/eaEoRMtpSOwc
-3Jphnw0lIc1FWS/D1V8sGEUhZxnASCyPwonAZ/5qcsLy7PrCvZXmqyUCgYEAzIYd
-bP0Q266EbhbuBS9bV8nIQj8fQCsWS53tn+wXYZCUHbdEIQvGjMYUV4ODAEm+MaAd
-t8oeoowQ8Q8AfgTCBK8H190XR0iE/1ER+lORVcgK7ew5PmqQlOKis08PypMsvYV2
-wDZH68AsT2txj8g9PDT7oUkafLKZWM2Fb+AavakCgYBMRFk41ZolijqzeKXZiy4U
-Cuqa1CpBeNkuLNiz2qlYEUD+f5zN1xNGC55bXz161qXTj5ZXeZ+3wdzRI6pDhPRY
-h1fCpF91eW04mTTXzYOhcC2Q9mJvOFGIwlBX+fgB32bz27eDEtOxhkyx5hfq9FHm
-J5ZzLjDuZcc3xVJ//667UQKBgQC3175Pn9MthVvpEZd29bCn4uuuEMtohNKPujBF
-VpVVz/40D+6fvdQF6m+SktaIxcC/HuxXrsmG11zLMu8AWAqG50anlUc9fkR+tELy
-v3eeoiig4Xw7TNMV4fraLzFEqLLI0VWDRce0dJPf9/amhhn1KrMdsXarrGcHWgae
-H9YpsQKBgQC0nbIuT2vcI268JAVZ6vBoCiHMNVlXZMi5n4KxjQaoXX2IuAtvstXD
-7BpTWazmP3HmRTNsTUWfyFWQ477I3DtgCOY3BVP8vZ4RbwHA8fqJ3BvfasWhzjs+
-KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
------END RSA PRIVATE KEY-----`;
 
       const ATTRIBUTE = {
         FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
@@ -112,8 +94,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 
       function issueCredential(credential, attributes) {
         console.log('issueCredential');
-        console.log(attributes);
-
         const request = {
           '@context': 'https://irma.app/ld/request/issuance/v2',
           'credentials': [{
@@ -121,9 +101,6 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
             'attributes': attributes
           }]
         };
-
-        console.log(request);
-
         return doSession(request).then(function (result) {
           showSuccess('Success');
         });
@@ -226,7 +203,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
               return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.createMembership(app.userMembershipAttributes));
             },
 
-            createMembership: function(userMembershipAttributes) {
+            createMembership: function (userMembershipAttributes) {
               return {
                 id: userMembershipAttributes.email,
                 type: userMembershipAttributes.type,
@@ -244,11 +221,57 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
 </head>
 <body>
 <div id="app" class="container">
+
+    <!-- header -->
+    <div class="headerWrap">
+        <div class="mobileIcons">
+            <ul id="socialMediaButtons">
+                <li><a href="https://internetnz.nz/contact-us" class="dotnews">DotNews</a></li>
+
+            </ul>
+        </div>
+        <div class="navbar-header">
+            <a class="logo navbar-btn pull-left" href="/" title="Home">
+                <img src="https://members.internetnz.nz/sites/default/files/INZ%20logo_large_Full%20colour_CROPPED.png" alt="Home" sheight="66">
+            </a>
+
+            <a class="name navbar-brand" href="/" title="Home">InternetNZ</a>
+
+            <button type="button" class="search-toggle" data-toggle="collapse" data-target=".search-wrapper">
+                <span class="sr-only">Toggle search</span>
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+
+        <div class="search-wrapper collapse in">
+            <div class="region region-search-form">
+                <section id="" class=" clearfix">
+
+
+                </section>
+            </div>
+        </div>
+    </div>
+    <!-- header -->
+
     <h1>INZ Membership demo (based on IRMA)</h1>
 
-    <p>
-        This page contains an INZ attribute issuance and verification demo.
-    </p>
+    <section class="col-sm-12">
+        <a id="main-content"></a>
+        <h1 class="page-header">Join InternetNZ</h1>
+
+
+    </section>
+
+    <p>By becoming an InternetNZ member you help us to close digital divides, support Kiwis to be secure online and keep the Internet open for us all.</p>
+
+    <p>For $21 per year you can be a member of InternetNZ and you can:</p>
+
+    <ul>
+        <li> get invites to great Internet events</li>
+        <li> stay in the loop and receive the latest Internet news, discounts and priority event registration</li>
+        <li> contribute to our work and influence the direction of InternetNZ.</li>
+    </ul>
 
     <div id="result" class="status alert" hidden></div>
 
