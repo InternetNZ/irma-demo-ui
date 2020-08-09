@@ -2,3 +2,14 @@
 body {
     font-family: "Font Awesome", sans-serif;
 }
+
+/* Fixes from site style */
+.alert {
+    margin: 0;
+    top: 0;
+}
+
+a {
+    color: #E31C79;
+    text-decoration: none;
+}

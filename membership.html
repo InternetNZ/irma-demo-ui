@@ -9,8 +9,8 @@
     <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css" media="all">
     <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_BYS6l8MYdx4ZFt71Bo-5FHQgBgF8GbKo_9xQnGiiRqI.css" media="all"/>
     <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_S1SKPYV-rmiTH7oD4myqMAsMOJcP3aNMY_ryOkm4ARo.css" media="all"/>
-<!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
-    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css" media="all"/>
+    <!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
+    <link type="text/css" rel="stylesheet" href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css" media="all">
 
     <link type="text/css" rel="stylesheet" href="style-membership.css">
 
@@ -194,7 +194,10 @@
               console.log('verifyFakeInternalAffairsName');
               return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
                 .then((result) => {
+                  const names = result.split(' ');
                   app.userMembershipAttributes.name = result;
+                  app.userMembershipAttributes.firstName = names.shift();
+                  app.userMembershipAttributes.lastName = names.join(' ');
                 });
             },
 
@@ -257,10 +260,7 @@
     <h1>INZ Membership demo (based on IRMA)</h1>
 
     <section class="col-sm-12">
-        <a id="main-content"></a>
         <h1 class="page-header">Join InternetNZ</h1>
-
-
     </section>
 
     <p>By becoming an InternetNZ member you help us to close digital divides, support Kiwis to be secure online and keep the Internet open for us all.</p>
@@ -268,12 +268,14 @@
     <p>For $21 per year you can be a member of InternetNZ and you can:</p>
 
     <ul>
-        <li> get invites to great Internet events</li>
-        <li> stay in the loop and receive the latest Internet news, discounts and priority event registration</li>
-        <li> contribute to our work and influence the direction of InternetNZ.</li>
+        <li><strong>get invites</strong> to great Internet events</li>
+        <li><strong>stay in the loop</strong> and receive the latest Internet news, discounts and priority event registration</li>
+        <li><strong>contribute</strong> to our work and <strong>influence</strong> the direction of InternetNZ.</li>
     </ul>
 
-    <div id="result" class="status alert" hidden></div>
+    <div class="row">
+        <div id="result" class="status alert" hidden></div>
+    </div>
 
     <h5>Fake Realme E-mail</h5>
     <p>
@@ -287,13 +289,62 @@
 
     <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
         <form>
-            <legend>Membership</legend>
-            <div class="form-group row">
-                <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="firstName">First Name*</label>
+                    <input type="text" class="form-control" id="firstName" v-bind:value="userMembershipAttributes.firstName">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="lastName">Last Name*</label>
+                    <input type="text" class="form-control" id="lastName" v-bind:value="userMembershipAttributes.lastName">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="staticEmail">Email</label>
                     <input type="text" readonly class="form-control" id="staticEmail" v-model="userMembershipAttributes.email">
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="inputAddress">Address</label>
+                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+            </div>
+            <div class="form-group">
+                <label for="inputAddress2">Address 2</label>
+                <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputCity">City</label>
+                    <input type="text" class="form-control" id="inputCity">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputState">State</label>
+                    <select id="inputState" class="form-control">
+                        <option selected>Choose...</option>
+                        <option>...</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="inputZip">Zip</label>
+                    <input type="text" class="form-control" id="inputZip">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="gridCheck">
+                    <label class="form-check-label" for="gridCheck">
+                        Check me out
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+
+        <form>
+
             <div class="form-group row">
                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
