@@ -173,11 +173,13 @@
         let app = new Vue({
           el: '#app',
           data: {
+            MEMBERSHIP_INDIVIDUAL: 'Individual',
+            MEMBERSHIP_ORGANIZATION: 'Organization',
             message: 'Hello Vue!',
             userMembershipAttributes: {
               email: null,
               name: null,
-              type: null,
+              type: '',
               membershipDuration: null
             }
           },
@@ -235,7 +237,7 @@
         </div>
         <div class="navbar-header">
             <a class="logo navbar-btn pull-left" href="/" title="Home">
-                <img src="https://members.internetnz.nz/sites/default/files/INZ%20logo_large_Full%20colour_CROPPED.png" alt="Home" sheight="66">
+                <img src="https://members.internetnz.nz/sites/default/files/INZ%20logo_large_Full%20colour_CROPPED.png" alt="Home">
             </a>
 
             <a class="name navbar-brand" href="/" title="Home">InternetNZ</a>
@@ -307,22 +309,21 @@
                 </div>
             </div>
 
-            <div class="center-block">
-                <br>
+            <div class="align-items-center" id="membership-type">
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary active">
+                    <label class="btn btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
                         <input
-                                class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual"
-                                autocomplete="off"
+                                class="form-check-input" type="radio" name="gridRadios" id="gridRadios1"
+                                value="Individual"
                                 v-model="userMembershipAttributes.type"
                         >
-                        Individual
+                        Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
                     </label>
-                    <label class="btn btn-secondary">
+                    <label class="btn btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
                         <input class="form-check-input" type="radio"
                                name="gridRadios" id="gridRadios2" value="Organization"
                                v-model="userMembershipAttributes.type"
-                        > Organization
+                        > Organization <i class="fas fa-building" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION"></i>
                     </label>
                 </div>
             </div>

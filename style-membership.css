@@ -3,6 +3,11 @@ body {
     font-family: "Font Awesome", sans-serif;
 }
 
+#membership-type .active {
+    background-color: #E31C79;
+    border-color: #E31C79;
+}
+
 /* Fixes from site style */
 .alert {
     margin: 0;
