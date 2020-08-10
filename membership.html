@@ -309,17 +309,18 @@
                 </div>
             </div>
 
-            <div class="align-items-center" id="membership-type">
-                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
+            <div class="d-block" id="membership-type">
+                <div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
                         <input
-                                class="form-check-input" type="radio" name="gridRadios" id="gridRadios1"
+                                class="form-check-input" type="radio" name="gridRadios"
+                                id="gridRadios1"
                                 value="Individual"
                                 v-model="userMembershipAttributes.type"
                         >
                         Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
                     </label>
-                    <label class="btn btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
+                    <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
                         <input class="form-check-input" type="radio"
                                name="gridRadios" id="gridRadios2" value="Organization"
                                v-model="userMembershipAttributes.type"
@@ -328,69 +329,30 @@
                 </div>
             </div>
 
+            <div>
+                <span class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</span>
 
-            <button type="submit" class="btn btn-primary">Sign in</button>
-        </form>
-
-        <form>
-
-            <div class="form-group row">
-                <label for="name" class="col-sm-2 col-form-label">Name</label>
-                <div class="col-sm-10">
-                    <input type="text" readonly class="form-control" id="name" v-model="userMembershipAttributes.name">
-                </div>
+                <select class="custom-select"
+                        required
+                        v-if="userMembershipAttributes.type"
+                        v-model="userMembershipAttributes.membershipDuration"
+                >
+                    <option value="">Open this select menu</option>
+                    <optgroup label="Individual" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL">
+                        <option value="1">1 year</option>
+                        <option value="5">5 year</option>
+                        <option value="10">10 years</option>
+                    </optgroup>
+                    <optgroup label="Organization" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+                        <option value="1">Small Organization - 1 year</option>
+                        <option value="5">Small Organization - 5 year</option>
+                        <option value="10">Small Organization - 10 years</option>
+                        <option value="1">Large Organization - 1 year</option>
+                        <option value="5">Large Organization - 5 year</option>
+                        <option value="10">Large Organization - 10 years</option>
+                    </optgroup>
+                </select>
             </div>
-            <fieldset class="form-group">
-
-                <div class="row">
-                    <legend class="col-form-label col-sm-2 pt-0">Type</legend>
-                    <div class="col-sm-10 btn-group btn-group-toggle" data-toggle="buttons">
-<!--                        <div class="form-check">-->
-<!--                            <label class="btn btn-secondary active" for="gridRadios1">-->
-<!--                            <input-->
-<!--                                    class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual"-->
-<!--                                    autocomplete="off"-->
-<!--                                    v-model="userMembershipAttributes.type"-->
-<!--                            >-->
-<!--                                Individual-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="form-check">-->
-<!--                            <input class="form-check-input" type="radio"-->
-<!--                                   name="gridRadios" id="gridRadios2" value="Organization"-->
-<!--                                   v-model="userMembershipAttributes.type"-->
-<!--                            >-->
-<!--                            <label class="form-check-label" for="gridRadios2">-->
-<!--                                Organization-->
-<!--                            </label>-->
-<!--                        </div>-->
-
-                        <br>
-                        <span class="font-weight-bold" v-if="userMembershipAttributes.type === 'Organization'">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</span>
-
-                        <select class="custom-select"
-                                required
-                                v-if="userMembershipAttributes.type"
-                                v-model="userMembershipAttributes.membershipDuration"
-                        >
-                            <option value="">Open this select menu</option>
-                            <optgroup label="Individual" v-if="userMembershipAttributes.type === 'Individual'">
-                                <option value="1">1 year</option>
-                                <option value="5">5 year</option>
-                                <option value="10">10 years</option>
-                            </optgroup>
-                            <optgroup label="Organization" v-if="userMembershipAttributes.type === 'Organization'">
-                                <option value="1">Small Organization - 1 year</option>
-                                <option value="5">Small Organization - 5 year</option>
-                                <option value="10">Small Organization - 10 years</option>
-                                <option value="1">Large Organization - 1 year</option>
-                                <option value="5">Large Organization - 5 year</option>
-                                <option value="10">Large Organization - 10 years</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-            </fieldset>
 
             <div class="form-group row">
                 <label for="staticEmail" class="col-sm-2 col-form-label">&nbsp;</label>
@@ -403,6 +365,7 @@
                     >
                 </div>
             </div>
+
         </form>
     </div>
 

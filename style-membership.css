@@ -3,6 +3,10 @@ body {
     font-family: "Font Awesome", sans-serif;
 }
 
+#membership-type {
+    padding: 20px;
+}
+
 #membership-type .active {
     background-color: #E31C79;
     border-color: #E31C79;
