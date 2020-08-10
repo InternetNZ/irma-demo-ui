@@ -3,6 +3,15 @@ body {
     font-family: "Font Awesome", sans-serif;
 }
 
+a {
+    color: #E31C79;
+    text-decoration: none;
+}
+
+input[type="checkbox"] {
+    margin: 0 auto;
+}
+
 #membership-type {
     padding: 20px;
 }
@@ -12,13 +21,21 @@ body {
     border-color: #E31C79;
 }
 
+#policy-box {
+    padding: 30px 0;
+}
+
 /* Fixes from site style */
 .alert {
     margin: 0;
     top: 0;
 }
 
-a {
-    color: #E31C79;
-    text-decoration: none;
+.policy-label {
+    margin-left: 25px;
 }
+
+.ammount-input-group-addon {
+    background-color: white;
+}
+

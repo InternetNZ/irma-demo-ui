@@ -154,7 +154,8 @@
               email: null,
               name: null,
               type: '',
-              membershipDuration: null
+              membershipDuration: null,
+              readPolicy: false,
             }
           },
           methods: {
@@ -263,16 +264,16 @@
         <button id="verify-fakeinternalaffairs-name" class="btn btn-info" v-on:click="verifyFakeInternalAffairsName()">Verify Fake Internal Affairs Full Name</button>
     </p>
 
-    <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
-        <form action="">
+    <div ssv-if="userMembershipAttributes.email && userMembershipAttributes.name">
+        <form id="form-signup" action="">
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="firstName">First Name*</label>
-                    <input type="text" class="form-control" id="firstName" readonly v-bind:value="userMembershipAttributes.firstName">
+                    <input type="text" class="form-control" id="firstName" readonly required v-bind:value="userMembershipAttributes.firstName">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="lastName">Last Name*</label>
-                    <input type="text" class="form-control" id="lastName" readonly v-bind:value="userMembershipAttributes.lastName">
+                    <input type="text" class="form-control" id="lastName" readonly required v-bind:value="userMembershipAttributes.lastName">
                 </div>
             </div>
 
@@ -283,28 +284,30 @@
                 </div>
             </div>
 
-            <div class="d-block" id="membership-type">
-                <div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
-                        <input
-                                class="form-check-input" type="radio" name="gridRadios"
-                                id="gridRadios1"
-                                value="Individual"
-                                v-model="userMembershipAttributes.type"
-                        >
-                        Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
-                    </label>
-                    <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
-                        <input class="form-check-input" type="radio"
-                               name="gridRadios" id="gridRadios2" value="Organization"
-                               v-model="userMembershipAttributes.type"
-                        > Organization <i class="fas fa-building" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION"></i>
-                    </label>
+            <div class="d-flex justify-content-center">
+                <div class="form-row" id="membership-type">
+                    <div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
+                            <input
+                                    class="form-check-input" type="radio" name="gridRadios"
+                                    id="gridRadios1"
+                                    value="Individual"
+                                    v-model="userMembershipAttributes.type"
+                            >
+                            Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
+                        </label>
+                        <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
+                            <input class="form-check-input" type="radio"
+                                   name="gridRadios" id="gridRadios2" value="Organization"
+                                   v-model="userMembershipAttributes.type"
+                            > Organization <i class="fas fa-building" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION"></i>
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group col-md-12">
+            <div class="d-flex justify-content-center">
+                <div class="form-group col-6">
                     <p class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</p>
 
                     <select class="form-control"
@@ -330,12 +333,47 @@
                 </div>
             </div>
 
-            <div class="form-group row">
-                <label for="staticEmail" class="col-sm-2 col-form-label">&nbsp;</label>
-                <div class="col-sm-10">
-                    <input type="button"
-                           class="btn btn-success"
-                           v-bind:disabled="!userMembershipAttributes.membershipDuration"
+            <div v-if="userMembershipAttributes.membershipDuration">
+                <div class="d-flex justify-content-center">
+                    <p><strong>Membership Fee:</strong></p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <div class="input-group col-2">
+                        <span class="input-group-addon ammount-input-group-addon">$</span>
+                        <input class="form-control form-number webform-conditional-disabled"
+                               type="text"
+                               name="ammount"
+                               readonly
+                               v-bind:value="userMembershipAttributes.membershipDuration * 10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center" id="policy-box">
+                <div class="form-group form-check col-6">
+                    <p> Privacy *</p>
+                    <p>
+
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="policy" id="policy"
+                               value="true"
+                               required
+                               v-model="userMembershipAttributes.readPolicy"
+                        >
+                        <label for="policy" class="form-check-label policy-label">I have read and agree with the InternetNZ privacy policy</label>
+                    </p>
+                    <p>
+                        Please read the <a href="https://internetnz.nz/privacy-policy">InternetNZ privacy policy</a>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group form-row">
+                <div class="col-sm-10 align-center">
+                    <input type="submit"
+                           class="btn btn-success btn-lg"
+                           v-bind:disabled="!userMembershipAttributes.membershipDuration || !userMembershipAttributes.readPolicy"
                            v-on:click="saveMembership()"
                            value="Save"
                     >
