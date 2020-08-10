@@ -66,32 +66,6 @@
         });
       }
 
-      function doIssuanceSession() {
-        const attrs = document.getElementById('newattrs').value;
-        const fullCredential = document.getElementById('newcredential').value;
-        const attribute = fullCredential.split('.').pop();
-        const credential = fullCredential.replace(`.${attribute}`, '');
-        let attributes = {[attribute]: attrs};
-        if (fullCredential === 'inz-demo.internetnz.membership.id') {
-          attributes = {
-            id: document.getElementById('newattrs').value,
-            type: 'Personal',
-            purchaseDate: '01/01/2020',
-            renewalDate: '01/01/2020',
-            validUntil: '01/02/2021',
-          };
-        }
-        doSession({
-          '@context': 'https://irma.app/ld/request/issuance/v2',
-          'credentials': [{
-            'credential': credential,
-            'attributes': attributes
-          }]
-        }).then(function (result) {
-          showSuccess('Success');
-        });
-      }
-
       function issueCredential(credential, attributes) {
         console.log('issueCredential');
         const request = {
@@ -279,7 +253,7 @@
         <div id="result" class="status alert" hidden></div>
     </div>
 
-    <h5>Fake Realme E-mail</h5>
+    <h5>Fake RealMe E-mail</h5>
     <p>
         <button id="verify-fakerealme-email" class="btn btn-info" v-on:click="verifyFakeRealMeEmail()">Verify Fake RealMe E-mail</button>
     </p>
@@ -289,23 +263,23 @@
         <button id="verify-fakeinternalaffairs-name" class="btn btn-info" v-on:click="verifyFakeInternalAffairsName()">Verify Fake Internal Affairs Full Name</button>
     </p>
 
-    <div ssv-if="userMembershipAttributes.email && userMembershipAttributes.name">
+    <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
         <form action="">
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="firstName">First Name*</label>
-                    <input type="text" class="form-control" id="firstName" v-bind:value="userMembershipAttributes.firstName">
+                    <input type="text" class="form-control" id="firstName" readonly v-bind:value="userMembershipAttributes.firstName">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="lastName">Last Name*</label>
-                    <input type="text" class="form-control" id="lastName" v-bind:value="userMembershipAttributes.lastName">
+                    <input type="text" class="form-control" id="lastName" readonly v-bind:value="userMembershipAttributes.lastName">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-12">
                     <label for="staticEmail">Email</label>
-                    <input type="text" readonly class="form-control" id="staticEmail" v-model="userMembershipAttributes.email">
+                    <input type="email" readonly class="form-control" id="staticEmail" v-model="userMembershipAttributes.email">
                 </div>
             </div>
 
@@ -329,29 +303,31 @@
                 </div>
             </div>
 
-            <div>
-                <span class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</span>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <p class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</p>
 
-                <select class="custom-select"
-                        required
-                        v-if="userMembershipAttributes.type"
-                        v-model="userMembershipAttributes.membershipDuration"
-                >
-                    <option value="">Open this select menu</option>
-                    <optgroup label="Individual" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL">
-                        <option value="1">1 year</option>
-                        <option value="5">5 year</option>
-                        <option value="10">10 years</option>
-                    </optgroup>
-                    <optgroup label="Organization" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
-                        <option value="1">Small Organization - 1 year</option>
-                        <option value="5">Small Organization - 5 year</option>
-                        <option value="10">Small Organization - 10 years</option>
-                        <option value="1">Large Organization - 1 year</option>
-                        <option value="5">Large Organization - 5 year</option>
-                        <option value="10">Large Organization - 10 years</option>
-                    </optgroup>
-                </select>
+                    <select class="form-control"
+                            required
+                            v-if="userMembershipAttributes.type"
+                            v-model="userMembershipAttributes.membershipDuration"
+                    >
+                        <option value="">Open this select menu</option>
+                        <optgroup label="Individual" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL">
+                            <option value="1">1 year</option>
+                            <option value="5">5 year</option>
+                            <option value="10">10 years</option>
+                        </optgroup>
+                        <optgroup label="Organization" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+                            <option value="1">Small Organization - 1 year</option>
+                            <option value="5">Small Organization - 5 year</option>
+                            <option value="10">Small Organization - 10 years</option>
+                            <option value="1">Large Organization - 1 year</option>
+                            <option value="5">Large Organization - 5 year</option>
+                            <option value="10">Large Organization - 10 years</option>
+                        </optgroup>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group row">
