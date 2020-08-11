@@ -363,7 +363,8 @@
 
                         <input class="form-check-input"
                                type="checkbox"
-                               name="policy" id="policy"
+                               name="policy"
+                               id="policy"
                                value="true"
                                required
                                v-model="userMembershipAttributes.readPolicy"
@@ -377,11 +378,11 @@
             </div>
 
             <div class="text-center align-center">
-                <input type="submit"
+                <input type="button"
                        class="btn btn-lg btn-signup"
+                       value="Become a member"
                        v-bind:disabled="!userMembershipAttributes.membershipDuration || !userMembershipAttributes.readPolicy"
                        v-on:click="saveMembership()"
-                       value="Become a member"
                 >
             </div>
 
@@ -395,7 +396,7 @@
     <div class="footer-container">
         <footer class="footer container">
             <div class="region region-footer">
-                <section id="" class=" clearfix">
+                <section class=" clearfix">
 
 
                 </section>
