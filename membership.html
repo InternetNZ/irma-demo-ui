@@ -22,7 +22,6 @@
 
     <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
 
-
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
@@ -116,12 +115,12 @@
       function showError(err) {
         const e = document.getElementById('result');
         e.removeAttribute('hidden');
-        e.classList.remove('success');
+        e.classList.remove('alert-success');
         if (err === irma.SessionStatus.Cancelled) {
-          e.classList.add('warning');
+          e.classList.add('alert-warning');
           e.innerText = 'Session was aborted';
         } else {
-          e.classList.add('error');
+          e.classList.add('alert-danger');
           e.innerText = 'Error occurred: ' + String(err);
         }
         throw err;
@@ -145,7 +144,6 @@
           data: {
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
-            message: 'Hello Vue!',
             userMembershipAttributes: {
               email: null,
               name: null,
@@ -176,20 +174,35 @@
 
             saveMembership: function () {
               console.log('verifyFakeInternalAffairsName');
-              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.createMembership(app.userMembershipAttributes));
+              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.createMembership(app.userMembershipAttributes))
+                .then((_) => {
+                  app.clearUserMembership();
+                });
             },
 
             createMembership: function (userMembershipAttributes) {
+              const now = new Date();
+              const validUntil = now.setFullYear(now.getFullYear() + app.userMembershipAttributes.duration);
               return {
                 id: userMembershipAttributes.email,
                 type: userMembershipAttributes.type,
                 // TODO: Format dates
-                purchaseDate: new Date(),
-                renewalDate: new Date(),
+                purchaseDate: new Date().toISOString(),
+                renewalDate: new Date().toLocaleDateString(),
                 // TODO: Calculate valid until
-                validUntil: new Date()
+                validUntil: validUntil.toLocaleString('en_NZ')
               };
-            }
+            },
+
+            clearUserMembership: function () {
+              app.userMembershipAttributes = {
+                email: null,
+                name: null,
+                type: '',
+                membershipDuration: null,
+                readPolicy: false,
+              }
+            },
           }
         })
       };
@@ -221,9 +234,7 @@
 
         <div class="search-wrapper collapse in">
             <div class="region region-search-form">
-                <section id="" class=" clearfix">
-
-
+                <section class=" clearfix">
                 </section>
             </div>
         </div>
