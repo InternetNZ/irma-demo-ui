@@ -6,9 +6,9 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="irma.js" defer></script>
     <script type="text/javascript">
-      const IRMA_SERVER = 'https://irmago.internetnz.nz'
-      const AUTH_METHOD = 'publickey'
-      const REQUESTER_NAME = 'issuer'
+      const IRMA_SERVER = 'http://13.54.7.159:8088'
+      const AUTH_METHOD = 'token';
+      const REQUESTER_NAME = 'issuer';
       const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAx3afG0L1zuU/sNRym8uAhI90u3KsHuwsAuuunzipN5AIaUjt
 w7AltEf+AdGD0ybjak1g/dXz5BirOYmd7l2RifgoF42cxWnV0Ft6AL2D52LMbFwH
@@ -35,7 +35,8 @@ v3eeoiig4Xw7TNMV4fraLzFEqLLI0VWDRce0dJPf9/amhhn1KrMdsXarrGcHWgae
 H9YpsQKBgQC0nbIuT2vcI268JAVZ6vBoCiHMNVlXZMi5n4KxjQaoXX2IuAtvstXD
 7BpTWazmP3HmRTNsTUWfyFWQ477I3DtgCOY3BVP8vZ4RbwHA8fqJ3BvfasWhzjs+
 KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
------END RSA PRIVATE KEY-----`
+-----END RSA PRIVATE KEY-----`;
+      const PRIVATE_TOKEN = 'secret-fake-token';
 
       function doVerificationSession() {
         const attr = document.getElementById('attr').value;
@@ -123,6 +124,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         methodChanged();
         document.getElementById('requestor').value = REQUESTER_NAME;
         document.getElementById('key-pem').value = PRIVATE_KEY;
+        document.getElementById('key').value = PRIVATE_TOKEN;
       };
 
       // UI handling functions
@@ -206,7 +208,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
     <select id="newcredential">
         <option value="">-- Choose a credential --</option>
         <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
-        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
+        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake Internal Affairs Full Name (singleton)</option>
         <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
         <option value="inz-demo.internetnz.membership.id">Membership</option>
     </select><br>
@@ -222,7 +224,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
     <select id="attr">
         <option value="">-- Choose a credential --</option>
         <option value="inz-demo.fake-nzpost.address.fullAddress">Fake NZ Post Primary Address (singleton)</option>
-        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake NZ Post Full Name (singleton)</option>
+        <option value="inz-demo.fake-internalaffairs.name.fullName">Fake Internal Affairs Full Name (singleton)</option>
         <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
         <option value="inz-demo.internetnz.membership.id">Membership ID</option>
         <option value="inz-demo.internetnz.membership.type">Membership Type</option>
