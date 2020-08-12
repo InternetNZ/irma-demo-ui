@@ -202,7 +202,8 @@
                 membershipDuration: null,
                 readPolicy: false,
               };
-              showSuccess('Reset');
+              clearOutput();
+              //document.getElementById('result').setAttribute('hidden', 'true')
             },
           }
         })
@@ -262,15 +263,16 @@
         <div id="result" class="status alert" hidden></div>
     </div>
 
-    <h5>Fake RealMe E-mail</h5>
-    <p>
-        <button id="verify-fakerealme-email" class="btn btn-info" v-on:click="verifyFakeRealMeEmail()">Verify Fake RealMe E-mail</button>
-    </p>
+    <p>&nbsp;</p>
 
-    <h5 v-if="userMembershipAttributes.email">Fake Internal Afffairs Name</h5>
-    <p v-if="userMembershipAttributes.email">
-        <button id="verify-fakeinternalaffairs-name" class="btn btn-info" v-on:click="verifyFakeInternalAffairsName()">Verify Fake Internal Affairs Full Name</button>
-    </p>
+    <div class="text-center" v-if="!userMembershipAttributes.email">
+        <a class="btn btn-lg btn-warning" href="https://members.internetnz.nz/" target="_blank">SignUp filling the form</a>
+        <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="verifyFakeRealMeEmail()">SignUp with Fake RealMe E-mail</button>
+    </div>
+
+    <div class="text-center" v-if="userMembershipAttributes.email && !userMembershipAttributes.name">
+        <button id="verify-fakeinternalaffairs-name" class="btn btn-lg btn-success" v-on:click="verifyFakeInternalAffairsName()">Get your Fake Internal Affairs Full Name</button>
+    </div>
 
     <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
         <form id="form-signup" action="">
