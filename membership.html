@@ -182,11 +182,15 @@
             },
 
             createMembership: function (userMembershipAttributes) {
+              console.log('createMembership');
               const now = new Date();
               const validUntil = new Date();
               validUntil.setFullYear(validUntil.getFullYear() + parseInt(app.userMembershipAttributes.membershipDuration));
               return {
-                id: userMembershipAttributes.email,
+                // We can use email or generate an integer ID
+                // I am using time in miliseconds
+                //id: userMembershipAttributes.email,
+                id: '' + now.getTime(),
                 type: userMembershipAttributes.type,
                 purchaseDate: now.toLocaleDateString(LOCATE_NZ),
                 renewalDate: now.toLocaleDateString(LOCATE_NZ),
