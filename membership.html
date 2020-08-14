@@ -150,35 +150,25 @@
             MEMBERSHIP_ORGANIZATION: 'Organization',
             MEMBERSHIP_UNIT_PRICE: 21,
             membershipIssued: false,
+            resetedUsermembershipAttributes: {
+              email: null,
+              name: null,
+              type: '',
+              membershipDuration: null,
+              readPolicy: false,
+              generateExpired: false,
+            },
             userMembershipAttributes: {
               email: null,
               name: null,
               type: '',
               membershipDuration: null,
               readPolicy: false,
+              generateExpired: false,
             },
             membershipCredential: {},
           },
           methods: {
-            // verifyFakeRealMeEmail: function () {
-            //   console.log('verifyFakeRealMeEmail');
-            //   return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
-            //     .then((result) => {
-            //       app.userMembershipAttributes.email = result;
-            //     });
-            // },
-            //
-            // verifyFakeInternalAffairsName: function () {
-            //   console.log('verifyFakeInternalAffairsName');
-            //   return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
-            //     .then((result) => {
-            //       const names = result.split(' ');
-            //       app.userMembershipAttributes.name = result;
-            //       app.userMembershipAttributes.firstName = names.shift();
-            //       app.userMembershipAttributes.lastName = names.join(' ');
-            //     });
-            // },
-
             saveMembership: function () {
               console.log('verifyFakeInternalAffairsName');
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
@@ -205,13 +195,14 @@
             },
 
             reset: function () {
-              app.userMembershipAttributes = {
-                email: null,
-                name: null,
-                type: '',
-                membershipDuration: null,
-                readPolicy: false,
-              };
+              // app.userMembershipAttributes = {
+              //   email: null,
+              //   name: null,
+              //   type: '',
+              //   membershipDuration: null,
+              //   readPolicy: false,
+              // };
+              app.userMembershipAttributes = { ...app.resetedUsermembershipAttributes };
               app.membershipIssued = false;
               app.membershipCredential = {};
               clearOutput();
@@ -431,6 +422,19 @@
                 </div>
 
             </form>
+
+            <div class="form-group row form-check text-right p-2">
+                <p>
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="generateExpired"
+                           id="generateExpired"
+                           value="true"
+                           v-model="userMembershipAttributes.generateExpired"
+                    >
+                    <label for="generateExpired" class="form-check-label policy-label">Generate an expired membership</label>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -455,13 +459,10 @@
 
 
                 </section>
-                <section id="" class=" clearfix">
-
-
+                <section class=" clearfix">
                 </section>
-                <section id="" class=" clearfix">
 
-
+                <section class=" clearfix">
                 </section>
             </div>
             <div class="footer-column footer-column-1 first">
@@ -490,29 +491,28 @@
             </div>
             <div class="footer-column footer-column-4">
                 <div class="region region-footer-col-4">
-                    <section id="" class=" clearfix">
-
-
+                    <section class=" clearfix">
                     </section>
                 </div>
             </div>
             <div class="footer-column footer-column-5">
                 <div class="region region-footer-col-5">
                     <section class=" clearfix">
-
-
                     </section>
                 </div>
             </div>
             <div class="footer-column footer-column-6 last">
                 <div class="region region-footer-col-6">
                     <section class=" clearfix">
-
-
                     </section>
                 </div>
             </div>
             <div class="footerMenu-container">
+                <ul class="footerMenu menu nav text-capitalize">
+                    <li class="leaf"><a href="simple-issuer.html">Issue Address and Email</a></li>
+                    <li class="leaf"><a href="election.html" title="">Cake Election</a></li>
+                </ul>
+                <p>&nbsp;</p>
                 <ul class="footerMenu menu nav">
                     <li class="leaf menu-mlid-678 menu-path-node259 menu-alias-contentdisclaimer"><a href="https://internetnz.nz/report-a-vulnerability/" title="">Vulnerability Disclosure Policy</a></li>
                     <li class="leaf "><a href="https://internetnz.nz/get-in-touch/" title="">Contact Us</a></li>
