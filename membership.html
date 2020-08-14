@@ -85,6 +85,7 @@
       }
 
       function doSession(request) {
+        console.log('doSession');
         clearOutput();
         showSuccess('Demo running...');
 
@@ -92,6 +93,8 @@
         const authmethod = AUTH_METHOD_TOKEN;
         const key = PRIVATE_TOKEN;
         const requestorname = '';
+
+        console.log(request);
 
         return irma.startSession(server, request, authmethod, key, requestorname)
           .then(function (pkg) {
@@ -145,6 +148,7 @@
           data: {
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
+            MEMBERSHIP_UNIT_PRICE: 21,
             membershipIssued: false,
             userMembershipAttributes: {
               email: null,
@@ -156,24 +160,24 @@
             membershipCredential: {},
           },
           methods: {
-            verifyFakeRealMeEmail: function () {
-              console.log('verifyFakeRealMeEmail');
-              return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
-                .then((result) => {
-                  app.userMembershipAttributes.email = result;
-                });
-            },
-
-            verifyFakeInternalAffairsName: function () {
-              console.log('verifyFakeInternalAffairsName');
-              return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
-                .then((result) => {
-                  const names = result.split(' ');
-                  app.userMembershipAttributes.name = result;
-                  app.userMembershipAttributes.firstName = names.shift();
-                  app.userMembershipAttributes.lastName = names.join(' ');
-                });
-            },
+            // verifyFakeRealMeEmail: function () {
+            //   console.log('verifyFakeRealMeEmail');
+            //   return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
+            //     .then((result) => {
+            //       app.userMembershipAttributes.email = result;
+            //     });
+            // },
+            //
+            // verifyFakeInternalAffairsName: function () {
+            //   console.log('verifyFakeInternalAffairsName');
+            //   return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
+            //     .then((result) => {
+            //       const names = result.split(' ');
+            //       app.userMembershipAttributes.name = result;
+            //       app.userMembershipAttributes.firstName = names.shift();
+            //       app.userMembershipAttributes.lastName = names.join(' ');
+            //     });
+            // },
 
             saveMembership: function () {
               console.log('verifyFakeInternalAffairsName');
@@ -192,7 +196,6 @@
               return {
                 // We can use email or generate an integer ID
                 // I am using time in miliseconds
-                //id: userMembershipAttributes.email,
                 id: '' + now.getTime(),
                 type: userMembershipAttributes.type,
                 purchaseDate: now.toLocaleDateString(LOCATE_NZ),
@@ -213,6 +216,32 @@
               app.membershipCredential = {};
               clearOutput();
             },
+
+            discloseEmailAndName: function () {
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [
+                  [
+                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                  ]
+                ]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                const fullName = result.disclosed[1][0].rawvalue;
+                const names = fullName.split(' ');
+                app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+                app.userMembershipAttributes.name = fullName;
+                app.userMembershipAttributes.firstName = names.shift();
+                app.userMembershipAttributes.lastName = names.join(' ');
+              });
+            }
           }
         })
       };
@@ -276,11 +305,7 @@
     <div v-if="!membershipIssued">
         <div class="text-center" v-if="!userMembershipAttributes.email">
             <a class="btn btn-lg btn-warning" href="https://members.internetnz.nz/" target="_blank">SignUp filling the form</a>
-            <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="verifyFakeRealMeEmail()">Sign up with IRMA</button>
-        </div>
-
-        <div class="text-center" v-if="userMembershipAttributes.email && !userMembershipAttributes.name">
-            <button id="verify-fakeinternalaffairs-name" class="btn btn-lg btn-success" v-on:click="verifyFakeInternalAffairsName()">Get your Fake Internal Affairs Full Name</button>
+            <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="discloseEmailAndName()">Sign up with IRMA</button>
         </div>
 
         <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
@@ -370,7 +395,7 @@
                                    type="text"
                                    name="ammount"
                                    readonly
-                                   v-bind:value="userMembershipAttributes.membershipDuration * 10">
+                                   v-bind:value="userMembershipAttributes.membershipDuration * MEMBERSHIP_UNIT_PRICE">
                         </div>
                     </div>
                 </div>
