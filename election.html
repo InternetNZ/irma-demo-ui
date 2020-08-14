@@ -176,8 +176,10 @@
                                 if (voters.indexOf(app.userMembershipAttributes.id) > -1) {
                                     showError('Seems you already voted! You can only vote once for your favorite cake!');
                                 }
-
-                                if (Date.parse(app.userMembershipAttributes.validUntil) < Date.now()) {
+                                
+                                // Change date format to ISO
+                                var dateParts = app.userMembershipAttributes.validUntil.split("/");
+                                if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
                                     showError('Your membership has been expired. You need a valid membership to vote.');
                                 }
 
