@@ -85,6 +85,7 @@
       }
 
       function doSession(request) {
+        console.log('doSession');
         clearOutput();
         showSuccess('Demo running...');
 
@@ -92,6 +93,8 @@
         const authmethod = AUTH_METHOD_TOKEN;
         const key = PRIVATE_TOKEN;
         const requestorname = '';
+
+        console.log(request);
 
         return irma.startSession(server, request, authmethod, key, requestorname)
           .then(function (pkg) {
@@ -145,38 +148,29 @@
           data: {
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
+            MEMBERSHIP_UNIT_PRICE: 21,
             membershipIssued: false,
+            resetedUsermembershipAttributes: {
+              email: null,
+              name: null,
+              type: '',
+              membershipDuration: null,
+              readPolicy: false,
+              generateExpired: false,
+            },
             userMembershipAttributes: {
               email: null,
               name: null,
               type: '',
               membershipDuration: null,
               readPolicy: false,
+              generateExpired: false,
             },
             membershipCredential: {},
           },
           methods: {
-            verifyFakeRealMeEmail: function () {
-              console.log('verifyFakeRealMeEmail');
-              return discloseOrSign(ATTRIBUTE.FAKE_REALME_EMAIL)
-                .then((result) => {
-                  app.userMembershipAttributes.email = result;
-                });
-            },
-
-            verifyFakeInternalAffairsName: function () {
-              console.log('verifyFakeInternalAffairsName');
-              return discloseOrSign(ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME)
-                .then((result) => {
-                  const names = result.split(' ');
-                  app.userMembershipAttributes.name = result;
-                  app.userMembershipAttributes.firstName = names.shift();
-                  app.userMembershipAttributes.lastName = names.join(' ');
-                });
-            },
-
             saveMembership: function () {
-              console.log('verifyFakeInternalAffairsName');
+              console.log('saveMembership');
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
               return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential)
                 .then((_) => {
@@ -186,13 +180,18 @@
 
             createMembership: function (userMembershipAttributes) {
               console.log('createMembership');
+
               const now = new Date();
-              const validUntil = new Date();
+
+              if (app.userMembershipAttributes.generateExpired) {
+                now.setFullYear(now.getFullYear() - 2 - parseInt(app.userMembershipAttributes.membershipDuration));
+              }
+
+              const validUntil = new Date(now);
               validUntil.setFullYear(validUntil.getFullYear() + parseInt(app.userMembershipAttributes.membershipDuration));
               return {
                 // We can use email or generate an integer ID
                 // I am using time in miliseconds
-                //id: userMembershipAttributes.email,
                 id: '' + now.getTime(),
                 type: userMembershipAttributes.type,
                 purchaseDate: now.toLocaleDateString(LOCATE_NZ),
@@ -202,17 +201,37 @@
             },
 
             reset: function () {
-              app.userMembershipAttributes = {
-                email: null,
-                name: null,
-                type: '',
-                membershipDuration: null,
-                readPolicy: false,
-              };
+              app.userMembershipAttributes = { ...app.resetedUsermembershipAttributes };
               app.membershipIssued = false;
               app.membershipCredential = {};
               clearOutput();
             },
+
+            discloseEmailAndName: function () {
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [
+                  [
+                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                  ]
+                ]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                const fullName = result.disclosed[1][0].rawvalue;
+                const names = fullName.split(' ');
+                app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+                app.userMembershipAttributes.name = fullName;
+                app.userMembershipAttributes.firstName = names.shift();
+                app.userMembershipAttributes.lastName = names.join(' ');
+              });
+            }
           }
         })
       };
@@ -276,11 +295,7 @@
     <div v-if="!membershipIssued">
         <div class="text-center" v-if="!userMembershipAttributes.email">
             <a class="btn btn-lg btn-warning" href="https://members.internetnz.nz/" target="_blank">SignUp filling the form</a>
-            <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="verifyFakeRealMeEmail()">Sign up with IRMA</button>
-        </div>
-
-        <div class="text-center" v-if="userMembershipAttributes.email && !userMembershipAttributes.name">
-            <button id="verify-fakeinternalaffairs-name" class="btn btn-lg btn-success" v-on:click="verifyFakeInternalAffairsName()">Get your Fake Internal Affairs Full Name</button>
+            <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="discloseEmailAndName()">Sign up with IRMA</button>
         </div>
 
         <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
@@ -370,7 +385,7 @@
                                    type="text"
                                    name="ammount"
                                    readonly
-                                   v-bind:value="userMembershipAttributes.membershipDuration * 10">
+                                   v-bind:value="userMembershipAttributes.membershipDuration * MEMBERSHIP_UNIT_PRICE">
                         </div>
                     </div>
                 </div>
@@ -406,6 +421,19 @@
                 </div>
 
             </form>
+
+            <div class="form-group row form-check text-right p-2">
+                <p>
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="generateExpired"
+                           id="generateExpired"
+                           value="true"
+                           v-model="userMembershipAttributes.generateExpired"
+                    >
+                    <label for="generateExpired" class="form-check-label policy-label font-light">Generate an expired membership</label>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -415,6 +443,7 @@
         <ul>
             <li><strong>ID:</strong> {{ membershipCredential.id }}</li>
             <li><strong>Type:</strong> {{ membershipCredential.type }}</li>
+            <li><strong>Purchase date:</strong> {{ membershipCredential.purchaseDate }}</li>
             <li><strong>Valid Until:</strong> {{ membershipCredential.validUntil }}</li>
         </ul>
     </div>
@@ -430,13 +459,10 @@
 
 
                 </section>
-                <section id="" class=" clearfix">
-
-
+                <section class=" clearfix">
                 </section>
-                <section id="" class=" clearfix">
 
-
+                <section class=" clearfix">
                 </section>
             </div>
             <div class="footer-column footer-column-1 first">
@@ -465,29 +491,28 @@
             </div>
             <div class="footer-column footer-column-4">
                 <div class="region region-footer-col-4">
-                    <section id="" class=" clearfix">
-
-
+                    <section class=" clearfix">
                     </section>
                 </div>
             </div>
             <div class="footer-column footer-column-5">
                 <div class="region region-footer-col-5">
                     <section class=" clearfix">
-
-
                     </section>
                 </div>
             </div>
             <div class="footer-column footer-column-6 last">
                 <div class="region region-footer-col-6">
                     <section class=" clearfix">
-
-
                     </section>
                 </div>
             </div>
             <div class="footerMenu-container">
+                <ul class="footerMenu menu nav text-capitalize">
+                    <li class="leaf"><a href="simple-issuer.html">Issue Address and Email</a></li>
+                    <li class="leaf"><a href="election.html" title="">Cake Election</a></li>
+                </ul>
+                <p>&nbsp;</p>
                 <ul class="footerMenu menu nav">
                     <li class="leaf menu-mlid-678 menu-path-node259 menu-alias-contentdisclaimer"><a href="https://internetnz.nz/report-a-vulnerability/" title="">Vulnerability Disclosure Policy</a></li>
                     <li class="leaf "><a href="https://internetnz.nz/get-in-touch/" title="">Contact Us</a></li>
