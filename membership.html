@@ -170,7 +170,7 @@
           },
           methods: {
             saveMembership: function () {
-              console.log('verifyFakeInternalAffairsName');
+              console.log('saveMembership');
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
               return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential)
                 .then((_) => {
@@ -180,8 +180,14 @@
 
             createMembership: function (userMembershipAttributes) {
               console.log('createMembership');
+
               const now = new Date();
-              const validUntil = new Date();
+
+              if (app.userMembershipAttributes.generateExpired) {
+                now.setFullYear(now.getFullYear() - 2 - parseInt(app.userMembershipAttributes.membershipDuration));
+              }
+
+              const validUntil = new Date(now);
               validUntil.setFullYear(validUntil.getFullYear() + parseInt(app.userMembershipAttributes.membershipDuration));
               return {
                 // We can use email or generate an integer ID
@@ -195,13 +201,6 @@
             },
 
             reset: function () {
-              // app.userMembershipAttributes = {
-              //   email: null,
-              //   name: null,
-              //   type: '',
-              //   membershipDuration: null,
-              //   readPolicy: false,
-              // };
               app.userMembershipAttributes = { ...app.resetedUsermembershipAttributes };
               app.membershipIssued = false;
               app.membershipCredential = {};
@@ -432,7 +431,7 @@
                            value="true"
                            v-model="userMembershipAttributes.generateExpired"
                     >
-                    <label for="generateExpired" class="form-check-label policy-label">Generate an expired membership</label>
+                    <label for="generateExpired" class="form-check-label policy-label font-light">Generate an expired membership</label>
                 </p>
             </div>
         </div>
@@ -444,6 +443,7 @@
         <ul>
             <li><strong>ID:</strong> {{ membershipCredential.id }}</li>
             <li><strong>Type:</strong> {{ membershipCredential.type }}</li>
+            <li><strong>Purchase date:</strong> {{ membershipCredential.purchaseDate }}</li>
             <li><strong>Valid Until:</strong> {{ membershipCredential.validUntil }}</li>
         </ul>
     </div>
