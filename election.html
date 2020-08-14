@@ -21,31 +21,28 @@
         const PRIVATE_TOKEN = 'secret-fake-token';
 
         const MEMBERSHIP_ATTRIBUTES = [
-            'inz-demo.internetnz.membership.id',
-            'inz-demo.internetnz.membership.validUntil'
+            [
+                ['inz-demo.internetnz.id.number']
+            ],
+            [
+                ['inz-demo.internetnz.membership.validUntil']
+            ],
         ]
 
         function discloseOrSign(attributes, label = '', message = '') {
             const labelRequest = !label ? {} : { 'labels': { '0': { 'en': label, 'nl': label } } };
             const request = !message ? {
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                    [
-                        attributes
-                    ]
-                ],
+                'disclose': attributes,
                 ...labelRequest
             } : {
                     '@context': 'https://irma.app/ld/request/signature/v2',
                     'message': message,
-                    'disclose': [
-                        [
-                            attributes
-                        ]
-                    ],
+                    'disclose': attributes,
                     ...labelRequest
                 };
             return doSession(request).then(function (result) {
+                showSuccess('Success, Your IRMA ID is : <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
                 return getDiscloseResultRawValue(result);
             });
         }
@@ -113,7 +110,7 @@
             e.classList.remove('warning', 'error');
             e.classList.add('success');
         }
-        
+
         function hideElement(elementID, hidden) {
             var e = document.getElementById(elementID);
             if (hidden) {
@@ -126,9 +123,9 @@
 
         function hashCode(s) {
             var h = 0, l = s.length, i = 0;
-            if ( l > 0 )
+            if (l > 0)
                 while (i < l)
-                h = (h << 5) - h + s.charCodeAt(i++) | 0;
+                    h = (h << 5) - h + s.charCodeAt(i++) | 0;
             return h;
         }
 
@@ -137,7 +134,7 @@
             console.log(result);
             return {
                 id: hashCode(result.disclosed[0][0].rawvalue || ''),
-                validUntil: result.disclosed[0][1].rawvalue || '',
+                validUntil: result.disclosed[1][0].rawvalue || '',
             };
         };
 
@@ -151,17 +148,15 @@
                     },
                     vote: '',
                 },
-                created : function () {
-                    if (typeof(Storage) == "undefined") {
+                created: function () {
+                    if (typeof (Storage) == "undefined") {
                         showError("Local storage is not supported by your browser!")
                     }
-                        
-                    if (!localStorage.getItem("votes"))
-                    {
+
+                    if (!localStorage.getItem("votes")) {
                         localStorage.setItem("votes", JSON.stringify([]));
                     }
-                    if (!localStorage.getItem("voters"))
-                    {
+                    if (!localStorage.getItem("voters")) {
                         localStorage.setItem("voters", JSON.stringify([]));
                     }
                 },
@@ -174,10 +169,8 @@
                                 console.log(result)
                                 app.userMembershipAttributes = result;
 
-                                showSuccess('Success, Membership ID: <strong>' + app.userMembershipAttributes.id + '</strong>');
-
                                 var voters = JSON.parse(localStorage.getItem("voters"));
-                
+
                                 hideElement('vote-with-irma', true);
 
                                 if (voters.indexOf(app.userMembershipAttributes.id) > -1) {
@@ -187,7 +180,7 @@
                                 if (Date.parse(app.userMembershipAttributes.validUntil) < Date.now()) {
                                     showError('Your membership has been expired. You need a valid membership to vote.');
                                 }
-                                
+
                                 hideElement('vote-options', false);
                             });
                     },
@@ -199,7 +192,7 @@
                         }
 
                         var voters = JSON.parse(localStorage.getItem("voters"));
-                        
+
                         voters.push(app.userMembershipAttributes.id)
                         localStorage.setItem("voters", JSON.stringify(voters))
 
@@ -229,9 +222,7 @@
 <body class="bg-light">
     <div id="app" class="container">
         <div class="py-5 text-center">
-            <img class="logo"
-                src="cake-elections-logo_200x200.png"
-                alt="Home">
+            <img class="logo" src="cake-elections-logo_200x200.png" alt="Home">
             <h2>Cake Election Website</h2>
             <h2>Vote for your favorite Cake!</h2>
             <p class="lead">Below is a demo of how Digital Identity can be use for voting.
@@ -251,18 +242,18 @@
             <h3>Select your favorite cake!</h1>
                 <div class="d-block my-3 form-group">
                     <div class="custom-control custom-radio">
-                        <input id="cheese_cake" name="vote_option" type="radio" class="custom-control-input" checked=true
-                            required=true v-model="vote" value="Cheese Cake">
+                        <input id="cheese_cake" name="vote_option" type="radio" class="custom-control-input"
+                            checked=true required=true v-model="vote" value="Cheese Cake">
                         <label class="custom-control-label" for="cheese_cake">Cheese Cake</label>
                     </div>
                     <div class="custom-control custom-radio">
                         <input id="double_chocolate" name="vote_option" type="radio" class="custom-control-input"
-                        required=true v-model="vote" value="Double Chocolate">
+                            required=true v-model="vote" value="Double Chocolate">
                         <label class="custom-control-label" for="double_chocolate">Double Chocolate</label>
                     </div>
                     <div class="custom-control custom-radio">
                         <input id="banana_cake" name="vote_option" type="radio" class="custom-control-input"
-                        required=true v-model="vote" value="Banana Cake">
+                            required=true v-model="vote" value="Banana Cake">
                         <label class="custom-control-label" for="banana_cake">Banana Cake</label>
                     </div>
                 </div>
