@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en_NZ">
+<head>
+    <meta charset="utf-8"/>
+    <title>IRMA attribute verification example</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+    <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- production version, optimized for size and speed -->
+    <!--    <script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+
+    <script src="irma.js" defer></script>
+
+    <script type="text/javascript">
+      //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
+      const IRMA_SERVER = AWS_IRMA_SERVER;
+      const AUTH_METHOD_TOKEN = 'token';
+      const PRIVATE_TOKEN = 'secret-fake-token';
+      const LOCATE_NZ = 'en-NZ';
+
+      const ATTRIBUTE = {
+        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
+        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name.fullName',
+      };
+
+      const CREDENTIAL = {
+        INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership'
+      };
+
+      let userMembershipAttributes = {};
+
+      function discloseOrSign(attribute, label = '', message = '') {
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+          return getDiscloseResultRawValue(result);
+        });
+      }
+
+      function issueCredential(credential, attributes) {
+        console.log('issueCredential');
+        const request = {
+          '@context': 'https://irma.app/ld/request/issuance/v2',
+          'credentials': [{
+            'credential': credential,
+            'attributes': attributes
+          }]
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success');
+        });
+      }
+
+      function doSession(request) {
+        console.log('doSession');
+        clearOutput();
+        showSuccess('Demo running...');
+
+        const server = IRMA_SERVER;
+        const authmethod = AUTH_METHOD_TOKEN;
+        const key = PRIVATE_TOKEN;
+        const requestorname = '';
+
+        console.log(request);
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function (pkg) {
+            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+          })
+          .then(function (result) {
+            console.log('Done', result);
+            return result;
+          })
+          .catch(function (err) {
+            showError(err);
+          });
+      }
+
+      // UI handling functions
+      function clearOutput() {
+        const e = document.getElementById('result');
+        e.setAttribute('hidden', 'true');
+        e.classList.remove('succes', 'warning', 'error');
+      }
+
+      function showError(err) {
+        const e = document.getElementById('result');
+        e.removeAttribute('hidden');
+        e.classList.remove('alert-success');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('alert-warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('alert-danger');
+          e.innerText = 'Error occurred: ' + String(err);
+        }
+        throw err;
+      }
+
+      function showSuccess(text) {
+        const e = document.getElementById('result');
+        e.innerHTML = text;
+        e.removeAttribute('hidden');
+        e.classList.add('alert-success');
+      }
+
+      const getDiscloseResultRawValue = function (result) {
+        console.log(result);
+        return result.disclosed[0][0].rawvalue || '';
+      };
+
+      window.onload = function () {
+        let app = new Vue({
+          el: '#app',
+          data: {
+            MEMBERSHIP_INDIVIDUAL: 'Individual',
+            MEMBERSHIP_ORGANIZATION: 'Organization',
+            MEMBERSHIP_UNIT_PRICE: 21,
+            membershipIssued: false,
+            resetedUsermembershipAttributes: {
+              email: null,
+              name: null,
+              type: '',
+              membershipDuration: null,
+              readPolicy: false,
+              generateExpired: false,
+            },
+            userMembershipAttributes: {
+              email: null,
+              name: null,
+              type: '',
+              membershipDuration: null,
+              readPolicy: false,
+              generateExpired: false,
+            },
+            membershipCredential: {},
+          },
+          methods: {
+            saveMembership: function () {
+              console.log('saveMembership');
+              app.membershipCredential = app.createMembership(app.userMembershipAttributes);
+              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential)
+                .then((_) => {
+                  app.membershipIssued = true;
+                });
+            },
+
+            createMembership: function (userMembershipAttributes) {
+              console.log('createMembership');
+
+              const now = new Date();
+
+              if (app.userMembershipAttributes.generateExpired) {
+                now.setFullYear(now.getFullYear() - 2 - parseInt(app.userMembershipAttributes.membershipDuration));
+              }
+
+              const validUntil = new Date(now);
+              validUntil.setFullYear(validUntil.getFullYear() + parseInt(app.userMembershipAttributes.membershipDuration));
+              return {
+                // We can use email or generate an integer ID
+                // I am using time in miliseconds
+                id: '' + now.getTime(),
+                type: userMembershipAttributes.type,
+                purchaseDate: now.toLocaleDateString(LOCATE_NZ),
+                renewalDate: now.toLocaleDateString(LOCATE_NZ),
+                validUntil: validUntil.toLocaleDateString(LOCATE_NZ)
+              };
+            },
+
+            reset: function () {
+              app.userMembershipAttributes = {...app.resetedUsermembershipAttributes};
+              app.membershipIssued = false;
+              app.membershipCredential = {};
+              clearOutput();
+            },
+
+            discloseEmailAndName: function () {
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [
+                  [
+                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                  ]
+                ]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                const fullName = result.disclosed[1][0].rawvalue;
+                const names = fullName.split(' ');
+                app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+                app.userMembershipAttributes.name = fullName;
+                app.userMembershipAttributes.firstName = names.shift();
+                app.userMembershipAttributes.lastName = names.join(' ');
+              });
+            }
+          }
+        })
+      };
+    </script>
+</head>
+<body>
+<div id="app" class="container" v-cloak>
+
+    <header class="text-center">
+        <img src="nethui-2020.png" title="NetHui 2020" alt="NetHui 2020">
+    </header>
+
+    <h2 class="page-header">NetHui 2020</h2>
+    <hr>
+
+    <div class="row">
+        <div id="result" class="status alert" hidden></div>
+    </div>
+
+    <div class="js-showmore border rounded p-2">
+        <div class="js-showmore-content" style="height: auto;">
+            <p>NetHui is the annual congregation of New Zealand's Internet community. If you use the Internet or want to use it, that's you! Come and meet people who are interested in the digital world and attend conversation sessions to share your voice. </p>
+
+            <p>This year, NetHui is going virtual. On
+                <strong>13-14 October 2020</strong>, we'll have two half-days of provoking speakers and panels, paired with breakout streams to delve deeper into the plenary topics. Instead of a few keynotes, we're shifting focus to give space to more speakers doing shorter talks and panels (and keeping things lively for virtual attendees).&nbsp;&nbsp;
+            </p>
+
+            <p>Check <a href="https://2020.nethui.nz/" rel="nofollow noopener noreferrer" target="_blank">https://2020.nethui.nz/</a> for more information.</p>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="card">
+        <h5 class="card-header">Buy your ticket</h5>
+        <div class="card-body">
+
+        </div>
+    </div>
+
+    <p>By becoming an InternetNZ member you help us to close digital divides, support Kiwis to be secure online and keep the Internet open for us all.</p>
+
+    <p>For $21 per year you can be a member of InternetNZ and you can:</p>
+
+    <ul>
+        <li><strong>get invites</strong> to great Internet events</li>
+        <li><strong>stay in the loop</strong> and receive the latest Internet news, discounts and priority event registration</li>
+        <li><strong>contribute</strong> to our work and <strong>influence</strong> the direction of InternetNZ.</li>
+    </ul>
+
+
+    <p>&nbsp;</p>
+
+    <div v-if="!membershipIssued">
+        <div class="text-center" v-if="!userMembershipAttributes.email">
+            <a class="btn btn-lg btn-warning" href="https://members.internetnz.nz/" target="_blank">SignUp filling the form</a>
+            <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="discloseEmailAndName()">Sign up with IRMA</button>
+        </div>
+
+        <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
+            <form id="form-signup" action="">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="firstName">First Name*</label>
+                        <input type="text" class="form-control" id="firstName" readonly required v-bind:value="userMembershipAttributes.firstName">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="lastName">Last Name*</label>
+                        <input type="text" class="form-control" id="lastName" readonly required v-bind:value="userMembershipAttributes.lastName">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="staticEmail">Email</label>
+                        <input type="email" readonly class="form-control" id="staticEmail" v-model="userMembershipAttributes.email">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <div class="form-row" id="membership-type">
+                        <div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
+                                <input
+                                        class="form-check-input" type="radio" name="gridRadios"
+                                        id="gridRadios1"
+                                        value="Individual"
+                                        v-model="userMembershipAttributes.type"
+                                >
+                                Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
+                            </label>
+                            <label class="btn btn-lg btn-secondary" v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
+                                <input class="form-check-input" type="radio"
+                                       name="gridRadios" id="gridRadios2" value="Organization"
+                                       v-model="userMembershipAttributes.type"
+                                > Organization <i class="fas fa-building" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION"></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <div class="form-group col-6">
+                        <p class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small organisation - Less than 100 staff / Large organiation - 100 or more staff</p>
+
+                        <select class="form-control"
+                                required
+                                v-if="userMembershipAttributes.type"
+                                v-model="userMembershipAttributes.membershipDuration"
+                        >
+                            <option value="">Open this select menu</option>
+                            <optgroup label="Individual" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL">
+                                <option value="1">1 year</option>
+                                <option value="5">5 year</option>
+                                <option value="10">10 years</option>
+                            </optgroup>
+                            <optgroup label="Organization" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+                                <option value="1">Small Organization - 1 year</option>
+                                <option value="5">Small Organization - 5 year</option>
+                                <option value="10">Small Organization - 10 years</option>
+                                <option value="1">Large Organization - 1 year</option>
+                                <option value="5">Large Organization - 5 year</option>
+                                <option value="10">Large Organization - 10 years</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+                    <div class="form-group col-6">
+                        <label for="organizationName">Name of organization</label>
+                        <input type="text" class="form-control" id="organizationName" required v-model="userMembershipAttributes.organizationName">
+                    </div>
+                </div>
+
+                <div v-if="userMembershipAttributes.membershipDuration">
+                    <div class="d-flex justify-content-center">
+                        <p><strong>Membership Fee:</strong></p>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div class="input-group col-2">
+                            <span class="input-group-addon ammount-input-group-addon">$</span>
+                            <input class="form-control form-number webform-conditional-disabled"
+                                   type="text"
+                                   name="ammount"
+                                   readonly
+                                   v-bind:value="userMembershipAttributes.membershipDuration * MEMBERSHIP_UNIT_PRICE">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center" id="policy-box">
+                    <div class="form-group form-check col-6">
+                        <p> Privacy *</p>
+                        <p>
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="policy"
+                                   id="policy"
+                                   value="true"
+                                   required
+                                   v-model="userMembershipAttributes.readPolicy"
+                            >
+                            <label for="policy" class="form-check-label policy-label">I have read and agree with the InternetNZ privacy policy</label>
+                        </p>
+                        <p>
+                            Please read the <a href="https://internetnz.nz/privacy-policy">InternetNZ privacy policy</a>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center align-center">
+                    <input type="button"
+                           class="btn btn-lg btn-signup"
+                           value="Become a member"
+                           v-bind:disabled="!userMembershipAttributes.membershipDuration || !userMembershipAttributes.readPolicy"
+                           v-on:click="saveMembership()"
+                    >
+                </div>
+
+            </form>
+
+            <div class="form-group row form-check text-right p-2">
+                <p>
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="generateExpired"
+                           id="generateExpired"
+                           value="true"
+                           v-model="userMembershipAttributes.generateExpired"
+                    >
+                    <label for="generateExpired" class="form-check-label policy-label font-light">Generate an expired membership</label>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="membershipIssued">
+        <h2>Welcome, {{ userMembershipAttributes.name }}!</h2>
+
+        <ul>
+            <li><strong>ID:</strong> {{ membershipCredential.id }}</li>
+            <li><strong>Type:</strong> {{ membershipCredential.type }}</li>
+            <li><strong>Purchase date:</strong> {{ membershipCredential.purchaseDate }}</li>
+            <li><strong>Valid Until:</strong> {{ membershipCredential.validUntil }}</li>
+        </ul>
+    </div>
+
+    <div class="text-right">
+        <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
+    </div>
+
+    <div class="p-5 text-center">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="membership.html">Membership</a></li>
+            <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="simple-issuer.html">Simple Issuer</a></li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>
