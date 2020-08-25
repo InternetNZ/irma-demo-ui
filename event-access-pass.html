@@ -32,7 +32,7 @@
 
       const CREDENTIAL = {
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
-        INTERNETNZ_NETHUI_TICKET: 'inz-demo.internetnz.nethuiTicket',
+        INTERNETNZ_NETHUI_ACCESS_PASS: 'inz-demo.internetnz.nethuiAccessPass',
       };
 
       const ATTRIBUTE = {
@@ -48,7 +48,7 @@
         INTERNETNZ_MEMBERSHIP_VALID_UNTIL: 'inz-demo.internetnz.membership.validUntil',
       };
 
-      let eventTicket = {};
+      let eventAccessPass = {};
 
       function discloseOrSign(attribute, label = '', message = '') {
         const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
@@ -154,77 +154,77 @@
           data: {
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
-            TICKET_TYPES: {
+            ACCESS_PASS_TYPES: {
               ALL: 'all',
               ONLINE: 'online',
               PERSON: 'person',
             },
-            TICKET_DESCRIPTION: {
+            ACCESS_PASS_DESCRIPTION: {
               all: 'Online and In-persion',
               online: 'Online only',
               person: 'In-person only',
             },
-            TICKET_UNIT_PRICE: {
+            ACCESS_PASS_UNIT_PRICE: {
               all: 60.00,
               online: 10.00,
               person: 30.00
             },
-            eventTicketIssued: false,
-            resetedeventTicket: {
+            eventAccessPassIssued: false,
+            resetedeventAccessPass: {
               email: null,
               name: null,
-              ticketType: '',
+              accessPassType: '',
               membershipId: null,
               readPolicy: false,
               secondFirstName: '',
               secondLastName: '',
             },
-            eventTicket: {
+            eventAccessPass: {
               email: null,
               name: null,
-              ticketType: '',
+              accessPassType: '',
               membershipId: null,
               readPolicy: false,
               secondFirstName: '',
               secondLastName: '',
             },
-            eventTicketCredential: {},
+            eventAccessPassCredential: {},
           },
           methods: {
-            saveEventTicket: function () {
-              console.log('saveEventTicket');
-              app.eventTicketCredential = app.createNethuiTicket(app.eventTicket);
-              return issueCredential(CREDENTIAL.INTERNETNZ_NETHUI_TICKET, app.eventTicketCredential)
+            saveEventAccessPass: function () {
+              console.log('saveEventAccessPass');
+              app.eventAccessPassCredential = app.createNethuiAccessPass(app.eventAccessPass);
+              return issueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential)
                 .then((_) => {
-                  app.eventTicketIssued = true;
+                  app.eventAccessPassIssued = true;
                 });
             },
 
-            createNethuiTicket: function (eventTicket) {
-              console.log('createNethuiTicket');
+            createNethuiAccessPass: function (eventAccessPass) {
+              console.log('createNethuiAccessPass');
 
               const now = new Date();
 
-              let fullName = `${eventTicket.firstName} ${eventTicket.lastName}`;
+              let fullName = `${eventAccessPass.firstName} ${eventAccessPass.lastName}`;
 
-              if (eventTicket.type === app.TICKET_TYPES.BUY1_GIFT1) {
-                fullName += ` & ${eventTicket.secondFirstName} ${eventTicket.secondLastName}`;
+              if (eventAccessPass.type === app.ACCESS_PASS_TYPES.BUY1_GIFT1) {
+                fullName += ` & ${eventAccessPass.secondFirstName} ${eventAccessPass.secondLastName}`;
               }
 
               return {
                 id: '' + now.getTime(),
                 event: 'NetHui 2020',
                 eventDate: '13 and 14/10/2020',
-                ticketType: app.TICKET_DESCRIPTION[eventTicket.ticketType],
+                accessPassType: app.ACCESS_PASS_DESCRIPTION[eventAccessPass.accessPassType],
                 purchaseDate: now.toLocaleDateString(LOCATE_NZ),
                 price: `NZD ${app.calculateTotal()}.00`
               };
             },
 
             reset: function () {
-              app.eventTicket = {...app.resetedeventTicket};
-              app.eventTicketIssued = false;
-              app.eventTicketCredential = {};
+              app.eventAccessPass = {...app.resetedeventAccessPass};
+              app.eventAccessPassIssued = false;
+              app.eventAccessPassCredential = {};
               clearOutput();
             },
 
@@ -247,10 +247,10 @@
 
                 const fullName = result.disclosed[1][0].rawvalue;
                 const names = fullName.split(' ');
-                app.eventTicket.email = result.disclosed[0][0].rawvalue;
-                app.eventTicket.name = fullName;
-                app.eventTicket.firstName = names.shift();
-                app.eventTicket.lastName = names.join(' ');
+                app.eventAccessPass.email = result.disclosed[0][0].rawvalue;
+                app.eventAccessPass.name = fullName;
+                app.eventAccessPass.firstName = names.shift();
+                app.eventAccessPass.lastName = names.join(' ');
               });
             },
 
@@ -276,18 +276,18 @@
 
                 const fullName = result.disclosed[2][0].rawvalue;
                 const names = fullName.split(' ');
-                app.eventTicket.email = result.disclosed[1][0].rawvalue;
-                app.eventTicket.name = fullName;
-                app.eventTicket.firstName = names.shift();
-                app.eventTicket.lastName = names.join(' ');
-                app.eventTicket.membershipId = result.disclosed[0][0].rawvalue;
-                app.eventTicket.membershipType = result.disclosed[0][1].rawvalue;
+                app.eventAccessPass.email = result.disclosed[1][0].rawvalue;
+                app.eventAccessPass.name = fullName;
+                app.eventAccessPass.firstName = names.shift();
+                app.eventAccessPass.lastName = names.join(' ');
+                app.eventAccessPass.membershipId = result.disclosed[0][0].rawvalue;
+                app.eventAccessPass.membershipType = result.disclosed[0][1].rawvalue;
               });
             },
 
             calculateTotal: function () {
-              let value = app.TICKET_UNIT_PRICE[app.eventTicket.ticketType] || 60.00;
-              if (app.eventTicket.membershipId) {
+              let value = app.ACCESS_PASS_UNIT_PRICE[app.eventAccessPass.accessPassType] || 60.00;
+              if (app.eventAccessPass.membershipId) {
                 value = value * 0.5;
               }
               return value;
@@ -325,13 +325,13 @@
 
     <br>
 
-    <div class="card" v-if="!eventTicketIssued">
-        <h5 class="card-header">Buy your ticket</h5>
+    <div class="card" v-if="!eventAccessPassIssued">
+        <h5 class="card-header">Buy your accessPass</h5>
         <div class="card-body">
 
-            <h4>Ticket Type</h4>
+            <h4>AccessPass Type</h4>
             <div class="form-group row col-6">
-                <select class="form-control" v-model="eventTicket.ticketType">
+                <select class="form-control" v-model="eventAccessPass.accessPassType">
                     <option value=""></option>
                     <option value="all">Online and In-person</option>
                     <option value="online">Onine only</option>
@@ -339,7 +339,7 @@
                 </select>
             </div>
 
-            <div v-if="eventTicket.ticketType">
+            <div v-if="eventAccessPass.accessPassType">
                 <div class="text-right">
                     NZD {{ calculateTotal() }}
                     <div>
@@ -356,7 +356,7 @@
 
     <p>&nbsp;</p>
 
-    <div v-if="!eventTicketIssued && eventTicket.ticketType" class="card">
+    <div v-if="!eventAccessPassIssued && eventAccessPass.accessPassType" class="card">
         <h5 class="card-header">Fill the form</h5>
 
         <div class="card-body">
@@ -364,38 +364,38 @@
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="firstName">First Name*</label>
-                        <input type="text" class="form-control" id="firstName" required v-bind:value="eventTicket.firstName">
+                        <input type="text" class="form-control" id="firstName" required v-bind:value="eventAccessPass.firstName">
                     </div>
                     <div class="form-group col-md-6">
                         <label for="lastName">Last Name*</label>
-                        <input type="text" class="form-control" id="lastName" required v-bind:value="eventTicket.lastName">
+                        <input type="text" class="form-control" id="lastName" required v-bind:value="eventAccessPass.lastName">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="staticEmail">Email*</label>
-                        <input type="email" class="form-control" id="staticEmail" required v-model="eventTicket.email">
+                        <input type="email" class="form-control" id="staticEmail" required v-model="eventAccessPass.email">
                     </div>
                     <div class="form-group col-md-6">
                         <label for="organisationName">Organisation Name</label>
-                        <input type="text" class="form-control" id="organisationName" v-model="eventTicket.organisationName">
+                        <input type="text" class="form-control" id="organisationName" v-model="eventAccessPass.organisationName">
                     </div>
                 </div>
 
-                <div class="row" v-if="eventTicket.membershipId">
+                <div class="row" v-if="eventAccessPass.membershipId">
                     <ul>
-                        <li><strong>ID:</strong> {{ eventTicket.membershipId }}</li>
-                        <li><strong>Type:</strong> {{ eventTicket.membershipType }}</li>
+                        <li><strong>ID:</strong> {{ eventAccessPass.membershipId }}</li>
+                        <li><strong>Type:</strong> {{ eventAccessPass.membershipType }}</li>
                     </ul>
                 </div>
 
                 <div class="text-center align-center">
                     <input type="button"
                            class="btn btn-lg btn-success"
-                           value="Get your ticket!"
-                           v-bind:disabled="!eventTicket.email || !eventTicket.lastName"
-                           v-on:click="saveEventTicket()"
+                           value="Get your accessPass!"
+                           v-bind:disabled="!eventAccessPass.email || !eventAccessPass.lastName"
+                           v-on:click="saveEventAccessPass()"
                     >
                 </div>
 
@@ -404,14 +404,14 @@
         </div>
     </div>
 
-    <div v-if="eventTicketIssued">
-        <h2>Purched, {{ eventTicket.name }}!</h2>
+    <div v-if="eventAccessPassIssued">
+        <h2>Purched, {{ eventAccessPass.name }}!</h2>
 
         <ul>
-            <li><strong>ID:</strong> {{ eventTicketCredential.id }}</li>
-            <li><strong>Type:</strong> {{ eventTicketCredential.ticketType }}</li>
-            <li><strong>Purchase date:</strong> {{ eventTicketCredential.purchaseDate }}</li>
-            <li><strong>Price:</strong> {{ eventTicketCredential.price }}</li>
+            <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
+            <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
+            <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
+            <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
         </ul>
     </div>
 
