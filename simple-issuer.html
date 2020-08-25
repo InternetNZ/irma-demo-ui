@@ -153,15 +153,6 @@
           methods: {
             issueCredential: issueCredential,
 
-            saveMembership: function () {
-              console.log('verifyFakeInternalAffairsName');
-              app.membershipCredential = app.createMembership(app.userMembershipAttributes);
-              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential)
-                .then((_) => {
-                  app.membershipIssued = true;
-                });
-            },
-
             reset: function () {
               app.userMembershipAttributes = {
                 email: null,
@@ -253,6 +244,8 @@
         <ul class="list-inline">
             <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
 

@@ -23,7 +23,10 @@
     <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
 
     <!-- development version, includes helpful console warnings -->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
+
+    <!-- production version, optimized for size and speed -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
     <script src="irma.js" defer></script>
     <script type="text/javascript">
@@ -508,9 +511,11 @@
                 </div>
             </div>
             <div class="footerMenu-container">
-                <ul class="footerMenu menu nav text-capitalize">
-                    <li class="leaf"><a href="simple-issuer.html">Issue Address and Email</a></li>
-                    <li class="leaf"><a href="election.html" title="">Cake Election</a></li>
+                <ul class="list-inline text-center">
+                    <li class="list-inline-item"><a href="simple-issuer.html">Issue Address and Email</a></li>
+                    <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+                    <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+                    <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
                 </ul>
                 <p>&nbsp;</p>
                 <ul class="footerMenu menu nav">

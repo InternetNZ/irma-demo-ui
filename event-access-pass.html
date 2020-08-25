@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en_NZ">
+<head>
+    <meta charset="utf-8"/>
+    <title>IRMA attribute verification example</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+    <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="irma.js" defer></script>
+
+    <script type="text/javascript">
+      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      //const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
+      const IRMA_SERVER = AWS_IRMA_SERVER;
+      const AUTH_METHOD_TOKEN = 'token';
+      const PRIVATE_TOKEN = 'secret-fake-token';
+      const LOCATE_NZ = 'en-NZ';
+
+      const CREDENTIAL = {
+        INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
+        INTERNETNZ_NETHUI_ACCESS_PASS: 'inz-demo.internetnz.nethuiAccessPass',
+      };
+
+      const ATTRIBUTE = {
+        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
+        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name.fullName',
+        INTERNETNZ_ID_NUMBER: 'inz-demo.internetnz.id.number',
+        INTERNETNZ_MEMBERSHIP: {
+          ID: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.id',
+          TYPE: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.type',
+          VALID_UNTIL: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.validUntil',
+        },
+        INTERNETNZ_MEMBERSHIP_ID: 'inz-demo.internetnz.membership.id',
+        INTERNETNZ_MEMBERSHIP_VALID_UNTIL: 'inz-demo.internetnz.membership.validUntil',
+      };
+
+      let eventAccessPass = {};
+
+      function discloseOrSign(attribute, label = '', message = '') {
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+          return getDiscloseResultRawValue(result);
+        });
+      }
+
+      function issueCredential(credential, attributes) {
+        console.log('issueCredential');
+        const request = {
+          '@context': 'https://irma.app/ld/request/issuance/v2',
+          'credentials': [{
+            'credential': credential,
+            'attributes': attributes
+          }]
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success');
+        });
+      }
+
+      function doSession(request) {
+        console.log('doSession');
+        clearOutput();
+        showSuccess('Demo running...');
+
+        const server = IRMA_SERVER;
+        const authmethod = AUTH_METHOD_TOKEN;
+        const key = PRIVATE_TOKEN;
+        const requestorname = '';
+
+        console.log(request);
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function (pkg) {
+            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+          })
+          .then(function (result) {
+            console.log('Done', result);
+            return result;
+          })
+          .catch(function (err) {
+            showError(err);
+          });
+      }
+
+      // UI handling functions
+      function clearOutput() {
+        const e = document.getElementById('result');
+        e.setAttribute('hidden', 'true');
+        e.classList.remove('succes', 'warning', 'error');
+      }
+
+      function showError(err) {
+        const e = document.getElementById('result');
+        e.removeAttribute('hidden');
+        e.classList.remove('alert-success');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('alert-warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('alert-danger');
+          e.innerText = 'Error occurred: ' + String(err);
+        }
+        throw err;
+      }
+
+      function showSuccess(text) {
+        const e = document.getElementById('result');
+        e.innerHTML = text;
+        e.removeAttribute('hidden');
+        e.classList.add('alert-success');
+      }
+
+      const getDiscloseResultRawValue = function (result) {
+        console.log(result);
+        return result.disclosed[0][0].rawvalue || '';
+      };
+
+      window.onload = function () {
+        let app = new Vue({
+          el: '#app',
+          data: {
+            MEMBERSHIP_INDIVIDUAL: 'Individual',
+            MEMBERSHIP_ORGANIZATION: 'Organization',
+            ACCESS_PASS_TYPES: {
+              ALL: 'all',
+              ONLINE: 'online',
+              PERSON: 'person',
+            },
+            ACCESS_PASS_DESCRIPTION: {
+              all: 'Online and In-persion',
+              online: 'Online only',
+              person: 'In-person only',
+            },
+            ACCESS_PASS_UNIT_PRICE: {
+              all: 60.00,
+              online: 10.00,
+              person: 30.00
+            },
+            eventAccessPassIssued: false,
+            resetedeventAccessPass: {
+              email: null,
+              name: null,
+              accessPassType: '',
+              membershipId: null,
+              readPolicy: false,
+              secondFirstName: '',
+              secondLastName: '',
+            },
+            eventAccessPass: {
+              email: null,
+              name: null,
+              accessPassType: '',
+              membershipId: null,
+              readPolicy: false,
+              secondFirstName: '',
+              secondLastName: '',
+            },
+            eventAccessPassCredential: {},
+          },
+          methods: {
+            saveEventAccessPass: function () {
+              console.log('saveEventAccessPass');
+              app.eventAccessPassCredential = app.createNethuiAccessPass(app.eventAccessPass);
+              return issueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential)
+                .then((_) => {
+                  app.eventAccessPassIssued = true;
+                });
+            },
+
+            createNethuiAccessPass: function (eventAccessPass) {
+              console.log('createNethuiAccessPass');
+
+              const now = new Date();
+
+              let fullName = `${eventAccessPass.firstName} ${eventAccessPass.lastName}`;
+
+              if (eventAccessPass.type === app.ACCESS_PASS_TYPES.BUY1_GIFT1) {
+                fullName += ` & ${eventAccessPass.secondFirstName} ${eventAccessPass.secondLastName}`;
+              }
+
+              return {
+                id: '' + now.getTime(),
+                event: 'NetHui 2020',
+                eventDate: '13 and 14/10/2020',
+                accessPassType: app.ACCESS_PASS_DESCRIPTION[eventAccessPass.accessPassType],
+                purchaseDate: now.toLocaleDateString(LOCATE_NZ),
+                price: `NZD ${app.calculateTotal()}.00`
+              };
+            },
+
+            reset: function () {
+              app.eventAccessPass = {...app.resetedeventAccessPass};
+              app.eventAccessPassIssued = false;
+              app.eventAccessPassCredential = {};
+              clearOutput();
+            },
+
+            discloseEmailAndName: function () {
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [
+                  [
+                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                  ]
+                ]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                const fullName = result.disclosed[1][0].rawvalue;
+                const names = fullName.split(' ');
+                app.eventAccessPass.email = result.disclosed[0][0].rawvalue;
+                app.eventAccessPass.name = fullName;
+                app.eventAccessPass.firstName = names.shift();
+                app.eventAccessPass.lastName = names.join(' ');
+              });
+            },
+
+            discloseMembership: function () {
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [
+                  [
+                    Object.values(ATTRIBUTE.INTERNETNZ_MEMBERSHIP)
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_REALME_EMAIL]
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME]
+                  ]
+                ]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                const fullName = result.disclosed[2][0].rawvalue;
+                const names = fullName.split(' ');
+                app.eventAccessPass.email = result.disclosed[1][0].rawvalue;
+                app.eventAccessPass.name = fullName;
+                app.eventAccessPass.firstName = names.shift();
+                app.eventAccessPass.lastName = names.join(' ');
+                app.eventAccessPass.membershipId = result.disclosed[0][0].rawvalue;
+                app.eventAccessPass.membershipType = result.disclosed[0][1].rawvalue;
+              });
+            },
+
+            calculateTotal: function () {
+              let value = app.ACCESS_PASS_UNIT_PRICE[app.eventAccessPass.accessPassType] || 60.00;
+              if (app.eventAccessPass.membershipId) {
+                value = value * 0.5;
+              }
+              return value;
+            }
+          }
+        })
+      };
+    </script>
+</head>
+<body>
+<div id="app" class="container" v-cloak>
+
+    <header class="text-center">
+        <img src="nethui-2020.png" title="NetHui 2020" alt="NetHui 2020">
+    </header>
+
+    <h2 class="page-header">NetHui 2020</h2>
+    <hr>
+
+    <div class="row">
+        <div id="result" class="status alert" hidden></div>
+    </div>
+
+    <div class="js-showmore border rounded p-2">
+        <div class="js-showmore-content" style="height: auto;">
+            <p>NetHui is the annual congregation of New Zealand's Internet community. If you use the Internet or want to use it, that's you! Come and meet people who are interested in the digital world and attend conversation sessions to share your voice. </p>
+
+            <p>This year, NetHui is going virtual. On
+                <strong>13-14 October 2020</strong>, we'll have two half-days of provoking speakers and panels, paired with breakout streams to delve deeper into the plenary topics. Instead of a few keynotes, we're shifting focus to give space to more speakers doing shorter talks and panels (and keeping things lively for virtual attendees).&nbsp;&nbsp;
+            </p>
+
+            <p>Check <a href="https://2020.nethui.nz/" rel="nofollow noopener noreferrer" target="_blank">https://2020.nethui.nz/</a> for more information.</p>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="card" v-if="!eventAccessPassIssued">
+        <h5 class="card-header">Buy your Access Pass</h5>
+        <div class="card-body">
+
+            <h4>AccessPass Type</h4>
+            <div class="form-group row col-6">
+                <select class="form-control" v-model="eventAccessPass.accessPassType">
+                    <option value=""></option>
+                    <option value="all">Online and In-person</option>
+                    <option value="online">Onine only</option>
+                    <option value="person">In-person only</option>
+                </select>
+            </div>
+
+            <div v-if="eventAccessPass.accessPassType">
+                <div class="text-right">
+                    NZD {{ calculateTotal() }}
+                    <div>
+                        <br>
+                        <button class="btn btn-success" v-on:click="discloseMembership()">
+                            Use your membership to get a discount: NZD {{ calculateTotal() * 0.5 }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <p>&nbsp;</p>
+
+    <div v-if="!eventAccessPassIssued && eventAccessPass.accessPassType" class="card">
+        <h5 class="card-header">Fill the form</h5>
+
+        <div class="card-body">
+            <form id="form-signup" name="form" action="">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="firstName">First Name*</label>
+                        <input type="text" class="form-control" id="firstName" required v-bind:value="eventAccessPass.firstName">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="lastName">Last Name*</label>
+                        <input type="text" class="form-control" id="lastName" required v-bind:value="eventAccessPass.lastName">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="staticEmail">Email*</label>
+                        <input type="email" class="form-control" id="staticEmail" required v-model="eventAccessPass.email">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="organisationName">Organisation Name</label>
+                        <input type="text" class="form-control" id="organisationName" v-model="eventAccessPass.organisationName">
+                    </div>
+                </div>
+
+                <div class="row" v-if="eventAccessPass.membershipId">
+                    <ul>
+                        <li><strong>ID:</strong> {{ eventAccessPass.membershipId }}</li>
+                        <li><strong>Type:</strong> {{ eventAccessPass.membershipType }}</li>
+                    </ul>
+                </div>
+
+                <div class="text-center align-center">
+                    <input type="button"
+                           class="btn btn-lg btn-success"
+                           value="Get your accessPass!"
+                           v-bind:disabled="!eventAccessPass.email || !eventAccessPass.lastName"
+                           v-on:click="saveEventAccessPass()"
+                    >
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div v-if="eventAccessPassIssued">
+        <h2>Purched, {{ eventAccessPass.name }}!</h2>
+
+        <ul>
+            <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
+            <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
+            <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
+            <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
+        </ul>
+    </div>
+
+    <div class="text-right">
+        <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
+    </div>
+
+    <div class="p-5 text-center">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="membership.html">Membership</a></li>
+            <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="simple-issuer.html">Simple Issuer</a></li>
+            <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>

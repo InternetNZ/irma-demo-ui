@@ -66,20 +66,40 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         });
       }
 
-      function doIssuanceSession() {
-        const attrs = document.getElementById('newattrs').value;
-        const fullCredential = document.getElementById('newcredential').value;
-        const attribute = fullCredential.split('.').pop();
-        const credential = fullCredential.replace(`.${attribute}`, '');
-        let attributes = {[attribute]: attrs};
+      function buildSpecialCredentials(fullCredential) {
         if (fullCredential === 'inz-demo.internetnz.membership.id') {
-          attributes = {
+          return {
             id: document.getElementById('newattrs').value,
             type: 'Personal',
             purchaseDate: '01/01/2020',
             renewalDate: '01/01/2020',
             validUntil: '01/02/2021',
           };
+        } else if (fullCredential === 'inz-demo.internetnz.nethuiTicket.id') {
+          return {
+            id: document.getElementById('newattrs').value,
+            event: 'Personal',
+            eventDate: '01/02/2020',
+            ticketType: 'Ticket Type',
+            fullName: 'Personal',
+            email: 'Personal',
+            organisationName: 'Personal',
+            membershipNumber: 'Personal',
+            purchaseDate: '01/01/2020',
+          };
+        }
+
+        return {};
+      }
+
+      function doIssuanceSession() {
+        const attrs = document.getElementById('newattrs').value;
+        const fullCredential = document.getElementById('newcredential').value;
+        const attribute = fullCredential.split('.').pop();
+        const credential = fullCredential.replace(`.${attribute}`, '');
+        let attributes = {[attribute]: attrs};
+        if (['inz-demo.internetnz.membership.id', 'inz-demo.internetnz.nethuiTicket.id'].includes(fullCredential)) {
+          attributes = buildSpecialCredentials(fullCredential);
         }
         doSession({
           '@context': 'https://irma.app/ld/request/issuance/v2',
@@ -211,6 +231,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         <option value="inz-demo.fake-internalaffairs.name.fullName">Fake Internal Affairs Full Name (singleton)</option>
         <option value="inz-demo.fake-realme.email.email">Fake RealMe E-mail</option>
         <option value="inz-demo.internetnz.membership.id">Membership</option>
+        <option value="inz-demo.internetnz.nethuiTicket.id">Nethui Ticket</option>
     </select><br>
     <label for="newattrs" class="label">value:</label>
     <input type="text" id="newattrs" value="" placeholder="1234"><br>
@@ -231,6 +252,7 @@ KaF7k7n+mTKfeYkPbnj16w/+3q7s0L1IBZ2W6XsvpgYh+nkJGSEYHg==
         <option value="inz-demo.internetnz.membership.purchaseDate">Membership Purchase Date</option>
         <option value="inz-demo.internetnz.membership.renewalDate">Membership Renewal Date</option>
         <option value="inz-demo.internetnz.membership.validUntil">Membership Valid Until</option>
+        <option value="inz-demo.internetnz.nethuiTicket.id">Nethui Ticket ID</option>
     </select><br>
     <label for="label" class="label">Label:</label>
     <input id="label" type="text"><br/>
