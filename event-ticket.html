@@ -155,12 +155,19 @@
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
             TICKET_TYPES: {
-              BUY1_GIFT1: 'buy1-gift1'
+              ALL: 'all',
+              ONLINE: 'online',
+              PERSON: 'person',
+            },
+            TICKET_DESCRIPTION: {
+              all: 'Online and In-persion',
+              online: 'Online only',
+              person: 'In-person only',
             },
             TICKET_UNIT_PRICE: {
-              standard: 30.00,
-              'un-student': 10.00,
-              'buy1-gift1': 60.00
+              all: 60.00,
+              online: 10.00,
+              person: 30.00
             },
             eventTicketIssued: false,
             resetedeventTicket: {
@@ -208,11 +215,7 @@
                 id: '' + now.getTime(),
                 event: 'NetHui 2020',
                 eventDate: '13 and 14/10/2020',
-                ticketType: eventTicket.ticketType,
-                fullName: fullName,
-                email: eventTicket.email,
-                organisationName: eventTicket.organisationName || '',
-                membershipNumber: eventTicket.membershipId || '',
+                ticketType: app.TICKET_DESCRIPTION[eventTicket.ticketType],
                 purchaseDate: now.toLocaleDateString(LOCATE_NZ),
                 price: `NZD ${app.calculateTotal()}.00`
               };
@@ -330,9 +333,9 @@
             <div class="form-group row col-6">
                 <select class="form-control" v-model="eventTicket.ticketType">
                     <option value=""></option>
-                    <option value="standard">Standard</option>
-                    <option value="un-student">Unwaged & Student</option>
-                    <option value="buy1-gift1">Buy 1, gift 1</option>
+                    <option value="all">Online and In-person</option>
+                    <option value="online">Onine only</option>
+                    <option value="person">In-person only</option>
                 </select>
             </div>
 
@@ -366,17 +369,6 @@
                     <div class="form-group col-md-6">
                         <label for="lastName">Last Name*</label>
                         <input type="text" class="form-control" id="lastName" required v-bind:value="eventTicket.lastName">
-                    </div>
-                </div>
-
-                <div class="form-row" v-if="eventTicket === TICKET_TYPES.BUY1_GIFT1">
-                    <div class="form-group col-md-6">
-                        <label for="secondFirstName">Gifted First Name*</label>
-                        <input type="text" class="form-control" id="secondFirstName" required v-bind:value="eventTicket.secondFirstName">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="secondLastName">Gifted Last Name*</label>
-                        <input type="text" class="form-control" id="secondLastName" required v-bind:value="eventTicket.secondLastName">
                     </div>
                 </div>
 
