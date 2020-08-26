@@ -136,7 +136,7 @@
       function showError(err) {
         const e = document.getElementById('result');
         e.removeAttribute('hidden');
-        e.classList.remove('alert-success');
+        e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
         if (err === irma.SessionStatus.Cancelled) {
           e.classList.add('alert-warning');
           e.innerText = 'Session was aborted';
@@ -362,7 +362,7 @@
     <h2 class="page-header">NetHui 2020</h2>
     <hr>
 
-    <div class="js-showmore border rounded p-2">
+    <div class="js-showmore border rounded p-2" v-if="!startSignin">
         <div class="js-showmore-content" style="height: auto;">
             <p>NetHui is the annual congregation of New Zealand's Internet community. If you use the Internet or want to use it, that's you! Come and meet people who are interested in the digital world and attend conversation sessions to share your voice. </p>
 
@@ -373,14 +373,12 @@
             <p>Check <a href="https://2020.nethui.nz/" rel="nofollow noopener noreferrer" target="_blank">https://2020.nethui.nz/</a> for more information.</p>
         </div>
 
-        <div class="text-center" v-if="!startSignin">
+        <div class="text-center">
             <button class="btn btn-primary" v-on:click="startSignin = true">Sign In using IRMA</button>
         </div>
     </div>
 
     <div id="result" class="status alert" role="alert" hidden></div>
-
-    <br>
 
     <div v-if="!startSignin">
 
@@ -465,18 +463,6 @@
 
     </div>
 
-    <div v-if="eventAccessPassIssued || signedIn" class="card">
-        <h5 class="card-header">Your Access Pass!</h5>
-        <div class="card-body">
-            <ul>
-                <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
-                <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
-                <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
-                <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
-            </ul>
-        </div>
-    </div>
-
     <div class="text-center" v-if="startSignin">
         <div v-if="!signedIn">
             <button class="btn btn-success btn-lg active" role="button" aria-pressed="true" v-on:click="signIn('online')">
@@ -494,9 +480,21 @@
                     frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
-        <div class="m-3" v-if="signedIn && signInType === ACCESS_PASS_TYPE.PERSON.id">
+        <div class="m-1" v-if="signedIn && signInType === ACCESS_PASS_TYPE.PERSON.id">
             <h6>You're in!</h6>
             <img src="event-access-pass-go.jpg" title="Go!" alt="Go!">
+        </div>
+    </div>
+
+    <div v-if="eventAccessPassIssued || signedIn" class="card">
+        <h5 class="card-header">Your Access Pass!</h5>
+        <div class="card-body">
+            <ul>
+                <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
+                <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
+                <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
+                <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
+            </ul>
         </div>
     </div>
 
