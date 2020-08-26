@@ -151,6 +151,7 @@
         const e = document.getElementById('result');
         e.innerHTML = text;
         e.removeAttribute('hidden');
+        e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
         e.classList.add('alert-success');
       }
 
