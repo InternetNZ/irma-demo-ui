@@ -2,8 +2,10 @@
 <html lang="en_NZ">
 
 <head>
-    <meta charset="utf-8" />
     <title>Vote with IRMA</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -268,14 +270,22 @@
             <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
         </div>
 
-        <footer class="my-5 pt-5 text-muted text-center text-small">
+        <div class="p-5 text-center">
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="simple-issuer.html">Issue Address and Email</a></li>
+                <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
+                <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+                <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+                <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
+            </ul>
+
             <p class="mb-1">© 2020 Cake Elections</p>
             <ul class="list-inline">
                 <li class="list-inline-item"><a href="#">Privacy</a></li>
                 <li class="list-inline-item"><a href="#">Terms</a></li>
                 <li class="list-inline-item"><a href="#">Support</a></li>
             </ul>
-        </footer>
+        </div>
     </div>
 </body>
 
