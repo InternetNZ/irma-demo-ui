@@ -30,12 +30,14 @@
       const ATTRIBUTE = {
         FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
         FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name.fullName',
+        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.fake-nzpost.address.fullAddress',
       };
 
       const CREDENTIAL = {
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
         FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email',
         FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name',
+        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.fake-nzpost.address',
       };
 
       let userMembershipAttributes = {};
@@ -150,6 +152,7 @@
             membershipIssued: false,
             email: '',
             fullName: '',
+            fullAddress: '',
             membershipCredential: {},
           },
           methods: {
@@ -229,14 +232,30 @@
 
         <div class="border-left border-warning rounded p-1 m-3">
             <div class="form-group row">
-                <label for="email" class="col-2 col-form-label text-right">Full name</label>
+                <label for="fullName" class="col-2 col-form-label text-right">Full name</label>
                 <div class="col-8">
-                    <input type="text" id="name" class="form-control" v-model="fullName" placeholder="John Doe">
+                    <input type="text" id="fullName" class="form-control" placeholder="John Doe" v-model="fullName">
                 </div>
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!fullName"
                            v-on:click="issueCredential(CREDENTIAL.FAKE_INTERNALAFFAIRS_NAME, { 'fullName': fullName })">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label for="fullAddress" class="col-2 col-form-label text-right">Address</label>
+                <div class="col-8">
+                    <input type="text" id="fullAddress" class="form-control"
+                           placeholder="Level 11, 80 Boulcott Street (South entrance), Wellington 6011"
+                           v-model="fullAddress">
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!fullAddress"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_NZPOST_FULL_ADDRESS, { 'fullAddress': fullAddress })">
                 </div>
             </div>
         </div>
