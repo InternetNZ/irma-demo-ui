@@ -25,7 +25,7 @@
     <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
 
     <!-- development version, includes helpful console warnings -->
-<!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
+    <!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
 
     <!-- production version, optimized for size and speed -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
@@ -75,14 +75,15 @@
         });
       }
 
-      function issueCredential(credential, attributes) {
+      function issueCredential(credential, attributes, disclosePayload = null) {
         console.log('issueCredential');
         const request = {
           '@context': 'https://irma.app/ld/request/issuance/v2',
           'credentials': [{
             'credential': credential,
             'attributes': attributes
-          }]
+          }],
+          'disclose': disclosePayload
         };
         return doSession(request).then(function (result) {
           showSuccess('Success');
@@ -177,7 +178,15 @@
             saveMembership: function () {
               console.log('saveMembership');
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
-              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential)
+              const disclosePayload = [
+                [
+                  [ATTRIBUTE.FAKE_REALME_EMAIL],
+                ],
+                [
+                  [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                ]
+              ];
+              return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential, disclosePayload)
                 .then((_) => {
                   app.membershipIssued = true;
                 });
@@ -206,7 +215,7 @@
             },
 
             reset: function () {
-              app.userMembershipAttributes = { ...app.resetedUsermembershipAttributes };
+              app.userMembershipAttributes = {...app.resetedUsermembershipAttributes};
               app.membershipIssued = false;
               app.membershipCredential = {};
               clearOutput();
