@@ -288,6 +288,14 @@
               return doSession(request).then(function (result) {
                 showSuccess('Success');
 
+                // Change date format to ISO
+                const dateParts = result.disclosed[0][2].rawvalue.split("/");
+                console.log(dateParts);
+                if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
+                  showError('Your membership has been expired. You need a valid membership to get a discount.');
+                  return;
+                }
+
                 const fullName = result.disclosed[2][0].rawvalue;
                 const names = fullName.split(' ');
                 app.eventAccessPass.email = result.disclosed[1][0].rawvalue;
@@ -399,10 +407,12 @@
 
                 <div v-if="eventAccessPass.accessPassType">
                     <div class="text-right">
-                        NZD {{ calculateTotal() }}
-                        <div>
+                        <mark v-if="eventAccessPass.membershipId">[Members price]</mark> NZD {{ calculateTotal() }}
+                        <div v-if="!eventAccessPass.membershipId">
                             <br>
-                            <button class="btn btn-success" v-on:click="discloseMembership()">
+                            <button class="btn btn-success"
+                                    v-on:click="discloseMembership()"
+                            >
                                 Use your membership to get a discount: NZD {{ calculateTotal() * 0.5 }}
                             </button>
                         </div>
