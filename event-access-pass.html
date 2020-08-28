@@ -222,10 +222,6 @@
 
               let fullName = `${eventAccessPass.firstName} ${eventAccessPass.lastName}`;
 
-              if (eventAccessPass.type === app.ACCESS_PASS_TYPES.BUY1_GIFT1) {
-                fullName += ` & ${eventAccessPass.secondFirstName} ${eventAccessPass.secondLastName}`;
-              }
-
               return {
                 id: '' + now.getTime(),
                 event: 'NetHui 2020',
@@ -290,7 +286,6 @@
 
                 // Change date format to ISO
                 const dateParts = result.disclosed[0][2].rawvalue.split("/");
-                console.log(dateParts);
                 if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
                   showError('Your membership has been expired. You need a valid membership to get a discount.');
                   return;
