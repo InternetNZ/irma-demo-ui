@@ -21,23 +21,23 @@
 
     <script src="irma.js" defer></script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
       const IRMA_SERVER = AWS_IRMA_SERVER;
       const AUTH_METHOD_TOKEN = 'token';
       const PRIVATE_TOKEN = 'secret-fake-token';
-      const LOCATE_NZ = 'en-NZ';
 
       const ATTRIBUTE = {
-        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name.fullName',
-        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.fake-nzpost.address.fullAddress',
+        FAKE_REALME_EMAIL: 'inz-demo.emailer.email.email',
+        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.name.fullName',
+        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
       };
 
       const CREDENTIAL = {
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
-        FAKE_REALME_EMAIL: 'inz-demo.fake-realme.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.fake-internalaffairs.name',
-        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.fake-nzpost.address',
+        FAKE_REALME_EMAIL: 'inz-demo.emailer.email',
+        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.name',
+        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
 
       let userMembershipAttributes = {};
