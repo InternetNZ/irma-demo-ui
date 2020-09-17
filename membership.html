@@ -39,7 +39,7 @@
       const LOCATE_NZ = 'en-NZ';
 
       const ATTRIBUTE = {
-        FAKE_REALME_EMAIL: 'inz-demo.emailer.email.email',
+        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
         FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName.fullName',
       };
 
@@ -180,7 +180,7 @@
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
               const disclosePayload = [
                 [
-                  [ATTRIBUTE.FAKE_REALME_EMAIL],
+                  [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                 ],
                 [
                   [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
@@ -226,7 +226,7 @@
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   [
-                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                   ],
                   [
                     [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
