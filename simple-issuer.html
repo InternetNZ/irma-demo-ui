@@ -28,14 +28,14 @@
       const PRIVATE_TOKEN = 'secret-fake-token';
 
       const ATTRIBUTE = {
-        FAKE_REALME_EMAIL: 'inz-demo.emailer.email.email',
+        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
         FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName.fullName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
       };
 
       const CREDENTIAL = {
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
-        FAKE_REALME_EMAIL: 'inz-demo.emailer.email',
+        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
         FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
@@ -176,7 +176,7 @@
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   [
-                    [ATTRIBUTE.FAKE_REALME_EMAIL],
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                   ],
                   [
                     [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
