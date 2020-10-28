@@ -21,22 +21,22 @@
 
     <script src="irma.js" defer></script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-      //const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
+      //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
       const IRMA_SERVER = AWS_IRMA_SERVER;
       const AUTH_METHOD_TOKEN = 'token';
       const PRIVATE_TOKEN = 'secret-fake-token';
 
       const ATTRIBUTE = {
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName.fullName',
+        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
       };
 
       const CREDENTIAL = {
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName',
+        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
 
@@ -154,6 +154,8 @@
             fullName: '',
             fullAddress: '',
             membershipCredential: {},
+            over18: null,
+            over65: null,
           },
           methods: {
             issueCredential: issueCredential,
@@ -179,7 +181,7 @@
                     [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                   ],
                   [
-                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
                   ]
                 ]
               };
@@ -239,7 +241,7 @@
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!fullName"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_INTERNALAFFAIRS_NAME, { 'fullName': fullName })">
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_NAME, { 'fullName': fullName })">
                 </div>
             </div>
         </div>
@@ -256,6 +258,36 @@
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!fullAddress"
                            v-on:click="issueCredential(CREDENTIAL.FAKE_NZPOST_FULL_ADDRESS, { 'fullAddress': fullAddress })">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">Over18</label>
+                <div class="col-8">
+                    <label for="over18Yes">
+                        <input type="radio" name="over18" id="over18Yes" value="Yes" v-model="over18"> Yes
+                    </label>
+                    <label for="over18No">
+                        <input type="radio" name="over18" id="over18No" value="No" v-model="over18"> No
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">Over65</label>
+                <div class="col-8">
+                    <label for="over65Yes">
+                        <input type="radio" name="over65" id="over65Yes" value="Yes" v-model="over65"> Yes
+                    </label>
+                    <label for="over65No">
+                        <input type="radio" name="over65" id="over65No" value="No" v-model="over65"> No
+                    </label>
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!over18"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_NAME, { 'over18': over18, 'over65': over65 })">
                 </div>
             </div>
         </div>
