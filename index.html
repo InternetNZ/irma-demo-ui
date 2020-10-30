@@ -37,6 +37,7 @@
         INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
         FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName',
+        FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
 
@@ -287,13 +288,13 @@
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!over18"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_NAME, { 'over18': over18, 'over65': over65 })">
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS, { 'over18': over18, 'over65': over65 })">
                 </div>
             </div>
         </div>
     </form>
 
-    <div class="fixed-bottom p-5 text-center">
+    <div class="fixed-bottom p-5 text-center clear-both">
         <ul class="list-inline">
             <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
