@@ -40,7 +40,7 @@
 
       const ATTRIBUTE = {
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName.fullName',
+        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
       };
 
       const CREDENTIAL = {
@@ -183,7 +183,7 @@
                   [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                 ],
                 [
-                  [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                  [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
                 ]
               ];
               return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential, disclosePayload)
@@ -229,7 +229,7 @@
                     [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                   ],
                   [
-                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
                   ]
                 ]
               };
