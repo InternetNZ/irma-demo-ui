@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en_NZ">
+<html lang="en-NZ">
 <head>
     <title>IRMA attribute verification example - Address and Email</title>
 
@@ -38,6 +38,7 @@
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
         FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName',
         FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
+        FAKE_PERSONAL_DATA_BIRTHDATE: 'inz-demo.personal-data.birthdate',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
 
@@ -157,6 +158,7 @@
             membershipCredential: {},
             over18: null,
             over65: null,
+            birthdate: null,
           },
           methods: {
             issueCredential: issueCredential,
@@ -292,9 +294,25 @@
                 </div>
             </div>
         </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label for="birthdate" class="col-2 col-form-label text-right">Birthdate</label>
+                <div class="col-8">
+                    <input type="date" id="birthdate" class="form-control"
+                           placeholder="20/12/2020"
+                           v-model="birthdate">
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!birthdate"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_BIRTHDATE, { 'birthdate': birthdate })">
+                </div>
+            </div>
+        </div>
     </form>
 
-    <div class="fixed-bottom p-5 text-center clear-both">
+    <div class="fixed-bottom p-5 text-center clear">
         <ul class="list-inline">
             <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
