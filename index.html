@@ -21,8 +21,8 @@
 
     <script src="irma.js" defer></script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-      //const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
+      //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+      const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
       const IRMA_SERVER = AWS_IRMA_SERVER;
       const AUTH_METHOD_TOKEN = 'token';
       const PRIVATE_TOKEN = 'secret-fake-token';
@@ -40,6 +40,7 @@
         FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
         FAKE_PERSONAL_DATA_BIRTHDATE: 'inz-demo.personal-data.birthdate',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
+        FAKE_AGE_LIMITS: 'irma-demo.nijmegen.ageLimits',
       };
 
       let userMembershipAttributes = {};
@@ -159,6 +160,7 @@
             over18: null,
             over65: null,
             birthdate: null,
+            agelimit: null,
           },
           methods: {
             issueCredential: issueCredential,
@@ -307,6 +309,25 @@
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!birthdate"
                            v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_BIRTHDATE, { 'birthdate': birthdate })">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">IRMA_DEMO Over18</label>
+                <div class="col-8">
+                    <label for="agelimit">
+                        <input type="radio" name="over65" id="agelimitYes" value="Yes" v-model="agelimit"> Yes
+                    </label>
+                    <label for="agelimit">
+                        <input type="radio" name="over65" id="agelimit" value="No" v-model="agelimit"> No
+                    </label>
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!agelimit"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_AGE_LIMITS, { 'over18': agelimit, 'over12': 'No', 'over16': 'No', 'over21': 'No', 'over65': 'No' })">
                 </div>
             </div>
         </div>
