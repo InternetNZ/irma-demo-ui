@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en_NZ">
+<html lang="en-NZ">
 <head>
-    <title>IRMA attribute verification example - Address and Email</title>
+    <title>IRMA example - Simple issuer</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,24 +20,15 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <script src="irma.js" defer></script>
+
+    <script src="global.js"></script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-      //const AWS_IRMA_SERVER = 'http://192.168.0.10:8088';
-      const IRMA_SERVER = AWS_IRMA_SERVER;
-      const AUTH_METHOD_TOKEN = 'token';
-      const PRIVATE_TOKEN = 'secret-fake-token';
+      // globals loaded from globals file
 
       const ATTRIBUTE = {
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName.fullName',
+        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
-      };
-
-      const CREDENTIAL = {
-        INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
-        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
-        FAKE_INTERNALAFFAIRS_NAME: 'inz-demo.internal-affairs.personName',
-        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
       };
 
       let userMembershipAttributes = {};
@@ -154,6 +145,10 @@
             fullName: '',
             fullAddress: '',
             membershipCredential: {},
+            over18: null,
+            over65: null,
+            birthdate: null,
+            agelimit: null,
           },
           methods: {
             issueCredential: issueCredential,
@@ -179,7 +174,7 @@
                     [ATTRIBUTE.FAKE_EMAILER_EMAIL],
                   ],
                   [
-                    [ATTRIBUTE.FAKE_INTERNALAFFAIRS_NAME],
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
                   ]
                 ]
               };
@@ -239,7 +234,7 @@
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!fullName"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_INTERNALAFFAIRS_NAME, { 'fullName': fullName })">
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_NAME, { 'fullName': fullName })">
                 </div>
             </div>
         </div>
@@ -259,13 +254,82 @@
                 </div>
             </div>
         </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">Over18</label>
+                <div class="col-8">
+                    <label for="over18Yes">
+                        <input type="radio" name="over18" id="over18Yes" value="Yes" v-model="over18"> Yes
+                    </label>
+                    <label for="over18No">
+                        <input type="radio" name="over18" id="over18No" value="No" v-model="over18"> No
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">Over65</label>
+                <div class="col-8">
+                    <label for="over65Yes">
+                        <input type="radio" name="over65" id="over65Yes" value="Yes" v-model="over65"> Yes
+                    </label>
+                    <label for="over65No">
+                        <input type="radio" name="over65" id="over65No" value="No" v-model="over65"> No
+                    </label>
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!over18"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS, { 'over18': over18, 'over65': over65 })">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label for="birthdate" class="col-2 col-form-label text-right">Birthdate</label>
+                <div class="col-8">
+                    <input type="date" id="birthdate" class="form-control"
+                           placeholder="20/12/2020"
+                           v-model="birthdate">
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!birthdate"
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_BIRTHDATE, { 'birthdate': birthdate })">
+                </div>
+            </div>
+        </div>
+
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">IRMA_DEMO Over18</label>
+                <div class="col-8">
+                    <label for="agelimit">
+                        <input type="radio" name="over65" id="agelimitYes" value="Yes" v-model="agelimit"> Yes
+                    </label>
+                    <label for="agelimit">
+                        <input type="radio" name="over65" id="agelimit" value="No" v-model="agelimit"> No
+                    </label>
+                    <div class="text-right">
+                        <code>irma-demo.nijmegen.ageLimits.over18</code>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Issue"
+                           v-bind:disabled="!agelimit"
+                           v-on:click="issueCredential(CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS, { 'over18': agelimit, 'over12': 'No', 'over16': 'No', 'over21': 'No', 'over65': 'No' })">
+                </div>
+            </div>
+        </div>
     </form>
 
-    <div class="fixed-bottom p-5 text-center">
+    <div class="p-5 text-center clear">
         <ul class="list-inline">
             <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="/simple-verifier.html">Simple verifier</a></li>
             <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
