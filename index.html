@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-    <title>IRMA attribute verification example - Address and Email</title>
+    <title>IRMA example - Simple issuer</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,27 +20,15 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <script src="irma.js" defer></script>
+
+    <script src="global.js"></script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-      const LOCAL_IRMA_SERVER = 'https://7153e0436ed5.ngrok.io';
-      const IRMA_SERVER = LOCAL_IRMA_SERVER;
-      const AUTH_METHOD_TOKEN = 'token';
-      const PRIVATE_TOKEN = 'secret-fake-token';
+      // globals loaded from globals file
 
       const ATTRIBUTE = {
         FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
         FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
         FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
-      };
-
-      const CREDENTIAL = {
-        INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
-        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
-        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName',
-        FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
-        FAKE_PERSONAL_DATA_BIRTHDATE: 'inz-demo.personal-data.birthdate',
-        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
-        FAKE_AGE_LIMITS: 'irma-demo.nijmegen.ageLimits',
       };
 
       let userMembershipAttributes = {};
@@ -330,7 +318,7 @@
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!agelimit"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_AGE_LIMITS, { 'over18': agelimit, 'over12': 'No', 'over16': 'No', 'over21': 'No', 'over65': 'No' })">
+                           v-on:click="issueCredential(CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS, { 'over18': agelimit, 'over12': 'No', 'over16': 'No', 'over21': 'No', 'over65': 'No' })">
                 </div>
             </div>
         </div>
@@ -341,6 +329,7 @@
             <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="/simple-verifier.html">Simple verifier</a></li>
             <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
