@@ -25,14 +25,6 @@
     <script type="text/javascript">
       // globals loaded from globals file
 
-      const ATTRIBUTE = {
-        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
-        FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
-        FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over18`,
-        IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
-      };
-
       let userMembershipAttributes = {};
 
       function discloseOrSign(attribute, label = '', message = '') {
