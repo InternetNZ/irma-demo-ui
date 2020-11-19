@@ -1,7 +1,7 @@
 
 // ignoring IIFE to test purposes - this should be really globals
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-const AWS_IRMA_SERVER = 'https://17fahcum3b.execute-api.ap-southeast-2.amazonaws.com/dev';
+const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
 const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
