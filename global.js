@@ -11,17 +11,17 @@ const PRIVATE_TOKEN = 'secret-fake-token';
 const CREDENTIAL = {
   INTERNETNZ_MEMBERSHIP: 'irma-demo.internetnz.membership',
   FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
-  FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.personal-data.personName',
-  FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
-  FAKE_PERSONAL_DATA_BIRTHDATE: 'inz-demo.personal-data.birthdate',
-  FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
+  FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.inz-personal-data.personName',
+  FAKE_PERSONAL_DATA_AGE_LIMITS: 'irma-demo.inz-personal-data.ageLimits',
+  FAKE_PERSONAL_DATA_BIRTHDATE: 'irma-demo.inz-personal-data.birthdate',
+  FAKE_NZPOST_FULL_ADDRESS: 'irma-demo.inz-postal-service.address',
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS: 'irma-demo.nijmegen.ageLimits',
 };
 
 const ATTRIBUTE = {
   FAKE_EMAILER_EMAIL: `${CREDENTIAL.FAKE_EMAILER_EMAIL}.email`,
   FAKE_PERSONAL_DATA_PERSON_NAME_FULL_NAME: `${CREDENTIAL.FAKE_PERSONAL_DATA_PERSON_NAME}.fullName`,
-  FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
+  FAKE_NZPOST_FULL_ADDRESS: `${CREDENTIAL.FAKE_NZPOST_FULL_ADDRESS}.fullAddress`,
   FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over18`,
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
 };
