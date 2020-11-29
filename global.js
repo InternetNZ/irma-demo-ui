@@ -1,5 +1,8 @@
 
 // ignoring IIFE to test purposes - this should be really globals
+
+const LOCATE_NZ = 'en-NZ';
+
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
 const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
@@ -9,7 +12,7 @@ const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
 
 const CREDENTIAL = {
-  INTERNETNZ_MEMBERSHIP: 'irma-demo.internetnz.membership',
+  INTERNETNZ_MEMBERSHIP: 'irma-demo.inz-internetnz.membership',
   FAKE_EMAILER_EMAIL: 'irma-demo.inz-emailer.email',
   FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.inz-personal-data.personName',
   FAKE_PERSONAL_DATA_AGE_LIMITS: 'irma-demo.inz-personal-data.ageLimits',
