@@ -16,18 +16,21 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <script src="irma.js" defer></script>
+    <script src="global.js"></script>
     <script type="text/javascript">
-        const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-        const IRMA_SERVER = AWS_IRMA_SERVER;
-        const AUTH_METHOD_TOKEN = 'token';
-        const PRIVATE_TOKEN = 'secret-fake-token';
+      // globals loaded from globals file
+
+        // const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
+        // const IRMA_SERVER = AWS_IRMA_SERVER;
+        // const AUTH_METHOD_TOKEN = 'token';
+        // const PRIVATE_TOKEN = 'secret-fake-token';
 
         const MEMBERSHIP_ATTRIBUTES = [
             [
-                ['inz-demo.internetnz.id.number']
+                [ATTRIBUTE.INTERNETNZ_MEMBERSHIP_ID]
             ],
             [
-                ['inz-demo.internetnz.membership.validUntil']
+                [ATTRIBUTE.INTERNETNZ_MEMBERSHIP_VALID_UNTIL]
             ],
         ]
 
