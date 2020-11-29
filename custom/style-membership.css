@@ -1,0 +1,52 @@
+
+body {
+    font-family: "Font Awesome", sans-serif;
+}
+
+a {
+    color: #E31C79;
+    text-decoration: none;
+}
+
+input[type="checkbox"] {
+    margin: 0 auto;
+}
+
+#membership-type {
+    padding: 20px;
+}
+
+#membership-type .active {
+    background-color: #E31C79;
+    border-color: #E31C79;
+}
+
+#policy-box {
+    padding: 30px 0;
+}
+
+.btn-signup {
+    background-color: #E31C79;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 20px 30px;
+}
+
+/* Fixes from site style */
+.alert {
+    margin: 0;
+    top: 0;
+}
+
+.policy-label {
+    margin-left: 25px;
+}
+
+.ammount-input-group-addon {
+    background-color: white;
+}
+
+.footer-container {
+    margin-top: 30px;
+}

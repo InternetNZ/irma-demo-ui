@@ -9,9 +9,9 @@ const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
 
 const CREDENTIAL = {
-  INTERNETNZ_MEMBERSHIP: 'irma-demo.internetnz.membership',
+  INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership',
   FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
-  FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.personal-data.personName',
+  FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName',
   FAKE_PERSONAL_DATA_AGE_LIMITS: 'inz-demo.personal-data.ageLimits',
   FAKE_PERSONAL_DATA_BIRTHDATE: 'inz-demo.personal-data.birthdate',
   FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address',
@@ -20,7 +20,7 @@ const CREDENTIAL = {
 
 const ATTRIBUTE = {
   FAKE_EMAILER_EMAIL: `${CREDENTIAL.FAKE_EMAILER_EMAIL}.email`,
-  FAKE_PERSONAL_DATA_PERSON_NAME_FULL_NAME: `${CREDENTIAL.FAKE_PERSONAL_DATA_PERSON_NAME}.fullName`,
+  FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
   FAKE_NZPOST_FULL_ADDRESS: 'inz-demo.postal-service.address.fullAddress',
   FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over18`,
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
