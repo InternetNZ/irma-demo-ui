@@ -1,7 +1,6 @@
-
 // ignoring IIFE to test purposes - this should be really globals
 
-const LOCATE_NZ = 'en-NZ';
+const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
@@ -13,6 +12,7 @@ const PRIVATE_TOKEN = 'secret-fake-token';
 
 const CREDENTIAL = {
   INTERNETNZ_MEMBERSHIP: 'irma-demo.inz-internetnz.membership',
+  INTERNETNZ_NETHUI_ACCESS_PASS: 'irma-demo.inz-internetnz.nethuiAccessPass',
   FAKE_EMAILER_EMAIL: 'irma-demo.inz-emailer.email',
   FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.inz-personal-data.personName',
   FAKE_PERSONAL_DATA_AGE_LIMITS: 'irma-demo.inz-personal-data.ageLimits',
@@ -23,8 +23,13 @@ const CREDENTIAL = {
 
 const ATTRIBUTE = {
   INTERNETNZ_MEMBERSHIP_ID: `${CREDENTIAL.INTERNETNZ_MEMBERSHIP}.id`,
-  INTERNETNZ_MEMBERSHIP_VALID_UNTIL: `${CREDENTIAL.INTERNETNZ_MEMBERSHIP}.validUntil`,
-  FAKE_EMAILER_EMAIL: `${CREDENTIAL.FAKE_EMAILER_EMAIL}.email`,
+  INTERNETNZ_MEMBERSHIP: {
+    ID: `${CREDENTIAL.INTERNETNZ_MEMBERSHIP}.id`,
+    VALID_UNTIL: `${CREDENTIAL.INTERNETNZ_MEMBERSHIP}.validUntil`,
+  },
+  FAKE_EMAILER_EMAIL: {
+    EMAIL: `${CREDENTIAL.FAKE_EMAILER_EMAIL}.email`,
+  },
   FAKE_PERSONAL_DATA_PERSON_NAME_FULL_NAME: `${CREDENTIAL.FAKE_PERSONAL_DATA_PERSON_NAME}.fullName`,
   FAKE_NZPOST_FULL_ADDRESS: `${CREDENTIAL.FAKE_NZPOST_FULL_ADDRESS}.fullAddress`,
   FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over18`,

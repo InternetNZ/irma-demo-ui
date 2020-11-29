@@ -165,7 +165,7 @@
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
               const disclosePayload = [
                 [
-                  [ATTRIBUTE.FAKE_EMAILER_EMAIL],
+                  [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
                 ],
                 [
                   [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME_FULL_NAME],
@@ -193,9 +193,9 @@
                 // I am using time in miliseconds
                 id: '' + now.getTime(),
                 type: userMembershipAttributes.type,
-                purchaseDate: now.toLocaleDateString(LOCATE_NZ),
-                renewalDate: now.toLocaleDateString(LOCATE_NZ),
-                validUntil: validUntil.toLocaleDateString(LOCATE_NZ)
+                purchaseDate: now.toLocaleDateString(LOCALE_NZ),
+                renewalDate: now.toLocaleDateString(LOCALE_NZ),
+                validUntil: validUntil.toLocaleDateString(LOCALE_NZ)
               };
             },
 
@@ -211,7 +211,7 @@
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   [
-                    [ATTRIBUTE.FAKE_EMAILER_EMAIL],
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
                   ],
                   [
                     [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME_FULL_NAME],
