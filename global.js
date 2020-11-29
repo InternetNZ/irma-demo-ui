@@ -10,7 +10,7 @@ const PRIVATE_TOKEN = 'secret-fake-token';
 
 const CREDENTIAL = {
   INTERNETNZ_MEMBERSHIP: 'irma-demo.internetnz.membership',
-  FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email',
+  FAKE_EMAILER_EMAIL: 'irma-demo.inz-emailer.email',
   FAKE_PERSONAL_DATA_PERSON_NAME: 'irma-demo.inz-personal-data.personName',
   FAKE_PERSONAL_DATA_AGE_LIMITS: 'irma-demo.inz-personal-data.ageLimits',
   FAKE_PERSONAL_DATA_BIRTHDATE: 'irma-demo.inz-personal-data.birthdate',
