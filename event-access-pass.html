@@ -36,26 +36,26 @@
       //   INTERNETNZ_NETHUI_ACCESS_PASS: 'inz-demo.internetnz.nethuiAccessPass',
       // };
 
-      const ATTRIBUTE = {
-        FAKE_REALME_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
-        INTERNETNZ_ID_NUMBER: 'inz-demo.internetnz.id.number',
-        INTERNETNZ_MEMBERSHIP: {
-          ID: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.id',
-          TYPE: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.type',
-          VALID_UNTIL: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.validUntil',
-        },
-        INTERNETNZ_NETHUI_ACCESS_PASS: {
-          ID: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.id',
-          EVENT: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.event',
-          EVENT_DATE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.eventDate',
-          ACCESS_PASS_TYPE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.accessPassType',
-          PURCHASE_DATE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.purchaseDate',
-          PRICE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.price',
-        },
-        INTERNETNZ_MEMBERSHIP_ID: 'inz-demo.internetnz.membership.id',
-        INTERNETNZ_MEMBERSHIP_VALID_UNTIL: 'inz-demo.internetnz.membership.validUntil',
-      };
+      // const ATTRIBUTE = {
+      //   FAKE_REALME_EMAIL: 'inz-demo.emailer.email.email',
+      //   FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
+      //   INTERNETNZ_ID_NUMBER: 'inz-demo.internetnz.id.number',
+      //   INTERNETNZ_MEMBERSHIP: {
+      //     ID: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.id',
+      //     TYPE: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.type',
+      //     VALID_UNTIL: CREDENTIAL.INTERNETNZ_MEMBERSHIP + '.validUntil',
+      //   },
+      //   INTERNETNZ_NETHUI_ACCESS_PASS: {
+      //     ID: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.id',
+      //     EVENT: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.event',
+      //     EVENT_DATE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.eventDate',
+      //     ACCESS_PASS_TYPE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.accessPassType',
+      //     PURCHASE_DATE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.purchaseDate',
+      //     PRICE: CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS + '.price',
+      //   },
+      //   INTERNETNZ_MEMBERSHIP_ID: 'inz-demo.internetnz.membership.id',
+      //   INTERNETNZ_MEMBERSHIP_VALID_UNTIL: 'inz-demo.internetnz.membership.validUntil',
+      // };
 
       const ACCESS_PASS_TYPE = {
         ALL: {id: 'all', description: 'Online and In-person', price: 60},
@@ -229,7 +229,7 @@
                 event: 'NetHui 2020',
                 eventDate: '13 and 14/10/2020',
                 accessPassType: app.ACCESS_PASS_DESCRIPTION[eventAccessPass.accessPassType],
-                purchaseDate: now.toLocaleDateString(LOCATE_NZ),
+                purchaseDate: now.toLocaleDateString(LOCALE_NZ),
                 price: `NZD ${app.calculateTotal()}.00`
               };
             },
@@ -244,29 +244,29 @@
               clearOutput();
             },
 
-            discloseEmailAndName: function () {
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  [
-                    [ATTRIBUTE.FAKE_REALME_EMAIL],
-                  ],
-                  [
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
-                  ]
-                ]
-              };
-              return doSession(request).then(function (result) {
-                showSuccess('Success');
-
-                const fullName = result.disclosed[1][0].rawvalue;
-                const names = fullName.split(' ');
-                app.eventAccessPass.email = result.disclosed[0][0].rawvalue;
-                app.eventAccessPass.name = fullName;
-                app.eventAccessPass.firstName = names.shift();
-                app.eventAccessPass.lastName = names.join(' ');
-              });
-            },
+            // discloseEmailAndName: function () {
+            //   const request = {
+            //     '@context': 'https://irma.app/ld/request/disclosure/v2',
+            //     'disclose': [
+            //       [
+            //         [ATTRIBUTE.FAKE_REALME_EMAIL],
+            //       ],
+            //       [
+            //         [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
+            //       ]
+            //     ]
+            //   };
+            //   return doSession(request).then(function (result) {
+            //     showSuccess('Success');
+            //
+            //     const fullName = result.disclosed[1][0].rawvalue;
+            //     const names = fullName.split(' ');
+            //     app.eventAccessPass.email = result.disclosed[0][0].rawvalue;
+            //     app.eventAccessPass.name = fullName;
+            //     app.eventAccessPass.firstName = names.shift();
+            //     app.eventAccessPass.lastName = names.join(' ');
+            //   });
+            // },
 
             discloseMembership: function () {
               const request = {
@@ -276,10 +276,10 @@
                     Object.values(ATTRIBUTE.INTERNETNZ_MEMBERSHIP)
                   ],
                   [
-                    [ATTRIBUTE.FAKE_REALME_EMAIL]
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL]
                   ],
                   [
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME]
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME]
                   ]
                 ]
               };
