@@ -24,29 +24,16 @@
 
     <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
 
-    <!-- development version, includes helpful console warnings -->
-    <!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
-
     <!-- production version, optimized for size and speed -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
     <script src="irma.js" defer></script>
+    <script src="global.js">
+      // --------------------------------
+      // globals loaded from globals file
+      // --------------------------------
+    </script>
     <script type="text/javascript">
-      const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-      const IRMA_SERVER = AWS_IRMA_SERVER;
-      const AUTH_METHOD_TOKEN = 'token';
-      const PRIVATE_TOKEN = 'secret-fake-token';
-      const LOCATE_NZ = 'en-NZ';
-
-      const ATTRIBUTE = {
-        FAKE_EMAILER_EMAIL: 'inz-demo.emailer.email.email',
-        FAKE_PERSONAL_DATA_NAME: 'inz-demo.personal-data.personName.fullName',
-      };
-
-      const CREDENTIAL = {
-        INTERNETNZ_MEMBERSHIP: 'inz-demo.internetnz.membership'
-      };
-
       let userMembershipAttributes = {};
 
       function discloseOrSign(attribute, label = '', message = '') {
@@ -180,10 +167,10 @@
               app.membershipCredential = app.createMembership(app.userMembershipAttributes);
               const disclosePayload = [
                 [
-                  [ATTRIBUTE.FAKE_EMAILER_EMAIL],
+                  [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
                 ],
                 [
-                  [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
+                  [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
                 ]
               ];
               return issueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential, disclosePayload)
@@ -208,9 +195,9 @@
                 // I am using time in miliseconds
                 id: '' + now.getTime(),
                 type: userMembershipAttributes.type,
-                purchaseDate: now.toLocaleDateString(LOCATE_NZ),
-                renewalDate: now.toLocaleDateString(LOCATE_NZ),
-                validUntil: validUntil.toLocaleDateString(LOCATE_NZ)
+                purchaseDate: now.toLocaleDateString(LOCALE_NZ),
+                renewalDate: now.toLocaleDateString(LOCALE_NZ),
+                validUntil: validUntil.toLocaleDateString(LOCALE_NZ)
               };
             },
 
@@ -226,10 +213,10 @@
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   [
-                    [ATTRIBUTE.FAKE_EMAILER_EMAIL],
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
                   ],
                   [
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
                   ]
                 ]
               };

@@ -21,10 +21,12 @@
 
     <script src="irma.js" defer></script>
 
-    <script src="global.js"></script>
-    <script type="text/javascript">
+    <script src="global.js">
+      // --------------------------------
       // globals loaded from globals file
-
+      // --------------------------------
+    </script>
+    <script type="text/javascript">
       let userMembershipAttributes = {};
 
       function discloseOrSign(attribute, label = '', message = '') {
@@ -165,7 +167,7 @@
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   [
-                    [ATTRIBUTE.FAKE_EMAILER_EMAIL],
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
                   ],
                   [
                     [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
@@ -228,7 +230,7 @@
                 <div class="col-2">
                     <input type="button" class="btn btn-info" value="Issue"
                            v-bind:disabled="!fullName"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_NAME, { 'fullName': fullName })">
+                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_PERSON_NAME, { 'fullName': fullName })">
                 </div>
             </div>
         </div>

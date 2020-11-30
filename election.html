@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
     <link type="text/css" rel="stylesheet" href="style-election.css">
 
@@ -16,277 +16,280 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <script src="irma.js" defer></script>
+    <script src="global.js">
+      // --------------------------------
+      // globals loaded from globals file
+      // --------------------------------
+    </script>
     <script type="text/javascript">
-        const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
-        const IRMA_SERVER = AWS_IRMA_SERVER;
-        const AUTH_METHOD_TOKEN = 'token';
-        const PRIVATE_TOKEN = 'secret-fake-token';
+      const MEMBERSHIP_ATTRIBUTES = [
+        [
+          [ATTRIBUTE.INTERNETNZ_MEMBERSHIP.ID]
+        ],
+        [
+          [ATTRIBUTE.INTERNETNZ_MEMBERSHIP.VALID_UNTIL]
+        ],
+      ]
 
-        const MEMBERSHIP_ATTRIBUTES = [
-            [
-                ['inz-demo.internetnz.id.number']
-            ],
-            [
-                ['inz-demo.internetnz.membership.validUntil']
-            ],
-        ]
+      function discloseOrSign(attributes, label = '', message = '') {
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': attributes,
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': attributes,
+          ...labelRequest
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success, Your IRMA ID is : <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+          return getDiscloseResultRawValue(result);
+        });
+      }
 
-        function discloseOrSign(attributes, label = '', message = '') {
-            const labelRequest = !label ? {} : { 'labels': { '0': { 'en': label, 'nl': label } } };
-            const request = !message ? {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': attributes,
-                ...labelRequest
-            } : {
-                    '@context': 'https://irma.app/ld/request/signature/v2',
-                    'message': message,
-                    'disclose': attributes,
-                    ...labelRequest
-                };
-            return doSession(request).then(function (result) {
-                showSuccess('Success, Your IRMA ID is : <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-                return getDiscloseResultRawValue(result);
-            });
+      function doSession(request) {
+        clearOutput();
+        showSuccess('Getting credentials...');
+
+        const server = IRMA_SERVER;
+        const authmethod = AUTH_METHOD_TOKEN;
+        const key = PRIVATE_TOKEN;
+        const requestorname = '';
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function (pkg) {
+            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+          })
+          .then(function (result) {
+            console.log('Done', result);
+            return result;
+          })
+          .catch(function (err) {
+            showError(err);
+          });
+      }
+
+      // UI handling functions
+      function clearOutput() {
+        var e = hideElement('result', true);
+        e.classList.remove('succes', 'warning', 'error');
+      }
+
+      function resetForm() {
+        clearOutput()
+
+        hideElement('vote-with-irma', false)
+        hideElement('vote-options', true)
+      }
+
+      function showError(err) {
+        var e = hideElement('result', false);
+        e.classList.remove('success', 'warning', 'error');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('error');
+          e.innerText = 'Error occurred: ' + String(err);
         }
+        throw err;
+      }
 
-        function doSession(request) {
-            clearOutput();
-            showSuccess('Getting credentials...');
+      function showWarning(err) {
+        var e = hideElement('result', false);
+        e.classList.remove('success', 'error');
 
-            const server = IRMA_SERVER;
-            const authmethod = AUTH_METHOD_TOKEN;
-            const key = PRIVATE_TOKEN;
-            const requestorname = '';
+        e.classList.add('warning');
+        e.innerText = err;
+        throw err;
+      }
 
-            return irma.startSession(server, request, authmethod, key, requestorname)
-                .then(function (pkg) {
-                    return irma.handleSession(pkg.sessionPtr, { server: server, token: pkg.token, method: 'popup', language: 'en' });
-                })
-                .then(function (result) {
-                    console.log('Done', result);
-                    return result;
-                })
-                .catch(function (err) {
-                    showError(err);
+      function showSuccess(text) {
+        const e = hideElement('result', false);
+        e.innerHTML = text;
+        e.classList.remove('warning', 'error');
+        e.classList.add('success');
+      }
+
+      function hideElement(elementID, hidden) {
+        var e = document.getElementById(elementID);
+        if (hidden) {
+          e.setAttribute('hidden', 'true');
+        } else {
+          e.removeAttribute('hidden');
+        }
+        return e;
+      }
+
+      function hashCode(s) {
+        var h = 0, l = s.length, i = 0;
+        if (l > 0) {
+          while (i < l)
+            h = (h << 5) - h + s.charCodeAt(i++) | 0;
+        }
+        return h;
+      }
+
+
+      const getDiscloseResultRawValue = function (result) {
+        console.log(result);
+        return {
+          id: hashCode(result.disclosed[0][0].rawvalue || ''),
+          validUntil: result.disclosed[1][0].rawvalue || '',
+        };
+      };
+
+      window.onload = function () {
+        let app = new Vue({
+          el: '#app',
+          data: {
+            userMembershipAttributes: {
+              id: '',
+              validUntil: ''
+            },
+            vote: '',
+          },
+          created: function () {
+            if (typeof (Storage) == "undefined") {
+              showError("Local storage is not supported by your browser!")
+            }
+
+            if (!localStorage.getItem("votes")) {
+              localStorage.setItem("votes", JSON.stringify([]));
+            }
+            if (!localStorage.getItem("voters")) {
+              localStorage.setItem("voters", JSON.stringify([]));
+            }
+          },
+
+          methods: {
+            verifyINZMembership: function () {
+              console.log('verifyINZMembership');
+              return discloseOrSign(MEMBERSHIP_ATTRIBUTES)
+                .then((result) => {
+                  console.log(result)
+                  app.userMembershipAttributes = result;
+
+                  var voters = JSON.parse(localStorage.getItem("voters"));
+
+                  hideElement('vote-with-irma', true);
+
+                  if (voters.indexOf(app.userMembershipAttributes.id) > -1) {
+                    showError('Seems you already voted! You can only vote once for your favorite cake!');
+                  }
+
+                  // Change date format to ISO
+                  var dateParts = app.userMembershipAttributes.validUntil.split("/");
+                  if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
+                    showError('Your membership has been expired. You need a valid membership to vote.');
+                  }
+
+                  hideElement('vote-options', false);
                 });
-        }
+            },
 
-        // UI handling functions
-        function clearOutput() {
-            var e = hideElement('result', true);
-            e.classList.remove('succes', 'warning', 'error');
-        }
+            saveVote: function () {
+              if (!app.vote) {
+                showWarning("You need to select a cake to vote!")
+                return;
+              }
 
-        function resetForm() {
-            clearOutput()
+              var voters = JSON.parse(localStorage.getItem("voters"));
 
-            hideElement('vote-with-irma', false)
-            hideElement('vote-options', true)
-        }
+              voters.push(app.userMembershipAttributes.id)
+              localStorage.setItem("voters", JSON.stringify(voters))
 
-        function showError(err) {
-            var e = hideElement('result', false);
-            e.classList.remove('success', 'warning', 'error');
-            if (err === irma.SessionStatus.Cancelled) {
-                e.classList.add('warning');
-                e.innerText = 'Session was aborted';
-            } else {
-                e.classList.add('error');
-                e.innerText = 'Error occurred: ' + String(err);
+              var votes = JSON.parse(localStorage.getItem("votes"));
+              votes.push(app.vote)
+              localStorage.setItem("votes", JSON.stringify(votes))
+
+              showSuccess("Thanks for your vote. Your vote was: <strong>" + app.vote + "</strong>")
+
+              hideElement('vote-options', true);
+            },
+
+            reset: function () {
+              app.userMembershipAttributes = {
+                id: '',
+                validUntil: ''
+              };
+              app.vote = '';
+              resetForm();
             }
-            throw err;
-        }
-
-        function showWarning(err) {
-            var e = hideElement('result', false);
-            e.classList.remove('success', 'error');
-
-            e.classList.add('warning');
-            e.innerText = err;
-            throw err;
-        }
-
-        function showSuccess(text) {
-            const e = hideElement('result', false);
-            e.innerHTML = text;
-            e.classList.remove('warning', 'error');
-            e.classList.add('success');
-        }
-
-        function hideElement(elementID, hidden) {
-            var e = document.getElementById(elementID);
-            if (hidden) {
-                e.setAttribute('hidden', 'true');
-            } else {
-                e.removeAttribute('hidden');
-            }
-            return e;
-        }
-
-        function hashCode(s) {
-            var h = 0, l = s.length, i = 0;
-            if (l > 0)
-                while (i < l)
-                    h = (h << 5) - h + s.charCodeAt(i++) | 0;
-            return h;
-        }
-
-
-        const getDiscloseResultRawValue = function (result) {
-            console.log(result);
-            return {
-                id: hashCode(result.disclosed[0][0].rawvalue || ''),
-                validUntil: result.disclosed[1][0].rawvalue || '',
-            };
-        };
-
-        window.onload = function () {
-            let app = new Vue({
-                el: '#app',
-                data: {
-                    userMembershipAttributes: {
-                        id: '',
-                        validUntil: ''
-                    },
-                    vote: '',
-                },
-                created: function () {
-                    if (typeof (Storage) == "undefined") {
-                        showError("Local storage is not supported by your browser!")
-                    }
-
-                    if (!localStorage.getItem("votes")) {
-                        localStorage.setItem("votes", JSON.stringify([]));
-                    }
-                    if (!localStorage.getItem("voters")) {
-                        localStorage.setItem("voters", JSON.stringify([]));
-                    }
-                },
-
-                methods: {
-                    verifyINZMembership: function () {
-                        console.log('verifyINZMembership');
-                        return discloseOrSign(MEMBERSHIP_ATTRIBUTES)
-                            .then((result) => {
-                                console.log(result)
-                                app.userMembershipAttributes = result;
-
-                                var voters = JSON.parse(localStorage.getItem("voters"));
-
-                                hideElement('vote-with-irma', true);
-
-                                if (voters.indexOf(app.userMembershipAttributes.id) > -1) {
-                                    showError('Seems you already voted! You can only vote once for your favorite cake!');
-                                }
-                                
-                                // Change date format to ISO
-                                var dateParts = app.userMembershipAttributes.validUntil.split("/");
-                                if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
-                                    showError('Your membership has been expired. You need a valid membership to vote.');
-                                }
-
-                                hideElement('vote-options', false);
-                            });
-                    },
-
-                    saveVote: function () {
-                        if (!app.vote) {
-                            showWarning("You need to select a cake to vote!")
-                            return;
-                        }
-
-                        var voters = JSON.parse(localStorage.getItem("voters"));
-
-                        voters.push(app.userMembershipAttributes.id)
-                        localStorage.setItem("voters", JSON.stringify(voters))
-
-                        var votes = JSON.parse(localStorage.getItem("votes"));
-                        votes.push(app.vote)
-                        localStorage.setItem("votes", JSON.stringify(votes))
-
-                        showSuccess("Thanks for your vote. Your vote was: <strong>" + app.vote + "</strong>")
-
-                        hideElement('vote-options', true);
-                    },
-
-                    reset: function () {
-                        app.userMembershipAttributes = {
-                            id: '',
-                            validUntil: ''
-                        };
-                        app.vote = '';
-                        resetForm();
-                    }
-                }
-            })
-        };
+          }
+        })
+      };
     </script>
 </head>
 
 <body class="bg-light">
-    <div id="app" class="container">
-        <div class="py-5 text-center">
-            <img class="logo" src="cake-elections-logo_200x200.png" alt="Home">
-            <h2>Cake Election Website</h2>
-            <h2>Vote for your favorite Cake!</h2>
-            <p class="lead">Below is a demo of how Digital Identity can be use for voting.
-                You can use your InternetNZ membership to signup for voting.</p>
-        </div>
-
-        <div>
-            <div id="result" class="status alert" hidden></div>
-        </div>
-
-        <div id="vote-with-irma" class="text-center">
-            <button id="vote-with-irma-btn" type="button" class="btn btn-primary btn-lg"
-                v-on:click="verifyINZMembership()">Vote with IRMA</button>
-        </div>
-
-        <div id="vote-options" class="jumbotron" hidden=true>
-            <h3>Select your favorite cake!</h1>
-                <div class="d-block my-3 form-group">
-                    <div class="custom-control custom-radio">
-                        <input id="cheese_cake" name="vote_option" type="radio" class="custom-control-input"
-                            checked=true required=true v-model="vote" value="Cheese Cake">
-                        <label class="custom-control-label" for="cheese_cake">Cheese Cake</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input id="double_chocolate" name="vote_option" type="radio" class="custom-control-input"
-                            required=true v-model="vote" value="Double Chocolate">
-                        <label class="custom-control-label" for="double_chocolate">Double Chocolate</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input id="banana_cake" name="vote_option" type="radio" class="custom-control-input"
-                            required=true v-model="vote" value="Banana Cake">
-                        <label class="custom-control-label" for="banana_cake">Banana Cake</label>
-                    </div>
-                </div>
-                <hr class="mb-4">
-                <button id="vote-submit" type="button" class="btn btn-primary" v-on:click="saveVote()">Submit
-                    your vote</button>
-        </div>
-
-        <div class="text-right">
-            <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
-        </div>
-
-        <div class="p-5 text-center">
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="/">Issue Name, Address and Email</a></li>
-                <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
-                <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
-                <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
-                <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
-            </ul>
-
-            <p class="mb-1">© 2020 Cake Elections</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="#">Privacy</a></li>
-                <li class="list-inline-item"><a href="#">Terms</a></li>
-                <li class="list-inline-item"><a href="#">Support</a></li>
-            </ul>
-        </div>
+<div id="app" class="container">
+    <div class="py-5 text-center">
+        <img class="logo" src="cake-elections-logo_200x200.png" alt="Home">
+        <h2>Cake Election Website</h2>
+        <h2>Vote for your favorite Cake!</h2>
+        <p class="lead">Below is a demo of how Digital Identity can be use for voting.
+            You can use your InternetNZ membership to signup for voting.</p>
     </div>
+
+    <div>
+        <div id="result" class="status alert" hidden></div>
+    </div>
+
+    <div id="vote-with-irma" class="text-center">
+        <button id="vote-with-irma-btn" type="button" class="btn btn-primary btn-lg"
+                v-on:click="verifyINZMembership()">Vote with IRMA
+        </button>
+    </div>
+
+    <div id="vote-options" class="jumbotron" hidden=true>
+        <h3>Select your favorite cake!</h1>
+            <div class="d-block my-3 form-group">
+                <div class="custom-control custom-radio">
+                    <input id="cheese_cake" name="vote_option" type="radio" class="custom-control-input"
+                           checked=true required=true v-model="vote" value="Cheese Cake">
+                    <label class="custom-control-label" for="cheese_cake">Cheese Cake</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input id="double_chocolate" name="vote_option" type="radio" class="custom-control-input"
+                           required=true v-model="vote" value="Double Chocolate">
+                    <label class="custom-control-label" for="double_chocolate">Double Chocolate</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input id="banana_cake" name="vote_option" type="radio" class="custom-control-input"
+                           required=true v-model="vote" value="Banana Cake">
+                    <label class="custom-control-label" for="banana_cake">Banana Cake</label>
+                </div>
+            </div>
+            <hr class="mb-4">
+            <button id="vote-submit" type="button" class="btn btn-primary" v-on:click="saveVote()">Submit
+                your vote
+            </button>
+    </div>
+
+    <div class="text-right">
+        <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
+    </div>
+
+    <div class="p-5 text-center">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="/">Issue Name, Address and Email</a></li>
+            <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
+            <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
+        </ul>
+
+        <p class="mb-1">© 2020 Cake Elections</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="#">Privacy</a></li>
+            <li class="list-inline-item"><a href="#">Terms</a></li>
+            <li class="list-inline-item"><a href="#">Support</a></li>
+        </ul>
+    </div>
+</div>
 </body>
 
 </html>
