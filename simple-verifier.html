@@ -27,6 +27,8 @@
       // --------------------------------
     </script>
     <script type="text/javascript">
+      let userMembershipAttributes = {};
+
       function discloseOrSign(attribute, label = '', message = '') {
         const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
         const request = !message ? {
@@ -213,7 +215,7 @@
             <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
-            <li class="list-inline-item"><a href="/simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="/">Simple issuer</a></li>
             <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
