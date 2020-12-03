@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-    <title>InternetNZ | IRMA examples</title>
+    <title>InternetNZ | IRMA examples - Over 18</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,58 +26,8 @@
       // globals loaded from globals file
       // --------------------------------
     </script>
+    <script src="irma-functions.js"></script>
     <script type="text/javascript">
-      function discloseOrSign(attribute, label = '', message = '') {
-        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
-        const request = !message ? {
-          '@context': 'https://irma.app/ld/request/disclosure/v2',
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        } : {
-          '@context': 'https://irma.app/ld/request/signature/v2',
-          'message': message,
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-          return getDiscloseResultRawValue(result);
-        });
-      }
-
-      function doSession(request) {
-        console.log('doSession');
-        clearOutput();
-        showSuccess('Demo running...');
-
-        const server = IRMA_SERVER;
-        const authmethod = AUTH_METHOD_TOKEN;
-        const key = PRIVATE_TOKEN;
-        const requestorname = '';
-
-        console.log(request);
-
-        return irma.startSession(server, request, authmethod, key, requestorname)
-          .then(function (pkg) {
-            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
-          })
-          .then(function (result) {
-            console.log('Done', result);
-            return result;
-          })
-          .catch(function (err) {
-            showError(err);
-          });
-      }
-
       // UI handling functions
       function clearOutput() {
         const e = document.getElementById('result');
@@ -105,11 +55,6 @@
         e.removeAttribute('hidden');
         e.classList.add('alert-success');
       }
-
-      const getDiscloseResultRawValue = function (result) {
-        console.log(result);
-        return result.disclosed[0][0].rawvalue || '';
-      };
 
       window.onload = function () {
         let app = new Vue({
@@ -181,9 +126,32 @@
         <hr>
     </header>
 
-    <p>Kia ora!</p>
+    <p>&nbsp;</p>
 
-    <p>This website brings some use cases that InternetNZ has prepared to present IRMA.</p>
+    <div class="row">
+        <div id="result" class="status alert col-12" hidden></div>
+    </div>
+
+    <form>
+        <div class="border-left border-warning rounded p-1 m-3">
+            <div class="form-group row">
+                <label class="col-2 col-form-label text-right">Over18</label>
+                <div class="col-8">
+                    <div v-if="over18">
+                        Value: <strong>{{ over18 }}</strong>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <input type="button" class="btn btn-info" value="Verify" v-on:click="discloseOver18()">
+                </div>
+                <div class="text-right">
+                    <ul>
+                        <li v-for="attribute in over18DiscloseOptions"><code>{{ attribute }}</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div class="p-5 text-center clear">
         <ul class="list-inline">
@@ -191,7 +159,6 @@
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
             <li class="list-inline-item"><a href="/simple-issuer.html">Simple issuer</a></li>
-            <li class="list-inline-item"><a href="/wine-shop.html">Wine shop</a></li>
             <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
