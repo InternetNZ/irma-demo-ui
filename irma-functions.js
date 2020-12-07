@@ -1,6 +1,6 @@
 // be sure that you are loading irmajs functions
 
-(function () {
+const irmaService = (function () {
   const discloseOrSign = function (attribute, label = '', message = '') {
     const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
     const request = !message ? {
@@ -23,21 +23,18 @@
     };
     return doSession(request).then(function (result) {
       showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-      return getDiscloseResultRawValue(result);
+      return disclosedResultRawValue(result);
     });
   };
 
   const doSession = function (request) {
     console.log('doSession');
-    clearOutput();
     showSuccess('Demo running...');
 
     const server = IRMA_SERVER;
     const authmethod = AUTH_METHOD_TOKEN;
     const key = PRIVATE_TOKEN;
     const requestorname = '';
-
-    console.log(request);
 
     return irma.startSession(server, request, authmethod, key, requestorname)
       .then(function (pkg) {
@@ -55,17 +52,19 @@
   const discloseOrSignReturningRawValue = function (attribute, label = '', message = '') {
     return discloseOrSign(attribute, label, message)
       .then(result => {
-        return getDiscloseResultRawValue(result);
+        return disclosedResultRawValue(result);
       })
   };
 
-  const getDiscloseResultRawValue = function (result) {
+  const disclosedResultRawValue = function (result) {
     console.log(result);
     return result.disclosed[0][0].rawvalue || '';
   };
 
   return {
     discloseOrSign: discloseOrSign,
-    discloseOrSignReturningRawValue: discloseOrSignReturningRawValue
+    discloseOrSignReturningRawValue: discloseOrSignReturningRawValue,
+    disclosedResultRawValue: disclosedResultRawValue,
+    doSession: doSession,
   }
 })()
