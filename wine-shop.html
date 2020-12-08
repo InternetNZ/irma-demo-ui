@@ -63,14 +63,13 @@
             CREDENTIAL: CREDENTIAL,
             // cart
             Wine: {
-              AKITU: 1,
+              Akitu: 1,
               SHERWOOD: 2
             },
             PurchaseMode: {
               Guest: 'guest',
               Subscription: 'subscription'
             },
-            SUBSCRIPTION_PURCHASE_MODE: 'subscription',
             cart: null,
             // credentials
             email: '',
@@ -78,16 +77,14 @@
             fullAddress: '',
             over18: null,
             agelimit: null,
-            // disclosure
-            over18DiscloseOptions: [
-              ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18,
-            ],
             // controls
             finished: false,
             purchaseMode: null,
           },
           methods: {
             reset: function () {
+              app.fullName = null;
+              app.fullAddress = null;
               app.over18 = null;
               app.cart = null;
               app.purchaseMode = null;
@@ -137,16 +134,17 @@
             getIrmaAttributes: function () {
               app.fullName = null;
               app.fullAddress = null;
-              return app.discloseAddress()
-                .then(result => {
-                  app.fullAddress = result;
-                  if (app.purchaseMode === app.PurchaseMode.Subscription) {
-                    return app.discloseName()
-                      .then(result => app.fullName = result);
-                  }
 
-                  return true;
-                })
+              if (app.purchaseMode === app.PurchaseMode.Subscription) {
+                return app.discloseNameAndAddress()
+                  .then(result => {
+                    app.fullName = result[ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME] || null;
+                    app.fullAddress = result[ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS] || null;
+                  })
+              }
+
+              return app.discloseAddress()
+                .then(result => app.fullAddress = result);
             },
 
             discloseAddress: function () {
@@ -168,13 +166,20 @@
               });
             },
 
-            discloseName: function () {
+            discloseNameAndAddress: function () {
               const request = {
                 '@context': 'https://irma.app/ld/request/disclosure/v2',
                 'disclose': [
                   // disclose
                   [
+                    [
+                      ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
+                      ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
+                    ],
+                    // or
                     [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+                    // or
+                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
                   ]
                 ]
               };
@@ -184,7 +189,14 @@
               return irmaService.doSession(request)
                 .then(function (result) {
                   showSuccess();
-                  return irmaService.disclosedResultRawValue(result);
+
+                  let data = {};
+
+                  result.disclosed[0].forEach((item) => {
+                    data[item.id] = item.rawvalue;
+                  })
+
+                  return data;
                 });
             },
           }
@@ -205,14 +217,16 @@
     </div>
 
     <div>
-        <div class="text-right"><button class="btn btn-sm btn-outline-light" v-on:click="reset()">Reset</button></div>
+        <div class="text-right">
+            <button class="btn btn-sm btn-outline-light" v-on:click="reset()">Reset</button>
+        </div>
         <div v-if="!cart">
             <h3>Select your wine</h3>
 
             <div class="row">
                 <div class="col-6">
                     <img src="assets/images/Akitu-pinot-noir_large.png">
-                    <button class="btn btn-danger" v-on:click="cart = Wine.AKITU">1 NZD</button>
+                    <button class="btn btn-danger" v-on:click="cart = Wine.Akitu">1 NZD</button>
                 </div>
                 <div class="col-6">
                     <img src="assets/images/SherwoodEstatePinotNoir2020_large.png">
@@ -226,7 +240,7 @@
                 <div class="col-6" v-if="over18 !== 'No'">
                     <h3>You are buying</h3>
 
-                    <img src="assets/images/Akitu-pinot-noir_large.png" v-if="cart === Wine.AKITU">
+                    <img src="assets/images/Akitu-pinot-noir_large.png" v-if="cart === Wine.Akitu">
                     <img src="assets/images/SherwoodEstatePinotNoir2020_large.png" v-if="cart === Wine.SHERWOOD">
                 </div>
                 <div class="col-6">
