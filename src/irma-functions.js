@@ -19,31 +19,20 @@ function irmaDiscloseOrSign (attributes, label = '', message = '') {
     });
 }
 
-function irmaIssueCredential (credential, attributes) {
+function irmaIssueCredential (credential, attributes, disclosePayload = null) {
     console.log('issueCredential');
     const request = {
         '@context': 'https://irma.app/ld/request/issuance/v2',
         'credentials': [{
             'credential': credential,
             'attributes': attributes
-        }]
+        }],
+        'disclose': disclosePayload,
     };
     return irmaDoSession(request).then(function (result) {
         console.log("Successful issuing credential! 🎉", result)
         return result;
     });
-}
-
-function irmaDiscloseOrSignReturningRawValue (attribute, label = '', message = '') {
-    return discloseOrSign(attribute, label, message)
-        .then(result => {
-            return getDiscloseResultRawValue(result);
-        })
-}
-
-function irmaDiscloseResultRawValue (result) {
-    console.log(result);
-    return result.disclosed[0][0].rawvalue || '';
 }
 
 function irmaDoSession (request) {
