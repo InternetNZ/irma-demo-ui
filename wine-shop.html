@@ -51,6 +51,7 @@
         const e = document.getElementById('result');
         e.innerHTML = text;
         e.removeAttribute('hidden');
+        e.removeAttribute('alert-warning');
         e.classList.add('alert-success');
       }
 
@@ -69,7 +70,6 @@
               Guest: 'guest',
               Subscription: 'subscription'
             },
-            GUEST_PURCHASE_MODE: 'guest',
             SUBSCRIPTION_PURCHASE_MODE: 'subscription',
             cart: null,
             // credentials
@@ -200,8 +200,6 @@
         <hr>
     </header>
 
-    <p>&nbsp;</p>
-
     <div class="row">
         <div id="result" class="status alert col-12" hidden></div>
     </div>
@@ -224,15 +222,15 @@
         </div>
 
         <div v-if="cart">
-            <h3>You are buying</h3>
-
             <div class="row">
                 <div class="col-6" v-if="over18 !== 'No'">
+                    <h3>You are buying</h3>
+
                     <img src="assets/images/Akitu-pinot-noir_large.png" v-if="cart === Wine.AKITU">
                     <img src="assets/images/SherwoodEstatePinotNoir2020_large.png" v-if="cart === Wine.SHERWOOD">
                 </div>
                 <div class="col-6">
-                    <div v-if="purchaseMode === null">
+                    <div v-if="purchaseMode === null && over18 === null">
                         <button class="btn btn-outline-dark" v-on:click="setPurchaseMode(PurchaseMode.Guest)">Buy as a guest</button>
                         <button class="btn btn-outline-primary" v-on:click="setPurchaseMode(PurchaseMode.Subscription)">Subscribe to a weekly purchase</button>
                     </div>
@@ -246,7 +244,7 @@
                                             <button type="button" class="btn btn-info" v-on:click="getIrmaAttributes()">Fill with IRMA</button>
                                         </div>
 
-                                        <div class="form-group col-md-12" v-if="purchaseMode === SUBSCRIPTION_PURCHASE_MODE">
+                                        <div class="form-group col-md-12" v-if="purchaseMode === PurchaseMode.Subscription">
                                             <label for="fullName">Name</label>
                                             <input type="text" class="form-control" id="fullName" v-model="fullName">
                                         </div>
