@@ -1,471 +1,400 @@
 <!doctype html>
 <html lang="en_NZ">
+
 <head>
-    <title>IRMA attribute verification example</title>
+  <title>IRMA attribute verification example</title>
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-    <style>
-        [v-cloak] {
-            display: none;
-        }
-    </style>
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
 
-    <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
 
-    <!-- development version, includes helpful console warnings -->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- development version, includes helpful console warnings -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-    <script src="assets/irma.js" defer></script>
+  <script src="assets/irma.js" defer></script>
+  <script src="irma-functions.js" defer></script>
+  <script src="ui-functions.js" defer></script>
+  <script src="global.js">
+    // --------------------------------
+    // globals loaded from globals file
+    // --------------------------------
+  </script>
+  <script type="text/javascript">
+    const ACCESS_PASS_TYPE = {
+      ALL: {
+        id: 'all',
+        description: 'Online and In-person',
+        price: 60
+      },
+      ONLINE: {
+        id: 'online',
+        description: 'Online only',
+        price: 15
+      },
+      PERSON: {
+        id: 'person',
+        description: 'In-person only',
+        price: 30
+      },
+    };
 
-    <script src="global.js">
-      // --------------------------------
-      // globals loaded from globals file
-      // --------------------------------
-    </script>
-    <script type="text/javascript">
-      const ACCESS_PASS_TYPE = {
-        ALL: {id: 'all', description: 'Online and In-person', price: 60},
-        ONLINE: {id: 'online', description: 'Online only', price: 15},
-        PERSON: {id: 'person', description: 'In-person only', price: 30},
-      };
+    let eventAccessPass = {};
 
-      let eventAccessPass = {};
-
-      function discloseOrSign(attribute, label = '', message = '') {
-        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
-        const request = !message ? {
-          '@context': 'https://irma.app/ld/request/disclosure/v2',
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        } : {
-          '@context': 'https://irma.app/ld/request/signature/v2',
-          'message': message,
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-          return getDiscloseResultRawValue(result);
-        });
-      }
-
-      function issueCredential(credential, attributes) {
-        console.log('issueCredential');
-        const request = {
-          '@context': 'https://irma.app/ld/request/issuance/v2',
-          'credentials': [{
-            'credential': credential,
-            'attributes': attributes
-          }]
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success');
-        });
-      }
-
-      function doSession(request) {
-        console.log('doSession');
-        clearOutput();
-        showSuccess('Demo running...');
-
-        const server = IRMA_SERVER;
-        const authmethod = AUTH_METHOD_TOKEN;
-        const key = PRIVATE_TOKEN;
-        const requestorname = '';
-
-        return irma.startSession(server, request, authmethod, key, requestorname)
-          .then(function (pkg) {
-            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
-          })
-          .then(function (result) {
-            console.log('Done', result);
-            return result;
-          })
-          .catch(function (err) {
-            showError(err);
-          });
-      }
-
-      // UI handling functions
-      function clearOutput() {
-        const e = document.getElementById('result');
-        e.setAttribute('hidden', 'true');
-        e.classList.remove('succes', 'warning', 'error');
-      }
-
-      function showError(err) {
-        const e = document.getElementById('result');
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
-        if (err === irma.SessionStatus.Cancelled) {
-          e.classList.add('alert-warning');
-          e.innerText = 'Session was aborted';
-        } else {
-          e.classList.add('alert-danger');
-          e.innerText = 'Error occurred: ' + String(err);
-        }
-        throw err;
-      }
-
-      function showSuccess(text) {
-        const e = document.getElementById('result');
-        e.innerHTML = text;
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
-        e.classList.add('alert-success');
-      }
-
-      const getDiscloseResultRawValue = function (result) {
-        console.log(result);
-        return result.disclosed[0][0].rawvalue || '';
-      };
-
-      window.onload = function () {
-        let app = new Vue({
-          el: '#app',
-          data: {
-            MEMBERSHIP_INDIVIDUAL: 'Individual',
-            MEMBERSHIP_ORGANIZATION: 'Organization',
-            ACCESS_PASS_TYPE: ACCESS_PASS_TYPE,
-            ACCESS_PASS_TYPES: {
-              ALL: 'all',
-              ONLINE: 'online',
-              PERSON: 'person',
-            },
-            ACCESS_PASS_DESCRIPTION: {
-              all: 'Online and In-person',
-              online: 'Online only',
-              person: 'In-person only',
-            },
-            ACCESS_PASS_UNIT_PRICE: {
-              all: 60.00,
-              online: 10.00,
-              person: 30.00
-            },
-            eventAccessPassIssued: false,
-            startSignin: false,
-            signedIn: false,
-            resetedeventAccessPass: {
-              email: null,
-              name: null,
-              accessPassType: '',
-              membershipId: null,
-              readPolicy: false,
-              secondFirstName: '',
-              secondLastName: '',
-            },
-            eventAccessPass: {
-              email: null,
-              name: null,
-              accessPassType: '',
-              membershipId: null,
-              readPolicy: false,
-              secondFirstName: '',
-              secondLastName: '',
-            },
-            eventAccessPassCredential: {},
+    window.onload = function () {
+      let app = new Vue({
+        el: '#app',
+        data: {
+          MEMBERSHIP_INDIVIDUAL: 'Individual',
+          MEMBERSHIP_ORGANIZATION: 'Organization',
+          ACCESS_PASS_TYPE: ACCESS_PASS_TYPE,
+          ACCESS_PASS_TYPES: {
+            ALL: 'all',
+            ONLINE: 'online',
+            PERSON: 'person',
           },
-          methods: {
-            saveEventAccessPass: function () {
-              console.log('saveEventAccessPass');
-              app.eventAccessPassCredential = app.createNethuiAccessPass(app.eventAccessPass);
-              return issueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential)
-                .then((_) => {
-                  app.eventAccessPassIssued = true;
-                });
-            },
+          ACCESS_PASS_DESCRIPTION: {
+            all: 'Online and In-person',
+            online: 'Online only',
+            person: 'In-person only',
+          },
+          ACCESS_PASS_UNIT_PRICE: {
+            all: 60.00,
+            online: 10.00,
+            person: 30.00
+          },
+          eventAccessPassIssued: false,
+          startSignin: false,
+          signedIn: false,
+          resetedeventAccessPass: {
+            email: null,
+            name: null,
+            accessPassType: '',
+            membershipId: null,
+            readPolicy: false,
+            secondFirstName: '',
+            secondLastName: '',
+          },
+          eventAccessPass: {
+            email: null,
+            name: null,
+            accessPassType: '',
+            membershipId: null,
+            readPolicy: false,
+            secondFirstName: '',
+            secondLastName: '',
+          },
+          eventAccessPassCredential: {},
+        },
+        methods: {
+          saveEventAccessPass: function () {
+            console.log('saveEventAccessPass');
+            app.eventAccessPassCredential = app.createNethuiAccessPass(app.eventAccessPass);
+            return irmaIssueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential)
+              .then((_) => {
+                app.eventAccessPassIssued = true;
+              }).catch(function (err) {
+                showError(err);
+              });
+          },
 
-            createNethuiAccessPass: function (eventAccessPass) {
-              console.log('createNethuiAccessPass');
+          createNethuiAccessPass: function (eventAccessPass) {
+            console.log('createNethuiAccessPass');
 
-              const now = new Date();
+            const now = new Date();
 
-              let fullName = `${eventAccessPass.firstName} ${eventAccessPass.lastName}`;
+            let fullName = `${eventAccessPass.firstName} ${eventAccessPass.lastName}`;
 
-              return {
-                id: '' + now.getTime(),
-                event: 'NetHui 2020',
-                eventDate: '13 and 14/10/2020',
-                accessPassType: app.ACCESS_PASS_DESCRIPTION[eventAccessPass.accessPassType],
-                purchaseDate: now.toLocaleDateString(LOCALE_NZ),
-                price: `NZD ${app.calculateTotal()}.00`
-              };
-            },
+            return {
+              id: '' + now.getTime(),
+              event: 'NetHui 2020',
+              eventDate: '13 and 14/10/2020',
+              accessPassType: app.ACCESS_PASS_DESCRIPTION[eventAccessPass.accessPassType],
+              purchaseDate: now.toLocaleDateString(LOCALE_NZ),
+              price: `NZD ${app.calculateTotal()}.00`
+            };
+          },
 
-            reset: function () {
-              app.eventAccessPass = {...app.resetedeventAccessPass};
-              app.eventAccessPassIssued = false;
-              app.eventAccessPassCredential = {};
-              app.startSignin = false;
-              app.signedIn = false;
-              app.signInType = null;
-              clearOutput();
-            },
+          reset: function () {
+            app.eventAccessPass = {
+              ...app.resetedeventAccessPass
+            };
+            app.eventAccessPassIssued = false;
+            app.eventAccessPassCredential = {};
+            app.startSignin = false;
+            app.signedIn = false;
+            app.signInType = null;
+            clearOutput();
+          },
 
-            discloseMembership: function () {
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  [
-                    Object.values(ATTRIBUTE.INTERNETNZ_MEMBERSHIP)
-                  ],
-                  [
-                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL]
-                  ],
-                  [
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME]
-                  ]
-                ]
-              };
-              return doSession(request).then(function (result) {
-                showSuccess('Success');
+          discloseMembership: function () {
+            const discloseAttributes = [
+              [
+                Object.values(ATTRIBUTE.INTERNETNZ_MEMBERSHIP)
+              ],
+              [
+                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL]
+              ],
+              [
+                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME]
+              ]
+            ];
 
-                // Change date format to ISO
-                const dateParts = result.disclosed[0][2].rawvalue.split("/");
-                if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
-                  showError('Your membership has been expired. You need a valid membership to get a discount.');
-                  return;
+            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+              showSuccess('Success');
+
+              // Change date format to ISO
+              const dateParts = result.disclosed[0][2].rawvalue.split("/");
+              if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
+                showError(
+                  'Your membership has been expired. You need a valid membership to get a discount.');
+                return;
+              }
+
+              const fullName = result.disclosed[2][0].rawvalue;
+              const names = fullName.split(' ');
+              app.eventAccessPass.email = result.disclosed[1][0].rawvalue;
+              app.eventAccessPass.name = fullName;
+              app.eventAccessPass.firstName = names.shift();
+              app.eventAccessPass.lastName = names.join(' ');
+              app.eventAccessPass.membershipId = result.disclosed[0][0].rawvalue;
+              app.eventAccessPass.membershipType = result.disclosed[0][1].rawvalue;
+            }).catch(function (err) {
+              showError(err);
+            });
+          },
+
+          calculateTotal: function () {
+            let value = app.ACCESS_PASS_UNIT_PRICE[app.eventAccessPass.accessPassType] || 60.00;
+            if (app.eventAccessPass.membershipId) {
+              value = value * 0.5;
+            }
+            return value;
+          },
+
+          discloseAccessPass: function () {
+            const discloseAttributes = [
+              [
+                Object.values(ATTRIBUTE.INTERNETNZ_NETHUI_ACCESS_PASS)
+              ],
+            ];
+            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+              showSuccess('Success');
+              return result;
+            }).catch(function (err) {
+              showError(err);
+            });
+          },
+
+          signIn: function (eventType) {
+            app.signedIn = false;
+
+            this.discloseAccessPass()
+              .then((result) => {
+                if (
+                  ![app.ACCESS_PASS_DESCRIPTION.all, app.ACCESS_PASS_DESCRIPTION[eventType]].includes(result
+                    .disclosed[0][3].rawvalue)
+                ) {
+                  showError('You have an invalid Access Type for this sign in.');
+                  app.signedIn = false;
+                  return false;
                 }
 
-                const fullName = result.disclosed[2][0].rawvalue;
-                const names = fullName.split(' ');
-                app.eventAccessPass.email = result.disclosed[1][0].rawvalue;
-                app.eventAccessPass.name = fullName;
-                app.eventAccessPass.firstName = names.shift();
-                app.eventAccessPass.lastName = names.join(' ');
-                app.eventAccessPass.membershipId = result.disclosed[0][0].rawvalue;
-                app.eventAccessPass.membershipType = result.disclosed[0][1].rawvalue;
+                showSuccess('Signed in!');
+
+                app.eventAccessPassCredential.id = result.disclosed[0][0].rawvalue;
+                app.eventAccessPassCredential.event = result.disclosed[0][1].rawvalue;
+                app.eventAccessPassCredential.eventDate = result.disclosed[0][2].rawvalue;
+                app.eventAccessPassCredential.accessPassType = result.disclosed[0][3].rawvalue;
+                app.eventAccessPassCredential.purchaseDate = result.disclosed[0][4].rawvalue;
+                app.eventAccessPassCredential.price = result.disclosed[0][5].rawvalue;
+
+                app.signedIn = true;
+                app.signInType = eventType;
               });
-            },
-
-            calculateTotal: function () {
-              let value = app.ACCESS_PASS_UNIT_PRICE[app.eventAccessPass.accessPassType] || 60.00;
-              if (app.eventAccessPass.membershipId) {
-                value = value * 0.5;
-              }
-              return value;
-            },
-
-            discloseAccessPass: function () {
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  [
-                    Object.values(ATTRIBUTE.INTERNETNZ_NETHUI_ACCESS_PASS)
-                  ],
-                ]
-              };
-              return doSession(request).then(function (result) {
-                showSuccess('Success');
-                return result;
-              });
-            },
-
-            signIn: function (eventType) {
-              app.signedIn = false;
-
-              this.discloseAccessPass()
-                .then((result) => {
-                  if (
-                    ![app.ACCESS_PASS_DESCRIPTION.all, app.ACCESS_PASS_DESCRIPTION[eventType]].includes(result.disclosed[0][3].rawvalue)
-                  ) {
-                    showError('You have an invalid Access Type for this sign in.');
-                    app.signedIn = false;
-                    return false;
-                  }
-
-                  showSuccess('Signed in!');
-
-                  app.eventAccessPassCredential.id = result.disclosed[0][0].rawvalue;
-                  app.eventAccessPassCredential.event = result.disclosed[0][1].rawvalue;
-                  app.eventAccessPassCredential.eventDate = result.disclosed[0][2].rawvalue;
-                  app.eventAccessPassCredential.accessPassType = result.disclosed[0][3].rawvalue;
-                  app.eventAccessPassCredential.purchaseDate = result.disclosed[0][4].rawvalue;
-                  app.eventAccessPassCredential.price = result.disclosed[0][5].rawvalue;
-
-                  app.signedIn = true;
-                  app.signInType = eventType;
-                });
-            },
-          }
-        })
-      };
-    </script>
+          },
+        }
+      })
+    };
+  </script>
 </head>
+
 <body>
-<div id="app" class="container" v-cloak>
+  <div id="app" class="container" v-cloak>
 
     <header class="text-center">
-        <img src="nethui-2020.png" title="NetHui 2020" alt="NetHui 2020">
+      <img src="assets/images/nethui-2020.png" title="NetHui 2020" alt="NetHui 2020">
     </header>
 
     <h2 class="page-header">NetHui 2020</h2>
     <hr>
 
     <div class="js-showmore border rounded p-2" v-if="!startSignin">
-        <div class="js-showmore-content" style="height: auto;">
-            <p>NetHui is the annual congregation of New Zealand's Internet community. If you use the Internet or want to use it, that's you! Come and meet people who are interested in the digital world and attend conversation sessions to share your voice. </p>
+      <div class="js-showmore-content" style="height: auto;">
+        <p>NetHui is the annual congregation of New Zealand's Internet community. If you use the Internet or want to use
+          it, that's you! Come and meet people who are interested in the digital world and attend conversation sessions
+          to share your voice. </p>
 
-            <p>This year, NetHui is going virtual. On
-                <strong>13-14 October 2020</strong>, we'll have two half-days of provoking speakers and panels, paired with breakout streams to delve deeper into the plenary topics. Instead of a few keynotes, we're shifting focus to give space to more speakers doing shorter talks and panels (and keeping things lively for virtual attendees).&nbsp;&nbsp;
-            </p>
+        <p>This year, NetHui is going virtual. On
+          <strong>13-14 October 2020</strong>, we'll have two half-days of provoking speakers and panels, paired with
+          breakout streams to delve deeper into the plenary topics. Instead of a few keynotes, we're shifting focus to
+          give space to more speakers doing shorter talks and panels (and keeping things lively for virtual
+          attendees).&nbsp;&nbsp;
+        </p>
 
-            <p>Check <a href="https://2020.nethui.nz/" rel="nofollow noopener noreferrer" target="_blank">https://2020.nethui.nz/</a> for more information.</p>
-        </div>
+        <p>Check <a href="https://2020.nethui.nz/" rel="nofollow noopener noreferrer"
+            target="_blank">https://2020.nethui.nz/</a> for more information.</p>
+      </div>
 
-        <div class="text-center">
-            <button class="btn btn-primary" v-on:click="startSignin = true">Sign In using IRMA</button>
-        </div>
+      <div class="text-center">
+        <button class="btn btn-primary" v-on:click="startSignin = true">Sign In using IRMA</button>
+      </div>
     </div>
 
     <div id="result" class="status alert" role="alert" hidden></div>
 
     <div v-if="!startSignin">
 
-        <div class="card" v-if="!eventAccessPassIssued">
-            <h5 class="card-header">Buy your Access Pass</h5>
-            <div class="card-body">
+      <div class="card" v-if="!eventAccessPassIssued">
+        <h5 class="card-header">Buy your Access Pass</h5>
+        <div class="card-body">
 
-                <h4>AccessPass Type</h4>
-                <div class="form-group row col-6">
-                    <select class="form-control" v-model="eventAccessPass.accessPassType">
-                        <option value=""></option>
-                        <option value="all">Online and In-person</option>
-                        <option value="online">Online only</option>
-                        <option value="person">In-person only</option>
-                    </select>
-                </div>
+          <h4>AccessPass Type</h4>
+          <div class="form-group row col-6">
+            <select class="form-control" v-model="eventAccessPass.accessPassType">
+              <option value=""></option>
+              <option value="all">Online and In-person</option>
+              <option value="online">Online only</option>
+              <option value="person">In-person only</option>
+            </select>
+          </div>
 
-                <div v-if="eventAccessPass.accessPassType">
-                    <div class="text-right">
-                        <mark v-if="eventAccessPass.membershipId">[Members price]</mark>
-                        NZD {{ calculateTotal() }}
-                        <div v-if="!eventAccessPass.membershipId">
-                            <br>
-                            <button class="btn btn-success"
-                                    v-on:click="discloseMembership()"
-                            >
-                                Use your membership to get a discount: NZD {{ calculateTotal() * 0.5 }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+          <div v-if="eventAccessPass.accessPassType">
+            <div class="text-right">
+              <mark v-if="eventAccessPass.membershipId">[Members price]</mark>
+              NZD {{ calculateTotal() }}
+              <div v-if="!eventAccessPass.membershipId">
+                <br>
+                <button class="btn btn-success" v-on:click="discloseMembership()">
+                  Use your membership to get a discount: NZD {{ calculateTotal() * 0.5 }}
+                </button>
+              </div>
             </div>
+          </div>
+
         </div>
+      </div>
 
-        <p>&nbsp;</p>
+      <p>&nbsp;</p>
 
-        <div v-if="!eventAccessPassIssued && eventAccessPass.accessPassType" class="card">
-            <h5 class="card-header">Fill the form</h5>
+      <div v-if="!eventAccessPassIssued && eventAccessPass.accessPassType" class="card">
+        <h5 class="card-header">Fill the form</h5>
 
-            <div class="card-body">
-                <form id="form-signup" name="form" action="">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="firstName">First Name*</label>
-                            <input type="text" class="form-control" id="firstName" required v-bind:value="eventAccessPass.firstName">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="lastName">Last Name*</label>
-                            <input type="text" class="form-control" id="lastName" required v-bind:value="eventAccessPass.lastName">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="staticEmail">Email*</label>
-                            <input type="email" class="form-control" id="staticEmail" required v-model="eventAccessPass.email">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="organisationName">Organisation Name</label>
-                            <input type="text" class="form-control" id="organisationName" v-model="eventAccessPass.organisationName">
-                        </div>
-                    </div>
-
-                    <div class="row" v-if="eventAccessPass.membershipId">
-                        <ul>
-                            <li><strong>ID:</strong> {{ eventAccessPass.membershipId }}</li>
-                            <li><strong>Type:</strong> {{ eventAccessPass.membershipType }}</li>
-                        </ul>
-                    </div>
-
-                    <div class="text-center align-center">
-                        <input type="button"
-                               class="btn btn-lg btn-success"
-                               value="Get your accessPass!"
-                               v-bind:disabled="!eventAccessPass.email || !eventAccessPass.lastName"
-                               v-on:click="saveEventAccessPass()"
-                        >
-                    </div>
-
-                </form>
-
+        <div class="card-body">
+          <form id="form-signup" name="form" action="">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="firstName">First Name*</label>
+                <input type="text" class="form-control" id="firstName" required
+                  v-bind:value="eventAccessPass.firstName">
+              </div>
+              <div class="form-group col-md-6">
+                <label for="lastName">Last Name*</label>
+                <input type="text" class="form-control" id="lastName" required v-bind:value="eventAccessPass.lastName">
+              </div>
             </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="staticEmail">Email*</label>
+                <input type="email" class="form-control" id="staticEmail" required v-model="eventAccessPass.email">
+              </div>
+              <div class="form-group col-md-6">
+                <label for="organisationName">Organisation Name</label>
+                <input type="text" class="form-control" id="organisationName"
+                  v-model="eventAccessPass.organisationName">
+              </div>
+            </div>
+
+            <div class="row" v-if="eventAccessPass.membershipId">
+              <ul>
+                <li><strong>ID:</strong> {{ eventAccessPass.membershipId }}</li>
+                <li><strong>Type:</strong> {{ eventAccessPass.membershipType }}</li>
+              </ul>
+            </div>
+
+            <div class="text-center align-center">
+              <input type="button" class="btn btn-lg btn-success" value="Get your accessPass!"
+                v-bind:disabled="!eventAccessPass.email || !eventAccessPass.lastName"
+                v-on:click="saveEventAccessPass()">
+            </div>
+
+          </form>
+
         </div>
+      </div>
 
     </div>
 
     <div class="text-center" v-if="startSignin">
-        <div v-if="!signedIn">
-            <button class="btn btn-success btn-lg active" role="button" aria-pressed="true" v-on:click="signIn('online')">
-                Sign In to Online Event
-            </button>
+      <div v-if="!signedIn">
+        <button class="btn btn-success btn-lg active" role="button" aria-pressed="true" v-on:click="signIn('online')">
+          Sign In to Online Event
+        </button>
 
-            <div>- or -</div>
+        <div>- or -</div>
 
-            <button class="btn btn-success btn-lg active" role="button" aria-pressed="true" v-on:click="signIn('person')">Sign In to In-Person Event</button>
-        </div>
+        <button class="btn btn-success btn-lg active" role="button" aria-pressed="true"
+          v-on:click="signIn('person')">Sign In to In-Person Event</button>
+      </div>
 
-        <div class="m-3" v-if="signedIn && signInType === ACCESS_PASS_TYPE.ONLINE.id">
-            <h6>You're in!</h6>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/ObKMYeocSbQ"
-                    frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
+      <div class="m-3" v-if="signedIn && signInType === ACCESS_PASS_TYPE.ONLINE.id">
+        <h6>You're in!</h6>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/ObKMYeocSbQ" frameborder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
 
-        <div class="m-1" v-if="signedIn && signInType === ACCESS_PASS_TYPE.PERSON.id">
-            <h6>You're in!</h6>
-            <img src="event-access-pass-go.jpg" title="Go!" alt="Go!">
-        </div>
+      <div class="m-1" v-if="signedIn && signInType === ACCESS_PASS_TYPE.PERSON.id">
+        <h6>You're in!</h6>
+        <img src="assets/images/event-access-pass-go.jpg" title="Go!" alt="Go!">
+      </div>
     </div>
 
     <div v-if="eventAccessPassIssued || signedIn" class="card">
-        <h5 class="card-header">Your Access Pass!</h5>
-        <div class="card-body">
-            <ul>
-                <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
-                <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
-                <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
-                <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
-            </ul>
-        </div>
+      <h5 class="card-header">Your Access Pass!</h5>
+      <div class="card-body">
+        <ul>
+          <li><strong>ID:</strong> {{ eventAccessPassCredential.id }}</li>
+          <li><strong>Type:</strong> {{ eventAccessPassCredential.accessPassType }}</li>
+          <li><strong>Purchase date:</strong> {{ eventAccessPassCredential.purchaseDate }}</li>
+          <li><strong>Price:</strong> {{ eventAccessPassCredential.price }}</li>
+        </ul>
+      </div>
     </div>
 
     <div class="text-right">
-        <input type="button" class="btn btn-info" v-on:click="reset()" value="Reset">
+      <input type="button" class="btn btn-info" v-on:click="reset()" value="Reset">
     </div>
 
     <div class="p-5 text-center">
-        <ul class="list-inline">
-            <li class="list-inline-item"><a href="/">Issue Name, Address and Email</a></li>
-            <li class="list-inline-item"><a href="/membership.html">Membership</a></li>
-            <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
-            <li class="list-inline-item"><a href="/assets/apk/app.apk">APK (universal)</a></li>
-        </ul>
+      <ul class="list-inline">
+        <li class="list-inline-item"><a href="/">Issue Name, Address and Email</a></li>
+        <li class="list-inline-item"><a href="/membership.html">Membership</a></li>
+        <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
+        <li class="list-inline-item"><a href="/assets/apk/app.apk">APK (universal)</a></li>
+      </ul>
     </div>
 
-</div>
+  </div>
 </body>
+
 </html>
