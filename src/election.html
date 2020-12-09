@@ -54,6 +54,7 @@
       let app = new Vue({
         el: '#app',
         data: {
+          HEADER_MESSAGES: HEADER_MESSAGES,
           userMembershipAttributes: {
             id: '',
             validUntil: ''
@@ -84,7 +85,7 @@
         methods: {
           verifyINZMembership: function () {
             console.log('verifyINZMembership');
-            return irmaDiscloseOrSign(this.membetshipAttributes)
+            return irmaDiscloseOrSign(this.membetshipAttributes, HEADER_MESSAGES.DISCLOSE_INZ_MEMBERSHIP)
               .then((result) => {
                 showSuccess('Success, Your IRMA ID is : <strong>' + result.disclosed[0][0].rawvalue +
                   '</strong>');

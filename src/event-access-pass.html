@@ -56,6 +56,7 @@
         data: {
           MEMBERSHIP_INDIVIDUAL: 'Individual',
           MEMBERSHIP_ORGANIZATION: 'Organization',
+          HEADER_MESSAGES: HEADER_MESSAGES,
           ACCESS_PASS_TYPE: ACCESS_PASS_TYPE,
           ACCESS_PASS_TYPES: {
             ALL: 'all',
@@ -99,7 +100,7 @@
           saveEventAccessPass: function () {
             console.log('saveEventAccessPass');
             app.eventAccessPassCredential = app.createNethuiAccessPass(app.eventAccessPass);
-            return irmaIssueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential)
+            return irmaIssueCredential(CREDENTIAL.INTERNETNZ_NETHUI_ACCESS_PASS, app.eventAccessPassCredential, HEADER_MESSAGES.ISSUE_NETHUI_ACCESS_PASS)
               .then((_) => {
                 app.eventAccessPassIssued = true;
               }).catch(function (err) {
@@ -149,7 +150,7 @@
               ]
             ];
 
-            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+            return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_NAME_EMAIL_MEMBERSHIP).then(function (result) {
               showSuccess('Success');
 
               // Change date format to ISO
@@ -187,7 +188,7 @@
                 Object.values(ATTRIBUTE.INTERNETNZ_NETHUI_ACCESS_PASS)
               ],
             ];
-            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+            return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_NETHUI_ACCESS_PASS).then(function (result) {
               showSuccess('Success');
               return result;
             }).catch(function (err) {

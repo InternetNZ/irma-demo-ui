@@ -54,6 +54,7 @@
         data: {
           MEMBERSHIP_INDIVIDUAL: 'Individual',
           MEMBERSHIP_ORGANIZATION: 'Organization',
+          HEADER_MESSAGES: HEADER_MESSAGES,
           MEMBERSHIP_UNIT_PRICE: 21,
           membershipIssued: false,
           resetedUsermembershipAttributes: {
@@ -87,7 +88,7 @@
               ]
             ];
             return irmaIssueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential,
-                disclosePayload)
+                HEADER_MESSAGES.ISSUE_INZ_MEMBERSHIP, disclosePayload)
               .then((_) => {
                 app.membershipIssued = true;
               }).catch(function (err) {
@@ -137,7 +138,7 @@
                 [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
               ]
             ];
-            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+            return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
               showSuccess('Success');
 
               const fullName = result.disclosed[1][0].rawvalue;
