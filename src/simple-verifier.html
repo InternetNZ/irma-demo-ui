@@ -58,7 +58,7 @@
           birthdate: null,
           agelimit: null,
           // disclosure
-          over18DiscloseOptions: ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18,
+          over18DiscloseOptions: [ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18, ],
         },
         methods: {
           reset: function () {
@@ -79,9 +79,7 @@
 
             const discloseAttributes = [
               [
-                [
-                  this.over18DiscloseOptions
-                ]
+                this.over18DiscloseOptions
               ]
             ];
 
