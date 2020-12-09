@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-    <title>IRMA example - Simple issuer</title>
+    <title>InternetNZ | IRMA examples</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,29 +19,97 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-    <script src="assets/irma.js" defer></script>
-    <script src="irma-functions.js" defer></script>
-    <script src="ui-functions.js" defer></script>
+    <script src="irma.js" defer></script>
+
     <script src="global.js">
       // --------------------------------
       // globals loaded from globals file
       // --------------------------------
     </script>
     <script type="text/javascript">
-      let userMembershipAttributes = {};
+      function discloseOrSign(attribute, label = '', message = '') {
+        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+        const request = !message ? {
+          '@context': 'https://irma.app/ld/request/disclosure/v2',
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        } : {
+          '@context': 'https://irma.app/ld/request/signature/v2',
+          'message': message,
+          'disclose': [
+            [
+              [attribute]
+            ]
+          ],
+          ...labelRequest
+        };
+        return doSession(request).then(function (result) {
+          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+          return getDiscloseResultRawValue(result);
+        });
+      }
 
-      function issueCredential(credential, attributes, header = '') {
+      function doSession(request) {
+        console.log('doSession');
         clearOutput();
         showSuccess('Demo running...');
 
-        irmaIssueCredential(credential, attributes, header = header)
-        .then(function (result) {
-            showSuccess('Success');
+        const server = IRMA_SERVER;
+        const authmethod = AUTH_METHOD_TOKEN;
+        const key = PRIVATE_TOKEN;
+        const requestorname = '';
+
+        console.log(request);
+
+        return irma.startSession(server, request, authmethod, key, requestorname)
+          .then(function (pkg) {
+            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+          })
+          .then(function (result) {
+            console.log('Done', result);
+            return result;
           })
           .catch(function (err) {
             showError(err);
           });
       }
+
+      // UI handling functions
+      function clearOutput() {
+        const e = document.getElementById('result');
+        e.setAttribute('hidden', 'true');
+        e.classList.remove('succes', 'warning', 'error');
+      }
+
+      function showError(err) {
+        const e = document.getElementById('result');
+        e.removeAttribute('hidden');
+        e.classList.remove('alert-success');
+        if (err === irma.SessionStatus.Cancelled) {
+          e.classList.add('alert-warning');
+          e.innerText = 'Session was aborted';
+        } else {
+          e.classList.add('alert-danger');
+          e.innerText = 'Error occurred: ' + String(err);
+        }
+        throw err;
+      }
+
+      function showSuccess(text) {
+        const e = document.getElementById('result');
+        e.innerHTML = text;
+        e.removeAttribute('hidden');
+        e.classList.add('alert-success');
+      }
+
+      const getDiscloseResultRawValue = function (result) {
+        console.log(result);
+        return result.disclosed[0][0].rawvalue || '';
+      };
 
       window.onload = function () {
         let app = new Vue({
@@ -49,7 +117,6 @@
           data: {
             ATTRIBUTE: ATTRIBUTE,
             CREDENTIAL: CREDENTIAL,
-            HEADER_MESSAGES: HEADER_MESSAGES,
             MEMBERSHIP_INDIVIDUAL: 'Individual',
             MEMBERSHIP_ORGANIZATION: 'Organization',
             MEMBERSHIP_UNIT_PRICE: 21,
@@ -62,10 +129,13 @@
             over65: null,
             birthdate: null,
             agelimit: null,
+            // disclosure
+            over18DiscloseOptions: [
+              ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18,
+              //ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18,
+            ],
           },
           methods: {
-            issueCredential: issueCredential,
-
             reset: function () {
               app.userMembershipAttributes = {
                 email: null,
@@ -78,6 +148,26 @@
               app.membershipCredential = {};
               clearOutput();
             },
+
+            discloseOver18: function () {
+              this.over18 = null;
+
+              const disclose = this.over18DiscloseOptions.map((attribute) => {
+                return [attribute];
+              });
+
+              const request = {
+                '@context': 'https://irma.app/ld/request/disclosure/v2',
+                'disclose': [disclose]
+              };
+              return doSession(request).then(function (result) {
+                console.log(result);
+
+                showSuccess('Success');
+
+                app.over18 = result.disclosed[0][0];
+              });
+            }
           }
         })
       };
@@ -87,137 +177,31 @@
 <div id="app" class="container" v-cloak>
 
     <header>
-        <h2>Simple Issuer</h2>
+        <h2>InternetNZ IRMA Demos</h2>
         <hr>
     </header>
 
-    <p>&nbsp;</p>
+    <p>Kia ora!</p>
 
-    <div class="row">
-        <div id="result" class="status alert col-12" hidden></div>
-    </div>
+    <p>This website brings some use cases that InternetNZ has prepared to present IRMA.</p>
 
-    <form>
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label for="email" class="col-2 col-form-label text-right">E-mail</label>
-                <div class="col-8">
-                    <input type="email" id="email" class="form-control" placeholder="joe@internetnz.net.nz" v-model="email">
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!email"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_EMAILER_EMAIL, { 'email': email }, HEADER_MESSAGES.ISSUE_EMAIL)">
-                </div>
-            </div>
-        </div>
+    <h2><a href="wine-shop.html">Wine shop</a></h2>
 
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label for="fullName" class="col-2 col-form-label text-right">Full name</label>
-                <div class="col-8">
-                    <input type="text" id="fullName" class="form-control" placeholder="John Doe" v-model="fullName">
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!fullName"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_PERSON_NAME, { 'fullName': fullName }, HEADER_MESSAGES.ISSUE_NAME)">
-                </div>
-            </div>
-        </div>
+    <p>During a Wine Shop, we check if the user has an attribute of <strong>age limit</strong> as a proof that
+    the user <strong>is over 18</strong>. The user can also opt if he wants to buy as a guest or to sign a
+        subscription. As a guest buyer, an <em>address</em> will be asked, as a subscriber, <em>name</em> and
+        <em>address</em> will be asked. On both cases, the user can fill manually or fill with IRMA attributes.</p>
 
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label for="fullAddress" class="col-2 col-form-label text-right">Address</label>
-                <div class="col-8">
-                    <input type="text" id="fullAddress" class="form-control"
-                           placeholder="Ex: Level 11, 80 Boulcott Street (South entrance), Wellington 6011"
-                           v-model="fullAddress">
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!fullAddress"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_NZPOST_FULL_ADDRESS, { 'fullAddress': fullAddress }, HEADER_MESSAGES.ISSUE_ADDRESS)">
-                </div>
-            </div>
-        </div>
-
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label class="col-2 col-form-label text-right">Over18</label>
-                <div class="col-8">
-                    <label for="over18Yes">
-                        <input type="radio" name="over18" id="over18Yes" value="Yes" v-model="over18"> Yes
-                    </label>
-                    <label for="over18No">
-                        <input type="radio" name="over18" id="over18No" value="No" v-model="over18"> No
-                    </label>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-2 col-form-label text-right">Over65</label>
-                <div class="col-8">
-                    <label for="over65Yes">
-                        <input type="radio" name="over65" id="over65Yes" value="Yes" v-model="over65"> Yes
-                    </label>
-                    <label for="over65No">
-                        <input type="radio" name="over65" id="over65No" value="No" v-model="over65"> No
-                    </label>
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!over18"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS, { 'over18': over18, 'over65': over65 }, HEADER_MESSAGES.ISSUE_AGE)">
-                </div>
-            </div>
-        </div>
-
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label for="birthdate" class="col-2 col-form-label text-right">Birthdate</label>
-                <div class="col-8">
-                    <input type="date" id="birthdate" class="form-control"
-                           placeholder="20/12/2020"
-                           v-model="birthdate">
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!birthdate"
-                           v-on:click="issueCredential(CREDENTIAL.FAKE_PERSONAL_DATA_BIRTHDATE, { 'birthdate': birthdate }, HEADER_MESSAGES.ISSUE_BIRTHDATE)">
-                </div>
-            </div>
-        </div>
-
-        <div class="border-left border-warning rounded p-1 m-3">
-            <div class="form-group row">
-                <label class="col-2 col-form-label text-right">IRMA_DEMO Over18</label>
-                <div class="col-8">
-                    <label for="agelimit">
-                        <input type="radio" name="over65" id="agelimitYes" value="Yes" v-model="agelimit"> Yes
-                    </label>
-                    <label for="agelimit">
-                        <input type="radio" name="over65" id="agelimit" value="No" v-model="agelimit"> No
-                    </label>
-                    <div class="text-right">
-                        <code>irma-demo.nijmegen.ageLimits.over18</code>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <input type="button" class="btn btn-info" value="Issue"
-                           v-bind:disabled="!agelimit"
-                           v-on:click="issueCredential(CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS, { 'over18': agelimit, 'over12': 'No', 'over16': 'No', 'over21': 'No', 'over65': 'No' }, HEADER_MESSAGES.ISSUE_AGE)">
-                </div>
-            </div>
-        </div>
-    </form>
+    <p>Age limits, address and name may be issued at <a href="../simple-issuer.html">simple issuer page</a>.</p>
 
     <div class="p-5 text-center clear">
         <ul class="list-inline">
-            <li class="list-inline-item"><a href="/membership.html">INZ Membership</a></li>
-            <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
-            <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
-            <li class="list-inline-item"><a href="/simple-verifier.html">Simple verifier</a></li>
-            <li class="list-inline-item"><a href="/assets/apk/app.apk">APK (universal)</a></li>
+            <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
+            <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="../simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="wine-shop.html">Wine Shop</a></li>
+            <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
 
