@@ -30,7 +30,7 @@
       function clearOutput() {
         const e = document.getElementById('result');
         e.setAttribute('hidden', 'true');
-        e.classList.remove('succes', 'warning', 'error');
+        e.classList.remove('succes', 'warning', 'error', 'alert-danger');
       }
 
       function showError(err) {
@@ -51,7 +51,7 @@
         const e = document.getElementById('result');
         e.innerHTML = text;
         e.removeAttribute('hidden');
-        e.removeAttribute('alert-warning');
+        e.classList.remove('alert-danger');
         e.classList.add('alert-success');
       }
 
@@ -269,7 +269,9 @@
                                         </div>
 
                                         <div class="form-group col-md-12">
-                                            <button type="button" class="btn btn-outline-success" v-on:click="finished = true">Pay and finish</button>
+                                            <button type="button" class="btn btn-outline-success"
+                                                    v-bind:disabled="!fullAddress && (PurchaseMode.Subscription && !fullName)"
+                                                    v-on:click="finished = true">Pay and finish</button>
                                         </div>
                                     </div>
                                 </form>
