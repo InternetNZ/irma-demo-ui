@@ -19,8 +19,9 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-    <script src="irma.js" defer></script>
-
+    <script src="assets/irma.js" defer></script>
+    <script src="irma-functions.js" defer></script>
+    <script src="ui-functions.js" defer></script>
     <script src="global.js">
       // --------------------------------
       // globals loaded from globals file
@@ -29,103 +30,18 @@
     <script type="text/javascript">
       let userMembershipAttributes = {};
 
-      function discloseOrSign(attribute, label = '', message = '') {
-        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
-        const request = !message ? {
-          '@context': 'https://irma.app/ld/request/disclosure/v2',
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        } : {
-          '@context': 'https://irma.app/ld/request/signature/v2',
-          'message': message,
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-          return getDiscloseResultRawValue(result);
-        });
-      }
-
       function issueCredential(credential, attributes) {
-        console.log('issueCredential');
-        const request = {
-          '@context': 'https://irma.app/ld/request/issuance/v2',
-          'credentials': [{
-            'credential': credential,
-            'attributes': attributes
-          }]
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success');
-        });
-      }
-
-      function doSession(request) {
-        console.log('doSession');
         clearOutput();
         showSuccess('Demo running...');
 
-        const server = IRMA_SERVER;
-        const authmethod = AUTH_METHOD_TOKEN;
-        const key = PRIVATE_TOKEN;
-        const requestorname = '';
-
-        console.log(request);
-
-        return irma.startSession(server, request, authmethod, key, requestorname)
-          .then(function (pkg) {
-            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
-          })
-          .then(function (result) {
-            console.log('Done', result);
-            return result;
+        irmaIssueCredential(credential, attributes)
+        .then(function (result) {
+            showSuccess('Success');
           })
           .catch(function (err) {
             showError(err);
           });
       }
-
-      // UI handling functions
-      function clearOutput() {
-        const e = document.getElementById('result');
-        e.setAttribute('hidden', 'true');
-        e.classList.remove('succes', 'warning', 'error');
-      }
-
-      function showError(err) {
-        const e = document.getElementById('result');
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-success');
-        if (err === irma.SessionStatus.Cancelled) {
-          e.classList.add('alert-warning');
-          e.innerText = 'Session was aborted';
-        } else {
-          e.classList.add('alert-danger');
-          e.innerText = 'Error occurred: ' + String(err);
-        }
-        throw err;
-      }
-
-      function showSuccess(text) {
-        const e = document.getElementById('result');
-        e.innerHTML = text;
-        e.removeAttribute('hidden');
-        e.classList.add('alert-success');
-      }
-
-      const getDiscloseResultRawValue = function (result) {
-        console.log(result);
-        return result.disclosed[0][0].rawvalue || '';
-      };
 
       window.onload = function () {
         let app = new Vue({
@@ -174,9 +90,15 @@
                   ]
                 ]
               };
-              return doSession(request).then(function (result) {
-                console.log(result);
-
+              const discloseAttributes = [
+                  [
+                    [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
+                  ],
+                  [
+                    [ATTRIBUTE.FAKE_PERSONAL_DATA_NAME],
+                  ]
+                ]
+              return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
                 showSuccess('Success');
 
                 const fullName = result.disclosed[1][0].rawvalue;
@@ -326,7 +248,7 @@
             <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
             <li class="list-inline-item"><a href="/simple-verifier.html">Simple verifier</a></li>
-            <li class="list-inline-item"><a href="/apk/app.apk">APK (universal)</a></li>
+            <li class="list-inline-item"><a href="/assets/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
 

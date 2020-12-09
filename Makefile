@@ -3,4 +3,5 @@ help:           ## Show this help.
 
 deploy:		## Deploy to s3 - be sure to set your aws profile
 	echo "Deploying to $$AWS_PROFILE" \
-	&& aws s3 sync . s3://irma-demo-ui/ --exclude ".git*" --exclude "deploy.sh" --exclude ".idea/*"
+	&& aws s3 sync ./src/ s3://irma-demo-ui/ \
+	&& echo "Done!"

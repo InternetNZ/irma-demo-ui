@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en_NZ">
+
+<head>
+  <title>IRMA attribute verification example</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+  <link type="text/css" rel="stylesheet"
+    href="https://members.internetnz.nz/sites/default/files/css/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css"
+    media="all">
+  <link type="text/css" rel="stylesheet"
+    href="https://members.internetnz.nz/sites/default/files/css/css_BYS6l8MYdx4ZFt71Bo-5FHQgBgF8GbKo_9xQnGiiRqI.css"
+    media="all" />
+  <link type="text/css" rel="stylesheet"
+    href="https://members.internetnz.nz/sites/default/files/css/css_S1SKPYV-rmiTH7oD4myqMAsMOJcP3aNMY_ryOkm4ARo.css"
+    media="all" />
+  <!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
+  <link type="text/css" rel="stylesheet"
+    href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css"
+    media="all">
+
+  <link type="text/css" rel="stylesheet" href="assets/css/style-membership.css">
+
+  <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+
+  <!-- production version, optimized for size and speed -->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+  <script src="assets/irma.js" defer></script>
+  <script src="irma-functions.js" defer></script>
+  <script src="ui-functions.js" defer></script>
+  <script src="global.js">
+    // --------------------------------
+    // globals loaded from globals file
+    // --------------------------------
+  </script>
+  <script type="text/javascript">
+    let userMembershipAttributes = {};
+
+    window.onload = function () {
+      let app = new Vue({
+        el: '#app',
+        data: {
+          MEMBERSHIP_INDIVIDUAL: 'Individual',
+          MEMBERSHIP_ORGANIZATION: 'Organization',
+          MEMBERSHIP_UNIT_PRICE: 21,
+          membershipIssued: false,
+          resetedUsermembershipAttributes: {
+            email: null,
+            name: null,
+            type: '',
+            membershipDuration: null,
+            readPolicy: false,
+            generateExpired: false,
+          },
+          userMembershipAttributes: {
+            email: null,
+            name: null,
+            type: '',
+            membershipDuration: null,
+            readPolicy: false,
+            generateExpired: false,
+          },
+          membershipCredential: {},
+        },
+        methods: {
+          saveMembership: function () {
+            console.log('saveMembership');
+            app.membershipCredential = app.createMembership(app.userMembershipAttributes);
+            const disclosePayload = [
+              [
+                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
+              ],
+              [
+                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+              ]
+            ];
+            return irmaIssueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential,
+                disclosePayload)
+              .then((_) => {
+                app.membershipIssued = true;
+              }).catch(function (err) {
+                showError(err);
+              });
+          },
+
+          createMembership: function (userMembershipAttributes) {
+            console.log('createMembership');
+
+            const now = new Date();
+
+            if (app.userMembershipAttributes.generateExpired) {
+              now.setFullYear(now.getFullYear() - 2 - parseInt(app.userMembershipAttributes
+              .membershipDuration));
+            }
+
+            const validUntil = new Date(now);
+            validUntil.setFullYear(validUntil.getFullYear() + parseInt(app.userMembershipAttributes
+              .membershipDuration));
+            return {
+              // We can use email or generate an integer ID
+              // I am using time in miliseconds
+              id: '' + now.getTime(),
+              type: userMembershipAttributes.type,
+              purchaseDate: now.toLocaleDateString(LOCALE_NZ),
+              renewalDate: now.toLocaleDateString(LOCALE_NZ),
+              validUntil: validUntil.toLocaleDateString(LOCALE_NZ)
+            };
+          },
+
+          reset: function () {
+            app.userMembershipAttributes = {
+              ...app.resetedUsermembershipAttributes
+            };
+            app.membershipIssued = false;
+            app.membershipCredential = {};
+            clearOutput();
+          },
+
+          discloseEmailAndName: function () {
+            const discloseAttributes = [
+              [
+                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
+              ],
+              [
+                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+              ]
+            ];
+            return irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+              showSuccess('Success');
+
+              const fullName = result.disclosed[1][0].rawvalue;
+              const names = fullName.split(' ');
+              app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+              app.userMembershipAttributes.name = fullName;
+              app.userMembershipAttributes.firstName = names.shift();
+              app.userMembershipAttributes.lastName = names.join(' ');
+            }).catch(function (err) {
+              showError(err);
+            });
+          }
+        }
+      })
+    };
+  </script>
+</head>
+
+<body>
+  <div id="app" class="container" v-cloak>
+
+    <!-- header -->
+    <div class="headerWrap">
+      <div class="mobileIcons">
+        <ul id="socialMediaButtons">
+          <li><a href="https://internetnz.nz/contact-us" class="dotnews">DotNews</a></li>
+
+        </ul>
+      </div>
+      <div class="navbar-header">
+        <a class="logo navbar-btn pull-left" href="/" title="Home">
+          <img src="https://members.internetnz.nz/sites/default/files/INZ%20logo_large_Full%20colour_CROPPED.png"
+            alt="Home">
+        </a>
+
+        <a class="name navbar-brand" href="/" title="Home">InternetNZ</a>
+
+        <button type="button" class="search-toggle" data-toggle="collapse" data-target=".search-wrapper">
+          <span class="sr-only">Toggle search</span>
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+
+      <div class="search-wrapper collapse in">
+        <div class="region region-search-form">
+          <section class=" clearfix">
+          </section>
+        </div>
+      </div>
+    </div>
+    <!-- header -->
+
+    <h1>INZ Membership demo (based on IRMA)</h1>
+
+    <section class="col-sm-12">
+      <h1 class="page-header">Join InternetNZ</h1>
+    </section>
+
+    <p>By becoming an InternetNZ member you help us to close digital divides, support Kiwis to be secure online and keep
+      the Internet open for us all.</p>
+
+    <p>For $21 per year you can be a member of InternetNZ and you can:</p>
+
+    <ul>
+      <li><strong>get invites</strong> to great Internet events</li>
+      <li><strong>stay in the loop</strong> and receive the latest Internet news, discounts and priority event
+        registration</li>
+      <li><strong>contribute</strong> to our work and <strong>influence</strong> the direction of InternetNZ.</li>
+    </ul>
+
+    <div class="row">
+      <div id="result" class="status alert" hidden></div>
+    </div>
+
+    <p>&nbsp;</p>
+
+    <div v-if="!membershipIssued">
+      <div class="text-center" v-if="!userMembershipAttributes.email">
+        <a class="btn btn-lg btn-warning" href="https://members.internetnz.nz/" target="_blank">SignUp filling the
+          form</a>
+        <button id="verify-fakerealme-email" class="btn btn-lg btn-success" v-on:click="discloseEmailAndName()">Sign up
+          with IRMA</button>
+      </div>
+
+      <div v-if="userMembershipAttributes.email && userMembershipAttributes.name">
+        <form id="form-signup" action="">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="firstName">First Name*</label>
+              <input type="text" class="form-control" id="firstName" readonly required
+                v-bind:value="userMembershipAttributes.firstName">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="lastName">Last Name*</label>
+              <input type="text" class="form-control" id="lastName" readonly required
+                v-bind:value="userMembershipAttributes.lastName">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="staticEmail">Email</label>
+              <input type="email" readonly class="form-control" id="staticEmail"
+                v-model="userMembershipAttributes.email">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center">
+            <div class="form-row" id="membership-type">
+              <div class="btn-group btn-group-lg btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-lg btn-secondary"
+                  v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL }">
+                  <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="Individual"
+                    v-model="userMembershipAttributes.type">
+                  Individual <i class="fas fa-user" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL"></i>
+                </label>
+                <label class="btn btn-lg btn-secondary"
+                  v-bind:class="{ active: userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION }">
+                  <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="Organization"
+                    v-model="userMembershipAttributes.type"> Organization <i class="fas fa-building"
+                    v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION"></i>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center">
+            <div class="form-group col-6">
+              <p class="font-weight-bold" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">Small
+                organisation - Less than 100 staff / Large organiation - 100 or more staff</p>
+
+              <select class="form-control" required v-if="userMembershipAttributes.type"
+                v-model="userMembershipAttributes.membershipDuration">
+                <option value="">Open this select menu</option>
+                <optgroup label="Individual" v-if="userMembershipAttributes.type === MEMBERSHIP_INDIVIDUAL">
+                  <option value="1">1 year</option>
+                  <option value="5">5 year</option>
+                  <option value="10">10 years</option>
+                </optgroup>
+                <optgroup label="Organization" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+                  <option value="1">Small Organization - 1 year</option>
+                  <option value="5">Small Organization - 5 year</option>
+                  <option value="10">Small Organization - 10 years</option>
+                  <option value="1">Large Organization - 1 year</option>
+                  <option value="5">Large Organization - 5 year</option>
+                  <option value="10">Large Organization - 10 years</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center" v-if="userMembershipAttributes.type === MEMBERSHIP_ORGANIZATION">
+            <div class="form-group col-6">
+              <label for="organizationName">Name of organization</label>
+              <input type="text" class="form-control" id="organizationName" required
+                v-model="userMembershipAttributes.organizationName">
+            </div>
+          </div>
+
+          <div v-if="userMembershipAttributes.membershipDuration">
+            <div class="d-flex justify-content-center">
+              <p><strong>Membership Fee:</strong></p>
+            </div>
+            <div class="d-flex justify-content-center">
+              <div class="input-group col-2">
+                <span class="input-group-addon ammount-input-group-addon">$</span>
+                <input class="form-control form-number webform-conditional-disabled" type="text" name="ammount" readonly
+                  v-bind:value="userMembershipAttributes.membershipDuration * MEMBERSHIP_UNIT_PRICE">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center" id="policy-box">
+            <div class="form-group form-check col-6">
+              <p> Privacy *</p>
+              <p>
+
+                <input class="form-check-input" type="checkbox" name="policy" id="policy" value="true" required
+                  v-model="userMembershipAttributes.readPolicy">
+                <label for="policy" class="form-check-label policy-label">I have read and agree with the InternetNZ
+                  privacy policy</label>
+              </p>
+              <p>
+                Please read the <a href="https://internetnz.nz/privacy-policy">InternetNZ privacy policy</a>.
+              </p>
+            </div>
+          </div>
+
+          <div class="text-center align-center">
+            <input type="button" class="btn btn-lg btn-signup" value="Become a member"
+              v-bind:disabled="!userMembershipAttributes.membershipDuration || !userMembershipAttributes.readPolicy"
+              v-on:click="saveMembership()">
+          </div>
+
+        </form>
+
+        <div class="form-group row form-check text-right p-2">
+          <p>
+            <input class="form-check-input" type="checkbox" name="generateExpired" id="generateExpired" value="true"
+              v-model="userMembershipAttributes.generateExpired">
+            <label for="generateExpired" class="form-check-label policy-label font-light">Generate an expired
+              membership</label>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="membershipIssued">
+      <h2>Welcome, {{ userMembershipAttributes.name }}!</h2>
+
+      <ul>
+        <li><strong>ID:</strong> {{ membershipCredential.id }}</li>
+        <li><strong>Type:</strong> {{ membershipCredential.type }}</li>
+        <li><strong>Purchase date:</strong> {{ membershipCredential.purchaseDate }}</li>
+        <li><strong>Valid Until:</strong> {{ membershipCredential.validUntil }}</li>
+      </ul>
+    </div>
+
+    <div class="text-right">
+      <input type="button" class="btn btn-info" v-on:click="reset" value="Reset">
+    </div>
+
+    <div class="footer-container">
+      <footer class="footer container">
+        <div class="region region-footer">
+          <section class=" clearfix">
+
+
+          </section>
+          <section class=" clearfix">
+          </section>
+
+          <section class=" clearfix">
+          </section>
+        </div>
+        <div class="footer-column footer-column-1 first">
+          <div class="region region-footer-col-1">
+            <section class=" clearfix">
+
+
+            </section>
+          </div>
+        </div>
+        <div class="footer-column footer-column-2">
+          <div class="region region-footer-col-2">
+            <section id="" class=" clearfix">
+
+
+            </section>
+          </div>
+        </div>
+        <div class="footer-column footer-column-3">
+          <div class="region region-footer-col-3">
+            <section class=" clearfix">
+
+
+            </section>
+          </div>
+        </div>
+        <div class="footer-column footer-column-4">
+          <div class="region region-footer-col-4">
+            <section class=" clearfix">
+            </section>
+          </div>
+        </div>
+        <div class="footer-column footer-column-5">
+          <div class="region region-footer-col-5">
+            <section class=" clearfix">
+            </section>
+          </div>
+        </div>
+        <div class="footer-column footer-column-6 last">
+          <div class="region region-footer-col-6">
+            <section class=" clearfix">
+            </section>
+          </div>
+        </div>
+        <div class="footerMenu-container">
+          <ul class="list-inline text-center">
+            <li class="list-inline-item"><a href="/">Issue Name, Address and Email</a></li>
+            <li class="list-inline-item"><a href="/election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="/event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="/assets/apk/app.apk">APK (universal)</a></li>
+          </ul>
+          <p>&nbsp;</p>
+          <ul class="footerMenu menu nav">
+            <li class="leaf menu-mlid-678 menu-path-node259 menu-alias-contentdisclaimer"><a
+                href="https://internetnz.nz/report-a-vulnerability/" title="">Vulnerability Disclosure Policy</a></li>
+            <li class="leaf "><a href="https://internetnz.nz/get-in-touch/" title="">Contact Us</a></li>
+            <li class="leaf menu-mlid-679 menu-path-node260 menu-alias-contentcopyright"><a
+                href="https://internetnz.nz/copyright/" title="">Copyright</a></li>
+            <li class="last leaf"><a href="/user" title="">Login</a></li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+
+  </div>
+</body>
+
+</html>
