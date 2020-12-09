@@ -18,190 +18,193 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
     <script src="assets/irma.js" defer></script>
-
+    <script src="assets/js/irma-functions.js" defer></script>
+    <script src="ui-functions.js" defer></script>
     <script src="global.js">
-      // --------------------------------
-      // globals loaded from globals file
-      // --------------------------------
+        // --------------------------------
+        // globals loaded from globals file
+        // --------------------------------
     </script>
-    <script src="irma-functions.js"></script>
     <script type="text/javascript">
-      // UI handling functions
-      function clearOutput() {
-        const e = document.getElementById('result');
-        e.setAttribute('hidden', 'true');
-        e.classList.remove('succes', 'warning', 'error', 'alert-danger');
-      }
+        // UI handling functions
+        // function clearOutput() {
+        //   const e = document.getElementById('result');
+        //   e.setAttribute('hidden', 'true');
+        //   e.classList.remove('succes', 'warning', 'error', 'alert-danger');
+        // }
+        //
+        // function showError(err) {
+        //   const e = document.getElementById('result');
+        //   e.removeAttribute('hidden');
+        //   e.classList.remove('alert-success');
+        //   if (err === irma.SessionStatus.Cancelled) {
+        //     e.classList.add('alert-warning');
+        //     e.innerText = 'Session was aborted';
+        //   } else {
+        //     e.classList.add('alert-danger');
+        //     e.innerText = 'Error occurred: ' + String(err);
+        //   }
+        //   throw err;
+        // }
+        //
+        // function showSuccess(text = 'Success') {
+        //   const e = document.getElementById('result');
+        //   e.innerHTML = text;
+        //   e.removeAttribute('hidden');
+        //   e.classList.remove('alert-danger');
+        //   e.classList.add('alert-success');
+        // }
 
-      function showError(err) {
-        const e = document.getElementById('result');
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-success');
-        if (err === irma.SessionStatus.Cancelled) {
-          e.classList.add('alert-warning');
-          e.innerText = 'Session was aborted';
-        } else {
-          e.classList.add('alert-danger');
-          e.innerText = 'Error occurred: ' + String(err);
-        }
-        throw err;
-      }
+        window.onload = function () {
+            let app = new Vue({
+                el: '#app',
+                data: {
+                    ATTRIBUTE: ATTRIBUTE,
+                    CREDENTIAL: CREDENTIAL,
+                    // cart
+                    Wine: {
+                        Akitu: 1,
+                        SHERWOOD: 2
+                    },
+                    PurchaseMode: {
+                        Guest: 'guest',
+                        Subscription: 'subscription'
+                    },
+                    cart: null,
+                    // credentials
+                    email: '',
+                    fullName: '',
+                    fullAddress: '',
+                    over18: null,
+                    agelimit: null,
+                    // controls
+                    finished: false,
+                    purchaseMode: null,
+                },
+                methods: {
+                    reset: function () {
+                        app.fullName = null;
+                        app.fullAddress = null;
+                        app.over18 = null;
+                        app.cart = null;
+                        app.purchaseMode = null;
+                        app.finished = false;
+                        clearOutput();
+                    },
 
-      function showSuccess(text = 'Success') {
-        const e = document.getElementById('result');
-        e.innerHTML = text;
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-danger');
-        e.classList.add('alert-success');
-      }
+                    discloseOver18: function () {
+                        const disclosePayload = [
+                            // disclose over18
+                            [
+                                [ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18],
+                                // or
+                                [ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS.OVER18],
+                            ]
+                        ];
 
-      window.onload = function () {
-        let app = new Vue({
-          el: '#app',
-          data: {
-            ATTRIBUTE: ATTRIBUTE,
-            CREDENTIAL: CREDENTIAL,
-            // cart
-            Wine: {
-              Akitu: 1,
-              SHERWOOD: 2
-            },
-            PurchaseMode: {
-              Guest: 'guest',
-              Subscription: 'subscription'
-            },
-            cart: null,
-            // credentials
-            email: '',
-            fullName: '',
-            fullAddress: '',
-            over18: null,
-            agelimit: null,
-            // controls
-            finished: false,
-            purchaseMode: null,
-          },
-          methods: {
-            reset: function () {
-              app.fullName = null;
-              app.fullAddress = null;
-              app.over18 = null;
-              app.cart = null;
-              app.purchaseMode = null;
-              app.finished = false;
-              clearOutput();
-            },
+                        clearOutput();
 
-            discloseOver18: function () {
-              this.over18 = null;
+                        return irmaDiscloseOrSign(disclosePayload)
+                            .then(result => {
+                                showSuccess('Success');
 
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  // disclose over18
-                  [
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18],
-                    // or
-                    [ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS.OVER18],
-                  ]
-                ]
-              };
+                                console.log(result);
+                                console.log(irmaDisclosedResultSingleRawValue(result));
 
-              clearOutput();
+                                return irmaDisclosedResultSingleRawValue(result);
+                            }).catch(function (err) {
+                                showError(err);
+                            });
+                    },
 
-              return irmaService.doSession(request).then(function (result) {
-                showSuccess('Success');
+                    setPurchaseMode: function (purchaseMode) {
+                        app.over18 = null;
 
-                return irmaService.disclosedResultRawValue(result);
-              });
-            },
+                        return app.discloseOver18()
+                            .then(result => {
+                                app.over18 = result;
+                                if (result !== 'Yes') {
+                                    showError('You are not allowed to buy wines.');
+                                    app.cart = null;
+                                } else {
+                                    app.purchaseMode = purchaseMode;
+                                }
 
-            setPurchaseMode: function (purchaseMode) {
-              return this.discloseOver18()
-                .then(result => {
-                  app.over18 = result;
-                  if (result !== 'Yes') {
-                    showError('You are not allowed to buy wines.');
-                    app.cart = null;
-                  } else {
-                    app.purchaseMode = purchaseMode;
-                  }
+                                return app.over18;
+                            });
+                    },
 
-                  return app.over18;
-                });
-            },
+                    getIrmaAttributes: function () {
+                        app.fullName = null;
+                        app.fullAddress = null;
 
-            getIrmaAttributes: function () {
-              app.fullName = null;
-              app.fullAddress = null;
+                        if (app.purchaseMode === app.PurchaseMode.Subscription) {
+                            return app.discloseNameAndAddress()
+                                .then(result => {
+                                    app.fullName = result[ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME] || null;
+                                    app.fullAddress = result[ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS] || null;
+                                })
+                        }
 
-              if (app.purchaseMode === app.PurchaseMode.Subscription) {
-                return app.discloseNameAndAddress()
-                  .then(result => {
-                    app.fullName = result[ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME] || null;
-                    app.fullAddress = result[ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS] || null;
-                  })
-              }
+                        return app.discloseAddress()
+                            .then(result => app.fullAddress = result);
+                    },
 
-              return app.discloseAddress()
-                .then(result => app.fullAddress = result);
-            },
+                    discloseAddress: function () {
+                        const request = {
+                            '@context': 'https://irma.app/ld/request/disclosure/v2',
+                            'disclose': [
+                                // disclose
+                                [
+                                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
+                                ]
+                            ]
+                        };
 
-            discloseAddress: function () {
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  // disclose
-                  [
-                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
-                  ]
-                ]
-              };
+                        clearOutput();
 
-              clearOutput();
+                        return irmaService.doSession(request).then(function (result) {
+                            showSuccess();
+                            return irmaService.disclosedResultRawValue(result);
+                        });
+                    },
 
-              return irmaService.doSession(request).then(function (result) {
-                showSuccess();
-                return irmaService.disclosedResultRawValue(result);
-              });
-            },
+                    discloseNameAndAddress: function () {
+                        const request = {
+                            '@context': 'https://irma.app/ld/request/disclosure/v2',
+                            'disclose': [
+                                // disclose
+                                [
+                                    [
+                                        ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
+                                        ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
+                                    ],
+                                    // or
+                                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+                                    // or
+                                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
+                                ]
+                            ]
+                        };
 
-            discloseNameAndAddress: function () {
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [
-                  // disclose
-                  [
-                    [
-                      ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
-                      ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
-                    ],
-                    // or
-                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-                    // or
-                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
-                  ]
-                ]
-              };
+                        clearOutput();
 
-              clearOutput();
+                        return irmaService.doSession(request)
+                            .then(function (result) {
+                                showSuccess();
 
-              return irmaService.doSession(request)
-                .then(function (result) {
-                  showSuccess();
+                                let data = {};
 
-                  let data = {};
+                                result.disclosed[0].forEach((item) => {
+                                    data[item.id] = item.rawvalue;
+                                })
 
-                  result.disclosed[0].forEach((item) => {
-                    data[item.id] = item.rawvalue;
-                  })
-
-                  return data;
-                });
-            },
-          }
-        })
-      };
+                                return data;
+                            });
+                    },
+                }
+            })
+        };
     </script>
 </head>
 <body>
@@ -271,7 +274,8 @@
                                         <div class="form-group col-md-12">
                                             <button type="button" class="btn btn-outline-success"
                                                     v-bind:disabled="!fullAddress && (PurchaseMode.Subscription && !fullName)"
-                                                    v-on:click="finished = true">Pay and finish</button>
+                                                    v-on:click="finished = true">Pay and finish
+                                            </button>
                                         </div>
                                     </div>
                                 </form>
