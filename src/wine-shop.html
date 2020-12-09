@@ -163,34 +163,32 @@
 
                         clearOutput();
 
-                        return irmaService.doSession(request).then(function (result) {
-                            showSuccess();
-                            return irmaService.disclosedResultRawValue(result);
-                        });
+                        return irmaService.doSession(request)
+                            .then(function (result) {
+                                showSuccess();
+                                return irmaService.disclosedResultRawValue(result);
+                            });
                     },
 
                     discloseNameAndAddress: function () {
-                        const request = {
-                            '@context': 'https://irma.app/ld/request/disclosure/v2',
-                            'disclose': [
-                                // disclose
+                        const disclosePayload = [
+                            // disclose
+                            [
                                 [
-                                    [
-                                        ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
-                                        ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
-                                    ],
-                                    // or
-                                    [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-                                    // or
-                                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
-                                ]
+                                    ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
+                                    ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
+                                ],
+                                // or
+                                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+                                // or
+                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
                             ]
-                        };
+                        ];
 
                         clearOutput();
 
-                        return irmaService.doSession(request)
-                            .then(function (result) {
+                        return irmaDiscloseOrSign(disclosePayload)
+                            .then(result => {
                                 showSuccess();
 
                                 let data = {};
@@ -313,7 +311,7 @@
             <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
             <li class="list-inline-item"><a href="simple-issuer.html">Simple issuer</a></li>
-            <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
+            <li class="list-inline-item"><a href="assets/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
 
