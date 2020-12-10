@@ -78,4 +78,8 @@ function irmaDoSession(request, header = '') {
     let irmaPopup = irma.newPopup(options);
 
     return irmaPopup.start()
+}
+
+const irmaDisclosedResultSingleRawValue = function (result) {
+    return result.disclosed[0][0].rawvalue || '';
 };

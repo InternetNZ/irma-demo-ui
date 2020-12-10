@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+    <title>InternetNZ | IRMA examples - Over 18</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="assets/irma.js" defer></script>
+    <script src="assets/js/irma-functions.js" defer></script>
+    <script src="assets/js/ui-functions.js" defer></script>
+    <script src="assets/js/global.js">
+        // --------------------------------
+        // globals loaded from globals file
+        // --------------------------------
+    </script>
+    <script type="text/javascript">
+        window.onload = function () {
+            let app = new Vue({
+                el: '#app',
+                data: {
+                    ATTRIBUTE: ATTRIBUTE,
+                    CREDENTIAL: CREDENTIAL,
+                    // cart
+                    Wine: {
+                        Akitu: 1,
+                        SHERWOOD: 2
+                    },
+                    PurchaseMode: {
+                        Guest: 'guest',
+                        Subscription: 'subscription'
+                    },
+                    cart: null,
+                    // credentials
+                    email: '',
+                    fullName: '',
+                    fullAddress: '',
+                    over18: null,
+                    agelimit: null,
+                    // controls
+                    finished: false,
+                    purchaseMode: null,
+                },
+                methods: {
+                    reset: function () {
+                        app.fullName = null;
+                        app.fullAddress = null;
+                        app.over18 = null;
+                        app.cart = null;
+                        app.purchaseMode = null;
+                        app.finished = false;
+                        clearOutput();
+                    },
+
+                    discloseOver18: function () {
+                        const disclosePayload = [
+                            // disclose over18
+                            [
+                                [ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18],
+                                // or
+                                [ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS.OVER18],
+                            ]
+                        ];
+
+                        clearOutput();
+
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_AGE)
+                            .then(result => {
+                                showSuccess('Success');
+
+                                console.log(result);
+                                console.log(irmaDisclosedResultSingleRawValue(result));
+
+                                return irmaDisclosedResultSingleRawValue(result);
+                            }).catch(function (err) {
+                                showError(err);
+                            });
+                    },
+
+                    setPurchaseMode: function (purchaseMode) {
+                        app.over18 = null;
+
+                        return app.discloseOver18()
+                            .then(result => {
+                                app.over18 = result;
+                                if (result !== 'Yes') {
+                                    showError('You are not allowed to buy wines.');
+                                    app.cart = null;
+                                } else {
+                                    app.purchaseMode = purchaseMode;
+                                }
+
+                                return app.over18;
+                            });
+                    },
+
+                    getIrmaAttributes: function () {
+                        app.fullName = null;
+                        app.fullAddress = null;
+
+                        if (app.purchaseMode === app.PurchaseMode.Subscription) {
+                            return app.discloseNameAndAddress()
+                                .then(result => {
+                                    app.fullName = result[ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME] || null;
+                                    app.fullAddress = result[ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS] || null;
+                                })
+                        }
+
+                        return app.discloseAddress()
+                            .then(result => app.fullAddress = result);
+                    },
+
+                    discloseAddress: function () {
+                        const disclosePayload = [
+                            // disclose
+                            [
+                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
+                            ]
+                        ];
+
+                        clearOutput();
+
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_ADDDRESS)
+                            .then(function (result) {
+                                showSuccess();
+                                return irmaDisclosedResultSingleRawValue(result);
+                            });
+                    },
+
+                    discloseNameAndAddress: function () {
+                        const disclosePayload = [
+                            // disclose
+                            [
+                                [
+                                    ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
+                                    ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
+                                ],
+                                // or
+                                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
+                                // or
+                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
+                            ]
+                        ];
+
+                        clearOutput();
+
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_ADDDRESS_AND_NAME)
+                            .then(result => {
+                                showSuccess();
+
+                                let data = {};
+
+                                result.disclosed[0].forEach((item) => {
+                                    data[item.id] = item.rawvalue;
+                                })
+
+                                return data;
+                            });
+                    },
+                }
+            })
+        };
+    </script>
+</head>
+<body>
+<div id="app" class="container" v-cloak>
+
+    <header>
+        <h2>Wine Shop - Fine wines from Aotearoa</h2>
+        <hr>
+    </header>
+
+    <div class="row">
+        <div id="result" class="status alert col-12" hidden></div>
+    </div>
+
+    <div>
+        <div class="text-end">
+            <button class="btn btn-sm btn-outline-secondary" v-on:click="reset()">Reset</button>
+        </div>
+        <div v-if="!cart">
+            <h3>Select your wine</h3>
+
+            <div class="row">
+                <div class="col-6">
+                    <img src="assets/images/Akitu-pinot-noir_large.png">
+                    <button class="btn btn-danger" v-on:click="cart = Wine.Akitu">1 NZD</button>
+                </div>
+                <div class="col-6">
+                    <img src="assets/images/SherwoodEstatePinotNoir2020_large.png">
+                    <button class="btn btn-danger" v-on:click="cart = Wine.SHERWOOD">2 NZD</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="cart">
+            <div class="row">
+                <div class="col-6" v-if="over18 !== 'No'">
+                    <h3>You are buying</h3>
+
+                    <img src="assets/images/Akitu-pinot-noir_large.png" v-if="cart === Wine.Akitu">
+                    <img src="assets/images/SherwoodEstatePinotNoir2020_large.png" v-if="cart === Wine.SHERWOOD">
+                </div>
+                <div class="col-6">
+                    <div v-if="purchaseMode === null && over18 === null">
+                        <button class="btn btn-outline-dark" v-on:click="setPurchaseMode(PurchaseMode.Guest)">Buy as a guest</button>
+                        <button class="btn btn-outline-primary" v-on:click="setPurchaseMode(PurchaseMode.Subscription)">Subscribe to a weekly purchase</button>
+                    </div>
+
+                    <div v-if="over18 === 'Yes'">
+                        <div class="card" v-if="!finished">
+                            <div class="card-body">
+                                <form class="p-4">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12 text-end">
+                                            <button type="button" class="btn btn-info" v-on:click="getIrmaAttributes()">Fill with IRMA</button>
+                                        </div>
+
+                                        <div class="form-group col-md-12" v-if="purchaseMode === PurchaseMode.Subscription">
+                                            <label for="fullName">Name</label>
+                                            <input type="text" class="form-control" id="fullName" v-model="fullName">
+                                        </div>
+
+                                        <div class="form-group col-md-12">
+                                            <label for="fullAddress">Address</label>
+                                            <input type="text" class="form-control" id="fullAddress" v-model="fullAddress">
+                                        </div>
+
+                                        <div class="form-group col-md-12">
+                                            <button type="button" class="btn btn-outline-success"
+                                                    v-bind:disabled="!fullAddress && (PurchaseMode.Subscription && !fullName)"
+                                                    v-on:click="finished = true">Pay and finish
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="card border-success mb-3" v-if="finished">
+                            <div class="card-header">Confirmed!</div>
+                            <div class="card-body text-success">
+                                <h5 class="card-title">Your wine is on the way.</h5>
+                                <p class="card-text">Address: {{ fullAddress }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="over18 === 'No'">
+                        <div class="card border-success mb-3">
+                            <div class="card-header">You know what?</div>
+                            <div class="card-body text-success">
+                                <h5 class="card-title">Check
+                                    <a href="https://www.penguin.co.nz/books/the-catcher-in-the-rye-9780241984758">this out</a>!
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-5 text-center clear">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="index.html">Main</a></li>
+            <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
+            <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="assets/apk/app.apk">APK (universal)</a></li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>

@@ -28,13 +28,13 @@ function showWarning(err) {
     throw err;
   }
 
-  function showSuccess(text) {
-    const e = document.getElementById('result');
-    e.innerHTML = text;
-    e.removeAttribute('hidden');
-    e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
-    e.classList.add('alert-success');
-  }
+function showSuccess(text = 'Success') {
+  const e = document.getElementById('result');
+  e.innerHTML = text;
+  e.removeAttribute('hidden');
+  e.classList.remove('alert-success', 'alert-warning', 'alert-danger');
+  e.classList.add('alert-success');
+}
 
 function hideElement(elementID, hidden) {
     var e = document.getElementById(elementID);
