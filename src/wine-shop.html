@@ -163,7 +163,7 @@
 
                         clearOutput();
 
-                        return irmaService.doSession(request)
+                        return irmaDiscloseOrSign(disclosePayload)
                             .then(function (result) {
                                 showSuccess();
                                 return irmaService.disclosedResultRawValue(result);
