@@ -45,6 +45,7 @@
         data: {
           ATTRIBUTE: ATTRIBUTE,
           CREDENTIAL: CREDENTIAL,
+          HEADER_MESSAGES: HEADER_MESSAGES,
           MEMBERSHIP_INDIVIDUAL: 'Individual',
           MEMBERSHIP_ORGANIZATION: 'Organization',
           MEMBERSHIP_UNIT_PRICE: 21,
@@ -83,7 +84,7 @@
               ]
             ];
 
-            irmaDiscloseOrSign(discloseAttributes).then(function (result) {
+            irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_AGE).then(function (result) {
               console.log(result);
 
               showSuccess('Success');

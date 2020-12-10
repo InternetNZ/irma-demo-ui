@@ -1,25 +1,32 @@
 // be sure that you are loading irmajs functions
 
-function irmaDiscloseOrSign (attributes, label = '', message = '') {
-    const labelRequest = !label ? {} : { 'labels': { '0': { 'en': label, 'nl': label } } };
+function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '') {
+    const labelRequest = !label ? {} : {
+        'labels': {
+            '0': {
+                'en': label,
+                'nl': label
+            }
+        }
+    };
     const request = !message ? {
         '@context': 'https://irma.app/ld/request/disclosure/v2',
         'disclose': attributes,
         ...labelRequest
     } : {
-            '@context': 'https://irma.app/ld/request/signature/v2',
-            'message': message,
-            'disclose': attributes,
-            ...labelRequest
-        };
+        '@context': 'https://irma.app/ld/request/signature/v2',
+        'message': message,
+        'disclose': attributes,
+        ...labelRequest
+    };
 
-    return irmaDoSession(request).then(result => {
+    return irmaDoSession(request, header).then(result => {
         console.log("Successful disclosure! 🎉", result)
         return result;
     });
 }
 
-function irmaIssueCredential (credential, attributes, disclosePayload = null) {
+function irmaIssueCredential(credential, attributes, header = 'Issuing credential with', disclosePayload = null) {
     console.log('issueCredential');
     const request = {
         '@context': 'https://irma.app/ld/request/issuance/v2',
@@ -29,13 +36,13 @@ function irmaIssueCredential (credential, attributes, disclosePayload = null) {
         }],
         'disclose': disclosePayload,
     };
-    return irmaDoSession(request).then(function (result) {
+    return irmaDoSession(request, header).then(function (result) {
         console.log("Successful issuing credential! 🎉", result)
         return result;
     });
 }
 
-function irmaDoSession (request) {
+function irmaDoSession(request, header = '') {
     console.log('doSession');
 
     let options = {
@@ -45,7 +52,7 @@ function irmaDoSession (request) {
         // Front-end options
         language: 'en',
         translations: {
-            header: 'Sign the agreement with <i class="irma-web-logo">IRMA</i>',
+            header: `${header} <i class="irma-web-logo">IRMA</i>`,
             loading: 'Just one second please!'
         },
 

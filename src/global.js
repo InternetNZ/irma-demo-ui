@@ -51,3 +51,18 @@ const ATTRIBUTE = {
   // random attribute from irma-demo scheme
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
 };
+
+const HEADER_MESSAGES = {
+  ISSUE_EMAIL: 'Issuing your <b>e-mail address</b> to',
+  ISSUE_NAME: 'Issuing your <b>full name</b> address to',
+  ISSUE_ADDRESS: 'Issuing your <b>postal address</b> address to',
+  ISSUE_AGE: 'Issuing your <b>age</b> address to',
+  ISSUE_BIRTHDATE: 'Issuing your <b>birthdate</b> address to',
+  ISSUE_INZ_MEMBERSHIP: 'Issuing your <b>InternetNZ membership</b> to',
+  ISSUE_NETHUI_ACCESS_PASS: 'Issuing your <b>NetHui access pass</b> to',
+  DISCLOSE_INZ_MEMBERSHIP: 'Disclosing your <b>InternetNZ membership</b> with',
+  DISCLOSE_AGE: 'Disclosing your <b>age</b> with',
+  DISCLOSE_EMAIL_NAME: 'Disclosing your <b>e-mail address</b> and <b>full name</b> with',
+  DISCLOSE_NAME_EMAIL_MEMBERSHIP: 'Disclosing your <b>e-mail address</b>, <b>full name</b> and <b>InternetNZ membership</b> with',
+  DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
+};
