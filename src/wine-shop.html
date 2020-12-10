@@ -75,7 +75,7 @@
 
                         clearOutput();
 
-                        return irmaDiscloseOrSign(disclosePayload)
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_AGE)
                             .then(result => {
                                 showSuccess('Success');
 
@@ -131,7 +131,7 @@
 
                         clearOutput();
 
-                        return irmaDiscloseOrSign(disclosePayload)
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_ADDDRESS)
                             .then(function (result) {
                                 showSuccess();
                                 return irmaDisclosedResultSingleRawValue(result);
@@ -155,7 +155,7 @@
 
                         clearOutput();
 
-                        return irmaDiscloseOrSign(disclosePayload)
+                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_ADDDRESS_AND_NAME)
                             .then(result => {
                                 showSuccess();
 

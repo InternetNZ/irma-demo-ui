@@ -48,8 +48,7 @@ const ATTRIBUTE = {
     OVER_18: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over18`,
     OVER_65: `${CREDENTIAL.FAKE_PERSONAL_DATA_AGE_LIMITS}.over65`,
   },
-  // random attribute from irma-demo scheme
-  IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
+  // attribute from irma-demo scheme
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS: {
     OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
   },
@@ -63,8 +62,10 @@ const HEADER_MESSAGES = {
   ISSUE_BIRTHDATE: 'Issuing your <b>birthdate</b> address to',
   ISSUE_INZ_MEMBERSHIP: 'Issuing your <b>InternetNZ membership</b> to',
   ISSUE_NETHUI_ACCESS_PASS: 'Issuing your <b>NetHui access pass</b> to',
-  DISCLOSE_INZ_MEMBERSHIP: 'Disclosing your <b>InternetNZ membership</b> with',
+  DISCLOSE_ADDDRESS: 'Disclosing your <b>address</b> with',
+  DISCLOSE_ADDDRESS_AND_NAME: 'Disclosing your <b>full address</b> and <b>full name</b> with',
   DISCLOSE_AGE: 'Disclosing your <b>age</b> with',
+  DISCLOSE_INZ_MEMBERSHIP: 'Disclosing your <b>InternetNZ membership</b> with',
   DISCLOSE_EMAIL_NAME: 'Disclosing your <b>e-mail address</b> and <b>full name</b> with',
   DISCLOSE_NAME_EMAIL_MEMBERSHIP: 'Disclosing your <b>e-mail address</b>, <b>full name</b> and <b>InternetNZ membership</b> with',
   DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
