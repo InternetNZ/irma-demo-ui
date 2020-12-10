@@ -19,42 +19,13 @@
 
     <script src="assets/irma.js" defer></script>
     <script src="assets/js/irma-functions.js" defer></script>
-    <script src="ui-functions.js" defer></script>
-    <script src="global.js">
+    <script src="assets/js/ui-functions.js" defer></script>
+    <script src="assets/js/global.js">
         // --------------------------------
         // globals loaded from globals file
         // --------------------------------
     </script>
     <script type="text/javascript">
-        // UI handling functions
-        // function clearOutput() {
-        //   const e = document.getElementById('result');
-        //   e.setAttribute('hidden', 'true');
-        //   e.classList.remove('succes', 'warning', 'error', 'alert-danger');
-        // }
-        //
-        // function showError(err) {
-        //   const e = document.getElementById('result');
-        //   e.removeAttribute('hidden');
-        //   e.classList.remove('alert-success');
-        //   if (err === irma.SessionStatus.Cancelled) {
-        //     e.classList.add('alert-warning');
-        //     e.innerText = 'Session was aborted';
-        //   } else {
-        //     e.classList.add('alert-danger');
-        //     e.innerText = 'Error occurred: ' + String(err);
-        //   }
-        //   throw err;
-        // }
-        //
-        // function showSuccess(text = 'Success') {
-        //   const e = document.getElementById('result');
-        //   e.innerHTML = text;
-        //   e.removeAttribute('hidden');
-        //   e.classList.remove('alert-danger');
-        //   e.classList.add('alert-success');
-        // }
-
         window.onload = function () {
             let app = new Vue({
                 el: '#app',
@@ -151,22 +122,19 @@
                     },
 
                     discloseAddress: function () {
-                        const request = {
-                            '@context': 'https://irma.app/ld/request/disclosure/v2',
-                            'disclose': [
-                                // disclose
-                                [
-                                    [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
-                                ]
+                        const disclosePayload = [
+                            // disclose
+                            [
+                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
                             ]
-                        };
+                        ];
 
                         clearOutput();
 
                         return irmaDiscloseOrSign(disclosePayload)
                             .then(function (result) {
                                 showSuccess();
-                                return irmaService.disclosedResultRawValue(result);
+                                return irmaDisclosedResultSingleRawValue(result);
                             });
                     },
 
@@ -219,7 +187,7 @@
 
     <div>
         <div class="text-right">
-            <button class="btn btn-sm btn-outline-light" v-on:click="reset()">Reset</button>
+            <button class="btn btn-sm btn-outline-dark" v-on:click="reset()">Reset</button>
         </div>
         <div v-if="!cart">
             <h3>Select your wine</h3>
@@ -284,7 +252,7 @@
                             <div class="card-header">Confirmed!</div>
                             <div class="card-body text-success">
                                 <h5 class="card-title">Your wine is on the way.</h5>
-                                <p class="card-text">{{ fullAddress }}</p>
+                                <p class="card-text">Address: {{ fullAddress }}</p>
                             </div>
                         </div>
                     </div>
