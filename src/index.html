@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 </head>
 <body>
 <div class="container">
@@ -20,14 +20,43 @@
 
     <p>This website brings some use cases that InternetNZ has prepared to present IRMA.</p>
 
+    <h2><a href="membership.html">InternetNZ membership</a></h2>
+
+    <p>Simulates InternetNZ membership purchase. As a reference of the trust chain on credentials already issued
+    you will be asked to provide <strong>e-mail address</strong> and <strong>full name</strong>.</p>
+
+    <p>You may issue your basic credentials at <a href="simple-issuer.html">simple issuer page</a>.</p>
+
+    <h2><a href="election.html">Cake election</a></h2>
+
+    <p>Simulates a election use case. Using a unique identifier from your <strong>InternetNZ membership</strong>, you will be allowed to submit your vote. Only once.</p>
+
+    <p>You may issue your membership at <a href="membership.html">InternetNZ Membership</a>.</p>
+
+    <h2><a href="membership.html">Event Access Pass</a></h2>
+
+    <p>Simulates an event pass acquisition with optional disclose of IRMA credentials. You can purchase the pass entirely by filling the form.
+        Or you can use your <strong>InternetNZ membership</strong> to get a discount.</p>
+
+    <p>You may issue your membership at <a href="membership.html">InternetNZ Membership</a>.</p>
+
     <h2><a href="wine-shop.html">Wine shop</a></h2>
 
     <p>During a Wine Shop, we check if the user has an attribute of <strong>age limit</strong> as a proof that
-    the user <strong>is over 18</strong>. The user can also opt if he wants to buy as a guest or to sign a
-        subscription. As a guest buyer, an <em>address</em> will be asked, as a subscriber, <em>name</em> and
-        <em>address</em> will be asked. On both cases, the user can fill manually or fill with IRMA attributes.</p>
+        the user <strong>is over 18</strong>. The user can also opt if he wants to buy as a guest or to sign a
+        subscription. As a guest buyer, an <strong>full address</strong> will be asked, as a subscriber, <strong>name</strong> and
+        <strong>address</strong> will be asked. On both cases, the user can fill manually or fill with IRMA attributes.</p>
 
     <p>Age limits, address and name may be issued at <a href="simple-issuer.html">simple issuer page</a>.</p>
+
+    <h2><a href="simple-issuer.html">Simple issuer</a></h2>
+
+    <p>Simple form to issue basic attributes, such as <strong>full name</strong>, <strong>full address</strong>, <strong>e-mail</strong>,
+        <strong>age limits</strong>, etc.</p>
+
+    <h2><a href="simple-verifier.html">Simple verifier</a></h2>
+
+    <p>Simple verifier of basic attributes.</p>
 
     <div class="p-5 text-center clear">
         <ul class="list-inline">
