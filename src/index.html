@@ -27,150 +27,150 @@
       // --------------------------------
     </script>
     <script type="text/javascript">
-      function discloseOrSign(attribute, label = '', message = '') {
-        const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
-        const request = !message ? {
-          '@context': 'https://irma.app/ld/request/disclosure/v2',
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        } : {
-          '@context': 'https://irma.app/ld/request/signature/v2',
-          'message': message,
-          'disclose': [
-            [
-              [attribute]
-            ]
-          ],
-          ...labelRequest
-        };
-        return doSession(request).then(function (result) {
-          showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
-          return getDiscloseResultRawValue(result);
-        });
-      }
-
-      function doSession(request) {
-        console.log('doSession');
-        clearOutput();
-        showSuccess('Demo running...');
-
-        const server = IRMA_SERVER;
-        const authmethod = AUTH_METHOD_TOKEN;
-        const key = PRIVATE_TOKEN;
-        const requestorname = '';
-
-        console.log(request);
-
-        return irma.startSession(server, request, authmethod, key, requestorname)
-          .then(function (pkg) {
-            return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
-          })
-          .then(function (result) {
-            console.log('Done', result);
-            return result;
-          })
-          .catch(function (err) {
-            showError(err);
-          });
-      }
-
-      // UI handling functions
-      function clearOutput() {
-        const e = document.getElementById('result');
-        e.setAttribute('hidden', 'true');
-        e.classList.remove('succes', 'warning', 'error');
-      }
-
-      function showError(err) {
-        const e = document.getElementById('result');
-        e.removeAttribute('hidden');
-        e.classList.remove('alert-success');
-        if (err === irma.SessionStatus.Cancelled) {
-          e.classList.add('alert-warning');
-          e.innerText = 'Session was aborted';
-        } else {
-          e.classList.add('alert-danger');
-          e.innerText = 'Error occurred: ' + String(err);
-        }
-        throw err;
-      }
-
-      function showSuccess(text) {
-        const e = document.getElementById('result');
-        e.innerHTML = text;
-        e.removeAttribute('hidden');
-        e.classList.add('alert-success');
-      }
-
-      const getDiscloseResultRawValue = function (result) {
-        console.log(result);
-        return result.disclosed[0][0].rawvalue || '';
-      };
-
-      window.onload = function () {
-        let app = new Vue({
-          el: '#app',
-          data: {
-            ATTRIBUTE: ATTRIBUTE,
-            CREDENTIAL: CREDENTIAL,
-            MEMBERSHIP_INDIVIDUAL: 'Individual',
-            MEMBERSHIP_ORGANIZATION: 'Organization',
-            MEMBERSHIP_UNIT_PRICE: 21,
-            membershipIssued: false,
-            email: '',
-            fullName: '',
-            fullAddress: '',
-            membershipCredential: {},
-            over18: null,
-            over65: null,
-            birthdate: null,
-            agelimit: null,
-            // disclosure
-            over18DiscloseOptions: [
-              ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18,
-              //ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18,
-            ],
-          },
-          methods: {
-            reset: function () {
-              app.userMembershipAttributes = {
-                email: null,
-                name: null,
-                type: '',
-                membershipDuration: null,
-                readPolicy: false,
-              };
-              app.membershipIssued = false;
-              app.membershipCredential = {};
-              clearOutput();
-            },
-
-            discloseOver18: function () {
-              this.over18 = null;
-
-              const disclose = this.over18DiscloseOptions.map((attribute) => {
-                return [attribute];
-              });
-
-              const request = {
-                '@context': 'https://irma.app/ld/request/disclosure/v2',
-                'disclose': [disclose]
-              };
-              return doSession(request).then(function (result) {
-                console.log(result);
-
-                showSuccess('Success');
-
-                app.over18 = result.disclosed[0][0];
-              });
-            }
-          }
-        })
-      };
+      // function discloseOrSign(attribute, label = '', message = '') {
+      //   const labelRequest = !label ? {} : {'labels': {'0': {'en': label, 'nl': label}}};
+      //   const request = !message ? {
+      //     '@context': 'https://irma.app/ld/request/disclosure/v2',
+      //     'disclose': [
+      //       [
+      //         [attribute]
+      //       ]
+      //     ],
+      //     ...labelRequest
+      //   } : {
+      //     '@context': 'https://irma.app/ld/request/signature/v2',
+      //     'message': message,
+      //     'disclose': [
+      //       [
+      //         [attribute]
+      //       ]
+      //     ],
+      //     ...labelRequest
+      //   };
+      //   return doSession(request).then(function (result) {
+      //     showSuccess('Success, attribute value: <strong>' + result.disclosed[0][0].rawvalue + '</strong>');
+      //     return getDiscloseResultRawValue(result);
+      //   });
+      // }
+      //
+      // function doSession(request) {
+      //   console.log('doSession');
+      //   clearOutput();
+      //   showSuccess('Demo running...');
+      //
+      //   const server = IRMA_SERVER;
+      //   const authmethod = AUTH_METHOD_TOKEN;
+      //   const key = PRIVATE_TOKEN;
+      //   const requestorname = '';
+      //
+      //   console.log(request);
+      //
+      //   return irma.startSession(server, request, authmethod, key, requestorname)
+      //     .then(function (pkg) {
+      //       return irma.handleSession(pkg.sessionPtr, {server: server, token: pkg.token, method: 'popup', language: 'en'});
+      //     })
+      //     .then(function (result) {
+      //       console.log('Done', result);
+      //       return result;
+      //     })
+      //     .catch(function (err) {
+      //       showError(err);
+      //     });
+      // }
+      //
+      // // UI handling functions
+      // function clearOutput() {
+      //   const e = document.getElementById('result');
+      //   e.setAttribute('hidden', 'true');
+      //   e.classList.remove('succes', 'warning', 'error');
+      // }
+      //
+      // function showError(err) {
+      //   const e = document.getElementById('result');
+      //   e.removeAttribute('hidden');
+      //   e.classList.remove('alert-success');
+      //   if (err === irma.SessionStatus.Cancelled) {
+      //     e.classList.add('alert-warning');
+      //     e.innerText = 'Session was aborted';
+      //   } else {
+      //     e.classList.add('alert-danger');
+      //     e.innerText = 'Error occurred: ' + String(err);
+      //   }
+      //   throw err;
+      // }
+      //
+      // function showSuccess(text) {
+      //   const e = document.getElementById('result');
+      //   e.innerHTML = text;
+      //   e.removeAttribute('hidden');
+      //   e.classList.add('alert-success');
+      // }
+      //
+      // const getDiscloseResultRawValue = function (result) {
+      //   console.log(result);
+      //   return result.disclosed[0][0].rawvalue || '';
+      // };
+      //
+      // window.onload = function () {
+      //   let app = new Vue({
+      //     el: '#app',
+      //     data: {
+      //       ATTRIBUTE: ATTRIBUTE,
+      //       CREDENTIAL: CREDENTIAL,
+      //       MEMBERSHIP_INDIVIDUAL: 'Individual',
+      //       MEMBERSHIP_ORGANIZATION: 'Organization',
+      //       MEMBERSHIP_UNIT_PRICE: 21,
+      //       membershipIssued: false,
+      //       email: '',
+      //       fullName: '',
+      //       fullAddress: '',
+      //       membershipCredential: {},
+      //       over18: null,
+      //       over65: null,
+      //       birthdate: null,
+      //       agelimit: null,
+      //       // disclosure
+      //       over18DiscloseOptions: [
+      //         ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS_OVER18,
+      //         //ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS_OVER18,
+      //       ],
+      //     },
+      //     methods: {
+      //       reset: function () {
+      //         app.userMembershipAttributes = {
+      //           email: null,
+      //           name: null,
+      //           type: '',
+      //           membershipDuration: null,
+      //           readPolicy: false,
+      //         };
+      //         app.membershipIssued = false;
+      //         app.membershipCredential = {};
+      //         clearOutput();
+      //       },
+      //
+      //       discloseOver18: function () {
+      //         this.over18 = null;
+      //
+      //         const disclose = this.over18DiscloseOptions.map((attribute) => {
+      //           return [attribute];
+      //         });
+      //
+      //         const request = {
+      //           '@context': 'https://irma.app/ld/request/disclosure/v2',
+      //           'disclose': [disclose]
+      //         };
+      //         return doSession(request).then(function (result) {
+      //           console.log(result);
+      //
+      //           showSuccess('Success');
+      //
+      //           app.over18 = result.disclosed[0][0];
+      //         });
+      //       }
+      //     }
+      //   })
+      // };
     </script>
 </head>
 <body>
@@ -192,16 +192,17 @@
         subscription. As a guest buyer, an <em>address</em> will be asked, as a subscriber, <em>name</em> and
         <em>address</em> will be asked. On both cases, the user can fill manually or fill with IRMA attributes.</p>
 
-    <p>Age limits, address and name may be issued at <a href="../simple-issuer.html">simple issuer page</a>.</p>
+    <p>Age limits, address and name may be issued at <a href="simple-issuer.html">simple issuer page</a>.</p>
 
     <div class="p-5 text-center clear">
         <ul class="list-inline">
             <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
             <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
-            <li class="list-inline-item"><a href="../simple-issuer.html">Simple issuer</a></li>
             <li class="list-inline-item"><a href="wine-shop.html">Wine Shop</a></li>
-            <li class="list-inline-item"><a href="apk/app.apk">APK (universal)</a></li>
+            <li class="list-inline-item"><a href="simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="simple-verifier.html">Simple verifier</a></li>
+            <li class="list-inline-item"><a href="assets/apk/app.apk">APK (universal)</a></li>
         </ul>
     </div>
 
