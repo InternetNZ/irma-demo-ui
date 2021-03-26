@@ -19,7 +19,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
 
     <!-- development version, includes helpful console warnings -->
-    <!--    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
     <script src="https://unpkg.com/vue@next"></script>
 
     <script src="assets/irma.js" defer></script>
@@ -39,10 +38,10 @@
             };
 
             const fakeIdentity = {
-                fullName: "Yes",
-                firstName: "Yes",
-                lastName: "Yes",
-                birthdate: "Yes",
+                fullName: "First Last",
+                firstName: "First",
+                lastName: "Last",
+                birthdate: "01/01/1980",
                 expiryDate: "Yes",
                 issueDate: "Yes",
                 cardNumber: "Yes",
@@ -82,7 +81,7 @@
                 },
                 methods: {
                     reset() {
-                        this.logged = false;
+                        this.logged = this.finished = false;
                         this.identity = this.loggedUser = null;
                     },
                     login() {
@@ -123,6 +122,10 @@
 
         <!-- Step 2 -->
         <div v-if="logged">
+            <div class="alert alert-info" role="alert">
+                Step 2 - User should have been logged using their IRMA credentials: Name, Email and Address.
+            </div>
+
             <h3>Logged</h3>
             <ul>
                 <li>Name: {{ loggedUser.name }}</li>
@@ -130,7 +133,11 @@
                 <li>Address: {{ loggedUser.address }}</li>
             </ul>
 
-            <div>
+            <div v-if="!identity">
+                <div class="alert alert-secondary" role="alert">
+                    Should proceed uploading and image of the passport or driver license
+                </div>
+
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
                     <div class="input-group mb-3">
@@ -153,6 +160,12 @@
 
             <!-- Step 3 -->
             <div v-if="identity">
+                <div class="alert alert-info" role="alert">
+                    Step 3 - User uploaded a readable image. We processed with Single Source and the application
+                    executed a validation, checking <strong>if the Document Name is equals to the provided Name</strong>.
+                    If valid, we present the option to issue de ID-Card with data below:
+                </div>
+
                 <h3>Confirmed identity</h3>
                 <ul>
                     <li>Full name {{ identity.fullName }} </li>
@@ -162,10 +175,23 @@
                     <li>Expiry date {{ identity.expiryDate }} </li>
                     <li>Issue Date {{ identity.issueDate }} </li>
                     <li>Card number {{ identity.cardNumber }} </li>
-                    <li>Over18 (calculated based on birth?) {{ identity.over18 }} </li>
-                    <li>Over20 (calculated based on birth?) {{ identity.over20 }} </li>
-                    <li>Over65 (calculated based on birth?) {{ identity.over65 }} </li>
+                    <li>Over18 {{ identity.over18 }} </li>
+                    <li>Over20 {{ identity.over20 }} </li>
+                    <li>Over65 {{ identity.over65 }} </li>
                 </ul>
+
+                <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>
+            </div>
+
+            <!-- Step 4 -->
+            <div v-if="finished">
+                <div class="alert alert-info" role="alert">
+                    Step 4 - Done. The credential should be stored on IRMA App.
+                </div>
+
+                <h3>Done</h3>
+
+                <p>Click on reset to start over.</p>
             </div>
 
         </div>
