@@ -65,8 +65,8 @@
                         over18: null,
                         agelimit: null,
                         // controls
-                        appMessage: null,
-                        appMessageClass: null,
+                        statusMessage: null,
+                        statusMessageClass: null,
                         finished: false,
                         identity: null,
                         logged: false,
@@ -104,12 +104,12 @@
                             })
                     },
                     messageClear() {
-                        this.appMessage = null;
-                        this.appMessageClass = null;
+                        this.statusMessage = null;
+                        this.statusMessageClass = null;
                     },
                     messageInfo(message) {
-                        this.appMessage = message;
-                        this.appMessageClass = 'alert-info';
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-info';
                     },
                     messageError(message) {
                         if (message === 'Aborted') {
@@ -118,8 +118,8 @@
                             message = `Error: ${message}`;
                         }
 
-                        this.appMessage = message;
-                        this.appMessageClass = 'alert-danger';
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-danger';
                     },
                     reset() {
                         this.logged = this.finished = false;
@@ -141,8 +141,8 @@
         <hr>
     </header>
 
-    <div class="row" v-if="appMessage">
-        <div id="result" class="status alert col-12" v-bind:class="appMessageClass" role="alert">{{ appMessage }}</div>
+    <div class="row" v-if="statusMessage">
+        <div id="result" class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
     </div>
 
     <div>
