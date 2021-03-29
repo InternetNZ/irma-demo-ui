@@ -24,7 +24,7 @@
     <script src="assets/irma.js" defer></script>
     <script src="assets/js/irma-functions.js" defer></script>
     <script src="assets/js/ui-functions.js" defer></script>
-    <script src="assets/js/global.js">
+    <script src="../assets/js/global.js">
         // --------------------------------
         // globals loaded from globals file
         // --------------------------------
@@ -53,8 +53,24 @@
             const IdCardApp = {
                 data() {
                     return {
+                        // IRMA utils
                         ATTRIBUTE: ATTRIBUTE,
                         CREDENTIAL: CREDENTIAL,
+                        HEADER_MESSAGES: HEADER_MESSAGES,
+                        loginAttributes: [
+                            [
+                                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME]
+                            ],
+                            // and
+                            [
+                                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL]
+                            ],
+                            // and
+                            [
+                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS]
+                            ],
+                        ],
+                        DiscloseBuilder: DiscloseBuilder,
                         // credentials
                         email: '',
                         fullName: '',
@@ -75,8 +91,20 @@
                         this.identity = this.loggedUser = null;
                     },
                     login() {
-                        this.logged = true;
-                        this.loggedUser = fakeLoggedUser;
+                        this.logged = false;
+                        this.loggedUser = null;
+
+                        const toDisclose = new DiscloseBuilder()
+                            .forAttribute(this.ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
+                            .andAttribute(this.ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                            .andAttribute(this.ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
+
+                        console.log(toDisclose.toApi());
+
+                        irmaDiscloseOrSign(toDisclose.toApi(), 'DI')
+                            .then((result) => {
+                                console.log(result);
+                            })
                     },
                     confirmIdentity() {
                         this.identity = fakeIdentity;
@@ -97,7 +125,7 @@
     </header>
 
     <div class="row">
-        <div id="result" class="status alert col-12" hidden></div>
+        <div id="result" class="status alert col-12" hidden>{{ infoMessage }}</div>
     </div>
 
     <div>
