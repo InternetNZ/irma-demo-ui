@@ -71,7 +71,7 @@ const HEADER_MESSAGES = {
   DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
 };
 
-const DiscloseBuilder = function () {
+const DiscloseQueryGenerator = function () {
   this.elements = [];
 
   const andAttribute = function (attribute) {

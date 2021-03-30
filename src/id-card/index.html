@@ -76,7 +76,7 @@
                     login() {
                         this.messageInfo('Verifying attributes to login with IRMA');
 
-                        const toDisclose = new DiscloseBuilder()
+                        const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
                             .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
                             .andAttribute(ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
