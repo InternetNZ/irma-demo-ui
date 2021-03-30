@@ -168,6 +168,7 @@
                 </div>
             </div>
         </div>
+        <br>
 
         <!-- Step 1 -->
         <div v-if="!logged" class="text-center">
@@ -178,9 +179,9 @@
         <div v-if="logged">
             <h4>You are in!</h4>
             <ul>
-                <li>Name: {{ loggedUser.name }}</li>
-                <li>Email: {{ loggedUser.email }}</li>
-                <li>Address: {{ loggedUser.address }}</li>
+                <li>Name: <strong>{{ loggedUser.name }}</strong></li>
+                <li>Email: <strong>{{ loggedUser.email }}</strong></li>
+                <li>Address: <strong>{{ loggedUser.address }}</strong></li>
             </ul>
 
             <div v-if="!identity">
