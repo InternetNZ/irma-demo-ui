@@ -80,6 +80,10 @@ function irmaDoSession(request, header = '') {
     return irmaPopup.start()
 }
 
+const irmaDisclosedResultSingleRawValueFromIndex = function (result, index) {
+  return result.disclosed[index][0].rawvalue || '';
+};
+
 const irmaDisclosedResultSingleRawValue = function (result) {
-    return result.disclosed[0][0].rawvalue || '';
+  return irmaDisclosedResultSingleRawValueFromIndex(result, 0);
 };

@@ -18,6 +18,7 @@ ij_editorconfig_spaces_around_assignment_operators = true
 [{*.cjs,*.js}]
 indent_size = 2
 tab_width = 2
+max_line_length = 120
 
 [{*.htm,*.html,*.ng,*.sht,*.shtm,*.shtml}]
 max_line_length = 180
