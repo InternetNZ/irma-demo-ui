@@ -21,10 +21,10 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://unpkg.com/vue@next"></script>
 
-    <script src="assets/irma.js" defer></script>
-    <script src="assets/js/irma-functions.js" defer></script>
-    <script src="assets/js/ui-functions.js" defer></script>
-    <script src="assets/js/global.js">
+    <script src="../assets/irma.js" defer></script>
+    <script src="../assets/js/irma-functions.js" defer></script>
+    <script src="../assets/js/ui-functions.js" defer></script>
+    <script src="../assets/js/global.js">
         // --------------------------------
         // globals loaded from globals file
         // --------------------------------
@@ -53,8 +53,6 @@
             const IdCardApp = {
                 data() {
                     return {
-                        ATTRIBUTE: ATTRIBUTE,
-                        CREDENTIAL: CREDENTIAL,
                         // credentials
                         email: '',
                         fullName: '',
@@ -62,6 +60,8 @@
                         over18: null,
                         agelimit: null,
                         // controls
+                        statusMessage: null,
+                        statusMessageClass: null,
                         finished: false,
                         identity: null,
                         logged: false,
@@ -70,17 +70,59 @@
                     }
                 },
                 methods: {
+                    confirmIdentity() {
+                        this.identity = fakeIdentity;
+                    },
+                    login() {
+                        this.messageInfo('Verifying attributes to login with IRMA');
+
+                        const toDisclose = new DiscloseQueryGenerator()
+                            .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
+                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                            .andAttribute(ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
+
+                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name, Email and Address')
+                            .then((result) => {
+                                console.log(result);
+
+                                this.logged = true;
+                                this.loggedUser = {
+                                    name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
+                                    email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
+                                    address: irmaDisclosedResultSingleRawValueFromIndex(result, 2),
+                                };
+
+                                this.messageClear();
+                            })
+                            .catch((error) => {
+                                this.logged = false;
+                                this.loggedUser = null;
+                                this.messageError(error);
+                            })
+                    },
+                    messageClear() {
+                        this.statusMessage = null;
+                        this.statusMessageClass = null;
+                    },
+                    messageInfo(message) {
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-info';
+                    },
+                    messageError(message) {
+                        if (message === 'Aborted') {
+                            message = 'Session was aborted';
+                        } else {
+                            message = `Error: ${message}`;
+                        }
+
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-danger';
+                    },
                     reset() {
                         this.logged = this.finished = false;
                         this.identity = this.loggedUser = null;
                     },
-                    login() {
-                        this.logged = true;
-                        this.loggedUser = fakeLoggedUser;
-                    },
-                    confirmIdentity() {
-                        this.identity = fakeIdentity;
-                    }
+
                 }
             };
 
@@ -96,38 +138,46 @@
         <hr>
     </header>
 
-    <div class="row">
-        <div id="result" class="status alert col-12" hidden></div>
+    <div class="text-end">
+        <button class="btn btn-sm btn-outline-secondary" v-on:click="reset()">Reset</button>
+    </div>
+
+    <div class="row" v-if="statusMessage">
+        <div id="result" class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
     </div>
 
     <div>
-        <div class="text-end">
-            <button class="btn btn-sm btn-outline-secondary" v-on:click="reset()">Reset</button>
+        <h2>Welcome and get your ID-Card!</h2>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">How to:</h5>
+                <div class="card-text">
+                    <ol>
+                        <li>Login using your IRMA credentials (Name, Email and Full Adddress)</li>
+                        <li>Upload your Passport or Driver Licence</li>
+                        <li>Issue your digital ID Card</li>
+                    </ol>
+                </div>
+            </div>
         </div>
+        <br>
 
         <!-- Step 1 -->
-        <div v-if="!logged">
-            <button class="btn btn-primary" v-on:click="login()">Loging with IRMA</button>
+        <div v-if="!logged" class="text-center">
+            <button class="btn btn-lg btn-primary" v-on:click="login()">Loging with IRMA</button>
         </div>
 
         <!-- Step 2 -->
         <div v-if="logged">
-            <div class="alert alert-info" role="alert">
-                Step 2 - User should have been logged using their IRMA credentials: Name, Email and Address.
-            </div>
-
-            <h3>Logged</h3>
+            <h4>You are in!</h4>
             <ul>
-                <li>Name: {{ loggedUser.name }}</li>
-                <li>Email: {{ loggedUser.email }}</li>
-                <li>Address: {{ loggedUser.address }}</li>
+                <li>Name: <strong>{{ loggedUser.name }}</strong></li>
+                <li>Email: <strong>{{ loggedUser.email }}</strong></li>
+                <li>Address: <strong>{{ loggedUser.address }}</strong></li>
             </ul>
 
             <div v-if="!identity">
-                <div class="alert alert-secondary" role="alert">
-                    Should proceed uploading and image of the passport or driver license
-                </div>
-
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
                     <div class="input-group mb-3">
