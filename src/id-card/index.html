@@ -53,11 +53,6 @@
             const IdCardApp = {
                 data() {
                     return {
-                        // IRMA utils
-                        ATTRIBUTE: ATTRIBUTE,
-                        CREDENTIAL: CREDENTIAL,
-                        HEADER_MESSAGES: HEADER_MESSAGES,
-                        DiscloseBuilder: DiscloseBuilder,
                         // credentials
                         email: '',
                         fullName: '',
@@ -82,11 +77,9 @@
                         this.messageInfo('Verifying attributes to login with IRMA');
 
                         const toDisclose = new DiscloseBuilder()
-                            .forAttribute(this.ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
-                            .andAttribute(this.ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                            .andAttribute(this.ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
-
-                        console.log(toDisclose.toApi());
+                            .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
+                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                            .andAttribute(ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
 
                         irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name, Email and Address')
                             .then((result) => {

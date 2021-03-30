@@ -85,6 +85,5 @@ const irmaDisclosedResultSingleRawValueFromIndex = function (result, index) {
 };
 
 const irmaDisclosedResultSingleRawValue = function (result) {
-  //return result.disclosed[index][0].rawvalue || '';
   return irmaDisclosedResultSingleRawValueFromIndex(result, 0);
 };
