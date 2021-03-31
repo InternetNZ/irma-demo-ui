@@ -60,6 +60,8 @@
                         over18: null,
                         agelimit: null,
                         // controls
+                        formBase64Image: null,
+                        formDocumentType: null,
                         statusMessage: null,
                         statusMessageClass: null,
                         finished: false,
@@ -72,6 +74,18 @@
                 methods: {
                     confirmIdentity() {
                         this.identity = fakeIdentity;
+                    },
+                    createBase64Image(fileObject) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.formBase64Image = e.target.result;
+                            console.log(this.formBase64Image);
+                        };
+                        reader.readAsDataURL(fileObject);
+                    },
+                    handleImage(e) {
+                        const selectedImage = e.target.files[0];
+                        this.createBase64Image(selectedImage);
                     },
                     login() {
                         this.messageInfo('Verifying attributes to login with IRMA');
@@ -180,20 +194,24 @@
             <div v-if="!identity">
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
-                    <div class="input-group mb-3">
-                        <input type="file" class="form-control" id="inputGroupFile02">
-                        <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                    </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
                         <label class="form-check-label" for="inlineRadio1">Passport</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
                         <label class="form-check-label" for="inlineRadio2">License</label>
                     </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-primary mb-3" v-on:click="confirmIdentity()">Confirm identity</button>
+                    <div v-if="formDocumentType">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary mb-3"
+                                    v-bind:disabled="!formBase64Image"
+                                    v-on:click="confirmIdentity()">Confirm identity</button>
+                        </div>
                     </div>
                 </form>
             </div>
