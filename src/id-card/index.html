@@ -73,7 +73,8 @@
                 },
                 methods: {
                     confirmIdentity() {
-                        this.identity = fakeIdentity;
+                        callPassport();
+                        //this.identity = fakeIdentity;
                     },
                     createBase64Image(fileObject) {
                         const reader = new FileReader();

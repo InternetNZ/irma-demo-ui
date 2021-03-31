@@ -4,11 +4,13 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
+const AWS_IRMA_BACKEND_SERVER = 'https://f9emnttxd6.execute-api.ap-southeast-2.amazonaws.com/demo';
 const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
+const THE_SECOND = 'slU2raoR4f6q1eiVQbYuk5GGI3j2qaL25BdB6SSA';
 
 const CREDENTIAL = {
   INTERNETNZ_MEMBERSHIP: 'irma-demo.inz-internetnz.membership',
@@ -96,4 +98,11 @@ const DiscloseQueryGenerator = function () {
     andAttribute: andAttribute,
     toApi: toApi,
   };
+}
+
+const callPassport = () => {
+  const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/passports`;
+  fetch(url, {method: 'POST'}).then((result) => {
+    console.log(result);
+  })
 }
