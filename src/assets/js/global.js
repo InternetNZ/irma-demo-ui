@@ -100,18 +100,45 @@ const DiscloseQueryGenerator = function () {
   };
 }
 
-const callPassport = () => {
+const checkPassport = (base64Image) => {
   const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/passports`;
-  return fetch(url, {method: 'POST'}).then((result) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'cust': 'value',
+  };
+  const body = JSON.stringify({
+    document_image: base64Image,
+    country_code: 'NZL',
+  });
+  const options = {headers, body};
+  console.log(options);
+  return fetch(url, {method: 'POST', ...options}).then((result) => {
     console.log(result);
     return result;
   })
 }
 
-const callDriverLicence = () => {
-  const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/drivers-licences`;
-  return fetch(url, {method: 'POST'}).then((result) => {
+const checkDriverLicence = (base64Image) => {
+  const body = {
+    document_image: base64Image,
+    country_code: 'NZL',
+  };
+  return _apiSingleSourcePost('drivers-licences', body)
+    .then((result) => {
+      console.log(result);
+      return result;
+    });
+}
+
+const _apiSingleSourcePost = (endpoint, body) => {
+  const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/${endpoint}`;
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  const options = {headers, body: JSON.stringify(body)};
+  console.log(options);
+  return fetch(url, {method: 'POST', ...options}).then((result) => {
     console.log(result);
     return result;
   })
-}
+};

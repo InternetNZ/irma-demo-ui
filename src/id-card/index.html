@@ -74,12 +74,12 @@
                 methods: {
                     confirmIdentity() {
                         if (this.formDocumentType === 'passport') {
-                            callPassport(this.formBase64Image)
+                            checkPassport(this.formBase64Image)
                                 .then((result) => {
                                     console.log(result);
                                 });
                         } else if (this.formDocumentType === 'driverLicence') {
-                            callDriverLicence(this.formBase64Image)
+                            checkDriverLicence(this.formBase64Image)
                                 .then((result) => {
                                     console.log(result);
                                 });
