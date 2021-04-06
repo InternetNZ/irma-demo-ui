@@ -102,7 +102,16 @@ const DiscloseQueryGenerator = function () {
 
 const callPassport = () => {
   const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/passports`;
-  fetch(url, {method: 'POST'}).then((result) => {
+  return fetch(url, {method: 'POST'}).then((result) => {
     console.log(result);
+    return result;
+  })
+}
+
+const callDriverLicence = () => {
+  const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/drivers-licences`;
+  return fetch(url, {method: 'POST'}).then((result) => {
+    console.log(result);
+    return result;
   })
 }

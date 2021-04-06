@@ -73,14 +73,24 @@
                 },
                 methods: {
                     confirmIdentity() {
-                        callPassport();
-                        //this.identity = fakeIdentity;
+                        if (this.formDocumentType === 'passport') {
+                            callPassport(this.formBase64Image)
+                                .then((result) => {
+                                    console.log(result);
+                                });
+                        } else if (this.formDocumentType === 'driverLicence') {
+                            callDriverLicence(this.formBase64Image)
+                                .then((result) => {
+                                    console.log(result);
+                                });
+                        } else {
+                            this.messageError('Error selecting document');
+                        }
                     },
                     createBase64Image(fileObject) {
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.formBase64Image = e.target.result;
-                            console.log(this.formBase64Image);
                         };
                         reader.readAsDataURL(fileObject);
                     },
