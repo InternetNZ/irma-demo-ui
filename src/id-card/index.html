@@ -103,18 +103,14 @@
 
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
-                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                            .andAttribute(ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
+                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL);
 
-                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name, Email and Address')
+                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name and Email')
                             .then((result) => {
-                                console.log(result);
-
                                 this.logged = true;
                                 this.loggedUser = {
                                     name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
-                                    address: irmaDisclosedResultSingleRawValueFromIndex(result, 2),
                                 };
 
                                 this.messageClear();
@@ -199,31 +195,36 @@
             <ul>
                 <li>Name: <strong>{{ loggedUser.name }}</strong></li>
                 <li>Email: <strong>{{ loggedUser.email }}</strong></li>
-                <li>Address: <strong>{{ loggedUser.address }}</strong></li>
             </ul>
 
             <div v-if="!identity">
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
-                        <label class="form-check-label" for="inlineRadio1">Passport</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                        <label class="form-check-label" for="inlineRadio2">License</label>
-                    </div>
-                    <div v-if="formDocumentType">
-                        <div class="input-group mb-3">
-                            <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
-                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                    <fieldset>
+                        <div class="alert alert-warning" role="alert">
+                            The name on the document should match with <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
                         </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-primary mb-3"
-                                    v-bind:disabled="!formBase64Image"
-                                    v-on:click="confirmIdentity()">Confirm identity</button>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
+                            <label class="form-check-label" for="inlineRadio1">Passport</label>
                         </div>
-                    </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
+                            <label class="form-check-label" for="inlineRadio2">License</label>
+                        </div>
+                        <div v-if="formDocumentType">
+                            <div class="input-group mb-3">
+                                <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                                <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary mb-3"
+                                        v-bind:disabled="!formBase64Image"
+                                        v-on:click="confirmIdentity()">Confirm identity
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
                 </form>
             </div>
 
