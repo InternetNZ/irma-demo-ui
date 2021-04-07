@@ -4,8 +4,8 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
-//const AWS_IRMA_BACKEND_SERVER = 'https://f9emnttxd6.execute-api.ap-southeast-2.amazonaws.com/demo';
-const AWS_IRMA_BACKEND_SERVER = 'http://localhost:5000';
+const AWS_IRMA_BACKEND_SERVER = 'https://f9emnttxd6.execute-api.ap-southeast-2.amazonaws.com/demo';
+//const AWS_IRMA_BACKEND_SERVER = 'http://localhost:5050';
 const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
