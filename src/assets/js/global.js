@@ -70,30 +70,3 @@ const HEADER_MESSAGES = {
   DISCLOSE_NAME_EMAIL_MEMBERSHIP: 'Disclosing your <b>e-mail address</b>, <b>full name</b> and <b>InternetNZ membership</b> with',
   DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
 };
-
-const DiscloseQueryGenerator = function () {
-  this.elements = [];
-
-  const andAttribute = function (attribute) {
-    this.elements.push([
-      [attribute]
-    ]);
-
-    return this;
-  }
-
-  const toApi = function () {
-    return this.elements;
-  }
-
-  const forAttribute = function (attribute) {
-    this.elements = [];
-    return this.andAttribute(attribute);
-  }
-
-  return {
-    forAttribute: forAttribute,
-    andAttribute: andAttribute,
-    toApi: toApi,
-  };
-}

@@ -24,6 +24,7 @@
     <script src="../assets/irma.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
+    <script src="../assets/js/api-service.js" defer></script>
     <script src="../assets/js/global.js">
         // --------------------------------
         // globals loaded from globals file
@@ -31,65 +32,52 @@
     </script>
     <script type="text/javascript">
         window.onload = function () {
-            const fakeLoggedUser = {
-                name: 'Fake name',
-                email: 'fake@email.com',
-                address: 'Fake address',
-            };
-
-            const fakeIdentity = {
-                fullName: "First Last",
-                firstName: "First",
-                lastName: "Last",
-                birthdate: "01/01/1980",
-                expiryDate: "Yes",
-                issueDate: "Yes",
-                cardNumber: "Yes",
-                over18: "Yes",
-                over20: "Yes",
-                over65: "Yes",
-            };
-
             const IdCardApp = {
                 data() {
                     return {
                         // credentials
                         email: '',
                         fullName: '',
-                        fullAddress: '',
                         over18: null,
                         agelimit: null,
                         // controls
+                        formBase64Image: null,
+                        formDocumentType: null,
                         statusMessage: null,
                         statusMessageClass: null,
                         finished: false,
-                        identity: null,
+                        idCardToIssue: null,
                         logged: false,
                         loggedUser: {},
                         purchaseMode: null,
+                        requestInProgress: false,
                     }
                 },
                 methods: {
-                    confirmIdentity() {
-                        this.identity = fakeIdentity;
+                    createBase64Image(fileObject) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.formBase64Image = e.target.result.split(';').pop().replace('base64,', '');
+                        };
+                        reader.readAsDataURL(fileObject);
+                    },
+                    handleImage(e) {
+                        const selectedImage = e.target.files[0];
+                        this.createBase64Image(selectedImage);
                     },
                     login() {
                         this.messageInfo('Verifying attributes to login with IRMA');
 
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
-                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                            .andAttribute(ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS);
+                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL);
 
-                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name, Email and Address')
+                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name and Email')
                             .then((result) => {
-                                console.log(result);
-
                                 this.logged = true;
                                 this.loggedUser = {
                                     name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
-                                    address: irmaDisclosedResultSingleRawValueFromIndex(result, 2),
                                 };
 
                                 this.messageClear();
@@ -99,6 +87,23 @@
                                 this.loggedUser = null;
                                 this.messageError(error);
                             })
+                    },
+                    makeIdCardToIssueFromDocument(document) {
+                        const now = new Date();
+                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
+                        const birthDate = new Date(document.birthDate);
+                        this.idCardToIssue = {
+                            fullName: `${document.givenNames} ${document.familyName}`,
+                            firstName: document.givenNames,
+                            lastName: document.familyName,
+                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
+                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
+                            issueDate: now.toLocaleDateString(LOCALE_NZ),
+                            cardNumber: now.getTime(),
+                            over18: this.overAge(birthDate, 18),
+                            over20: this.overAge(birthDate, 20),
+                            over65: this.overAge(birthDate, 65),
+                        };
                     },
                     messageClear() {
                         this.statusMessage = null;
@@ -118,11 +123,105 @@
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-danger';
                     },
-                    reset() {
-                        this.logged = this.finished = false;
-                        this.identity = this.loggedUser = null;
-                    },
+                    overAge(birthDate, checkAge) {
+                        const diff_ms = Date.now() - birthDate.getTime();
+                        const age_dt = new Date(diff_ms);
+                        const age = Math.abs(age_dt.getUTCFullYear() - 1970);
 
+                        return age >= checkAge ? 'Yes' : 'No';
+                    },
+                    /**
+                     *
+                     * Result example
+                     * {
+                     *    "givenName": "Samantha Sam",
+                     *    "familyName": "Sample",
+                     *    "documentNumber": "BS123456",
+                     *    "documentVersion": "757",
+                     *    "birthDate": "1978-01-28",
+                     *    "dateOfExpiry": "2025-04-15",
+                     *    "governmentVerified": "verified",
+                     *    "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
+                     *  }
+                     */
+                    processDriverLicenceResult(driverLicenceResult) {
+                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`;
+
+                        if (fullname !== this.loggedUser.name) {
+                            this.messageError(
+                                `Your name "${this.loggedUser.name}" does not match with your driver licence name "${fullname}".`)
+                            return;
+                        }
+
+                        this.makeIdCardToIssueFromDocument(driverLicenceResult);
+                    },
+                    /**
+                     *
+                     * @param passportResult
+                     *
+                     * Result example
+                     * {
+                     *      "givenNames": "Sam",
+                     *      "familyName": "Specimen",
+                     *      "gender": "F",
+                     *      "documentNumber": "PA1234567",
+                     *      "nationality": "NZL",
+                     *      "issuerCountry": "NZL",
+                     *      "birthDate": "1990-04-18",
+                     *      "dateOfExpiry": "2025-04-18",
+                     *      "governmentVerified": "verified",
+                     *      "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
+                     *  }
+                     *
+                     */
+                    processPassportResult(passportResult) {
+                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`;
+
+                        if (fullname !== this.loggedUser.name) {
+                            this.messageError(
+                                `Your name "${this.loggedUser.name}" does not match with your passport name "${fullname}".`)
+                            return;
+                        }
+
+                        this.makeIdCardToIssueFromDocument(passportResult);
+                    },
+                    reset() {
+                        this.logged = this.finished = this.requestInProgress = false;
+                        this.idCardToIssue = this.loggedUser = null;
+                        this.messageClear();
+                    },
+                    uploadDocument() {
+                        this.requestInProgress = true;
+
+                        if (this.formDocumentType === 'passport') {
+                            this.messageInfo('Uploading your passport. Please, wait.');
+                            return checkPassport(this.formBase64Image)
+                                .then((result) => {
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return this.processPassportResult(result);
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
+                                });
+                        } else if (this.formDocumentType === 'driverLicence') {
+                            this.messageInfo('Uploading your driver licence...');
+                            return checkDriverLicence(this.formBase64Image)
+                                .then((result) => {
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return this.processDriverLicenceResult(result);
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
+                                });
+                        }
+
+                        this.requestInProgress = false;
+                        this.messageError('Error selecting document');
+                    },
                 }
             };
 
@@ -154,7 +253,7 @@
                 <h5 class="card-title">How to:</h5>
                 <div class="card-text">
                     <ol>
-                        <li>Login using your IRMA credentials (Name, Email and Full Adddress)</li>
+                        <li>Login using your IRMA credentials (Name and Email)</li>
                         <li>Upload your Passport or Driver Licence</li>
                         <li>Issue your digital ID Card</li>
                     </ol>
@@ -174,50 +273,52 @@
             <ul>
                 <li>Name: <strong>{{ loggedUser.name }}</strong></li>
                 <li>Email: <strong>{{ loggedUser.email }}</strong></li>
-                <li>Address: <strong>{{ loggedUser.address }}</strong></li>
             </ul>
 
-            <div v-if="!identity">
+            <div v-if="!idCardToIssue">
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
-                    <div class="input-group mb-3">
-                        <input type="file" class="form-control" id="inputGroupFile02">
-                        <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                    <div class="alert alert-warning" role="alert">
+                        The name on the document should match with
+                        <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
                         <label class="form-check-label" for="inlineRadio1">Passport</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
                         <label class="form-check-label" for="inlineRadio2">License</label>
                     </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-primary mb-3" v-on:click="confirmIdentity()">Confirm identity</button>
+                    <div v-if="formDocumentType">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary mb-3"
+                                    v-bind:disabled="!formBase64Image || requestInProgress"
+                                    v-on:click="uploadDocument()">Send
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
 
             <!-- Step 3 -->
-            <div v-if="identity">
-                <div class="alert alert-info" role="alert">
-                    Step 3 - User uploaded a readable image. We processed with Single Source and the application
-                    executed a validation, checking <strong>if the Document Name is equals to the provided Name</strong>.
-                    If valid, we present the option to issue de ID-Card with data below:
-                </div>
-
-                <h3>Confirmed identity</h3>
+            <div v-if="idCardToIssue">
+                <h3>Confirmed Information - ID Card</h3>
                 <ul>
-                    <li>Full name {{ identity.fullName }} </li>
-                    <li>First name {{ identity.firstName }} </li>
-                    <li>Last name {{ identity.lastName }} </li>
-                    <li>Date of birth {{ identity.birthdate }} </li>
-                    <li>Expiry date {{ identity.expiryDate }} </li>
-                    <li>Issue Date {{ identity.issueDate }} </li>
-                    <li>Card number {{ identity.cardNumber }} </li>
-                    <li>Over18 {{ identity.over18 }} </li>
-                    <li>Over20 {{ identity.over20 }} </li>
-                    <li>Over65 {{ identity.over65 }} </li>
+                    <li>Full name: {{ idCardToIssue.fullName }} </li>
+                    <li>First name: {{ idCardToIssue.firstName }} </li>
+                    <li>Last name: {{ idCardToIssue.lastName }} </li>
+                    <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
+                    <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
+                    <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
+                    <li>Card number: {{ idCardToIssue.cardNumber }} </li>
+                    <li>Over18: {{ idCardToIssue.over18 }} </li>
+                    <li>Over20: {{ idCardToIssue.over20 }} </li>
+                    <li>Over65: {{ idCardToIssue.over65 }} </li>
                 </ul>
 
                 <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>
