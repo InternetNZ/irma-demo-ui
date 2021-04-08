@@ -32,19 +32,12 @@
     </script>
     <script type="text/javascript">
         window.onload = function () {
-            const fakeLoggedUser = {
-                name: 'Fake name',
-                email: 'fake@email.com',
-                address: 'Fake address',
-            };
-
             const IdCardApp = {
                 data() {
                     return {
                         // credentials
                         email: '',
                         fullName: '',
-                        fullAddress: '',
                         over18: null,
                         agelimit: null,
                         // controls
@@ -260,7 +253,7 @@
                 <h5 class="card-title">How to:</h5>
                 <div class="card-text">
                     <ol>
-                        <li>Login using your IRMA credentials (Name, Email and Full Adddress)</li>
+                        <li>Login using your IRMA credentials (Name and Email)</li>
                         <li>Upload your Passport or Driver Licence</li>
                         <li>Issue your digital ID Card</li>
                     </ol>
