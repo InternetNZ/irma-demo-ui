@@ -87,3 +87,30 @@ const irmaDisclosedResultSingleRawValueFromIndex = function (result, index) {
 const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, 0);
 };
+
+const DiscloseQueryGenerator = function () {
+  this.elements = [];
+
+  const andAttribute = function (attribute) {
+    this.elements.push([
+      [attribute]
+    ]);
+
+    return this;
+  }
+
+  const toApi = function () {
+    return this.elements;
+  }
+
+  const forAttribute = function (attribute) {
+    this.elements = [];
+    return this.andAttribute(attribute);
+  }
+
+  return {
+    forAttribute: forAttribute,
+    andAttribute: andAttribute,
+    toApi: toApi,
+  };
+}

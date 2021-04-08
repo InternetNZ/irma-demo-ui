@@ -24,6 +24,7 @@
     <script src="../assets/irma.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
+    <script src="../assets/js/api-service.js" defer></script>
     <script src="../assets/js/global.js">
         // --------------------------------
         // globals loaded from globals file
@@ -69,23 +70,43 @@
                         logged: false,
                         loggedUser: {},
                         purchaseMode: null,
+                        requestInProgress: false,
                     }
                 },
                 methods: {
                     confirmIdentity() {
+                        this.requestInProgress = true;
+
                         if (this.formDocumentType === 'passport') {
-                            checkPassport(this.formBase64Image)
+                            this.messageInfo('Uploading your passport. Please, wait.');
+                            return checkPassport(this.formBase64Image)
                                 .then((result) => {
-                                    console.log(result);
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return this.processPassportResult(result);
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
                                 });
                         } else if (this.formDocumentType === 'driverLicence') {
-                            checkDriverLicence(this.formBase64Image)
+                            this.messageInfo('Uploading your driver licence...');
+                            return checkDriverLicence(this.formBase64Image)
                                 .then((result) => {
                                     console.log(result);
+
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return result;
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
                                 });
-                        } else {
-                            this.messageError('Error selecting document');
                         }
+
+                        this.requestInProgress = false;
+                        this.messageError('Error selecting document');
                     },
                     createBase64Image(fileObject) {
                         const reader = new FileReader();
@@ -97,6 +118,52 @@
                     handleImage(e) {
                         const selectedImage = e.target.files[0];
                         this.createBase64Image(selectedImage);
+                    },
+                    /**
+                     *
+                     *
+                     * Result example
+                     * {
+                     *      "givenNames": "Sam",
+                     *      "familyName": "Specimen",
+                     *      "gender": "F",
+                     *      "documentNumber": "PA1234567",
+                     *      "nationality": "NZL",
+                     *      "issuerCountry": "NZL",
+                     *      "birthDate": "1990-04-18",
+                     *      "dateOfExpiry": "2025-04-18",
+                     *      "governmentVerified": "verified",
+                     *      "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
+                     *  }
+                     *
+                     **/
+                    identityFromPassport(passport) {
+                        console.log(passport);
+                        const now = new Date();
+                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
+                        const birthdateArray = passport.birthDate.split('-');
+                        const birthDate = new Date(passport.birthDate);
+                        this.identity = {
+                            fullName: `${passport.givenNames} ${passport.familyName}`,
+                            firstName: passport.givenNames,
+                            lastName: passport.familyName,
+                            //birthdate: `${birthdateArray[2]}/${birthdateArray[1]}/${birthdateArray[0]}`,
+                            birthdate: `${birthDate.getDay()}/${birthDate.getMonth() + 1}/${birthDate.getFullYear()}`,
+                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
+                            issueDate: now.toLocaleDateString(LOCALE_NZ),
+                            cardNumber: now.getTime(),
+                            over18: this.overAge(birthDate, 18),
+                            over20: "Yes",
+                            over65: "Yes",
+                        };
+                    },
+                    overAge(birthDate, checkAge) {
+                        const diff_ms = Date.now() - birthDate.getTime();
+                        const age_dt = new Date(diff_ms);
+
+                        const age = Math.abs(age_dt.getUTCFullYear() - 1970);
+
+                        return age >= checkAge ? 'Yes' : 'No';
                     },
                     login() {
                         this.messageInfo('Verifying attributes to login with IRMA');
@@ -138,6 +205,36 @@
 
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-danger';
+                    },
+                    /**
+                     *
+                     * @param passportResult
+                     *
+                     * Result example
+                     * {
+                     *      "givenNames": "Sam",
+                     *      "familyName": "Specimen",
+                     *      "gender": "F",
+                     *      "documentNumber": "PA1234567",
+                     *      "nationality": "NZL",
+                     *      "issuerCountry": "NZL",
+                     *      "birthDate": "1990-04-18",
+                     *      "dateOfExpiry": "2025-04-18",
+                     *      "governmentVerified": "verified",
+                     *      "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
+                     *  }
+                     *
+                     */
+                    processPassportResult(passportResult) {
+                        const passportFullName = `${passportResult.givenNames} ${passportResult.familyName}`;
+
+                        if (passportFullName !== this.loggedUser.name) {
+                            this.messageError(
+                                `Your name "${this.loggedUser.name}" does not match with your passport name "${passportFullName}".`)
+                            return;
+                        }
+
+                        this.identityFromPassport(passportResult);
                     },
                     reset() {
                         this.logged = this.finished = false;
@@ -190,7 +287,7 @@
         </div>
 
         <!-- Step 2 -->
-        <div v-if="logged">
+        <div xv-if="logged">
             <h4>You are in!</h4>
             <ul>
                 <li>Name: <strong>{{ loggedUser.name }}</strong></li>
@@ -202,7 +299,8 @@
                 <form id="upload">
                     <fieldset>
                         <div class="alert alert-warning" role="alert">
-                            The name on the document should match with <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
+                            The name on the document should match with
+                            <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
@@ -219,7 +317,7 @@
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-primary mb-3"
-                                        v-bind:disabled="!formBase64Image"
+                                        v-bind:disabled="!formBase64Image || requestInProgress"
                                         v-on:click="confirmIdentity()">Confirm identity
                                 </button>
                             </div>
@@ -238,16 +336,16 @@
 
                 <h3>Confirmed identity</h3>
                 <ul>
-                    <li>Full name {{ identity.fullName }} </li>
-                    <li>First name {{ identity.firstName }} </li>
-                    <li>Last name {{ identity.lastName }} </li>
-                    <li>Date of birth {{ identity.birthdate }} </li>
-                    <li>Expiry date {{ identity.expiryDate }} </li>
-                    <li>Issue Date {{ identity.issueDate }} </li>
-                    <li>Card number {{ identity.cardNumber }} </li>
-                    <li>Over18 {{ identity.over18 }} </li>
-                    <li>Over20 {{ identity.over20 }} </li>
-                    <li>Over65 {{ identity.over65 }} </li>
+                    <li>Full name: {{ identity.fullName }} </li>
+                    <li>First name: {{ identity.firstName }} </li>
+                    <li>Last name: {{ identity.lastName }} </li>
+                    <li>Date of birth: {{ identity.birthdate }} </li>
+                    <li>Expiry date: {{ identity.expiryDate }} </li>
+                    <li>Issue Date: {{ identity.issueDate }} </li>
+                    <li>Card number: {{ identity.cardNumber }} </li>
+                    <li>Over18: {{ identity.over18 }} </li>
+                    <li>Over20: {{ identity.over20 }} </li>
+                    <li>Over65: {{ identity.over65 }} </li>
                 </ul>
 
                 <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>

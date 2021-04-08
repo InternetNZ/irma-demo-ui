@@ -4,14 +4,11 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
-const AWS_IRMA_BACKEND_SERVER = 'https://f9emnttxd6.execute-api.ap-southeast-2.amazonaws.com/demo';
-//const AWS_IRMA_BACKEND_SERVER = 'http://localhost:5050';
 const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
-const SECOND_PRIVATE_TOKEN = 'slU2raoR4f6q1eiVQbYuk5GGI3j2qaL25BdB6SSA';
 
 const CREDENTIAL = {
   INTERNETNZ_MEMBERSHIP: 'irma-demo.inz-internetnz.membership',
@@ -72,69 +69,4 @@ const HEADER_MESSAGES = {
   DISCLOSE_EMAIL_NAME: 'Disclosing your <b>e-mail address</b> and <b>full name</b> with',
   DISCLOSE_NAME_EMAIL_MEMBERSHIP: 'Disclosing your <b>e-mail address</b>, <b>full name</b> and <b>InternetNZ membership</b> with',
   DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
-};
-
-const DiscloseQueryGenerator = function () {
-  this.elements = [];
-
-  const andAttribute = function (attribute) {
-    this.elements.push([
-      [attribute]
-    ]);
-
-    return this;
-  }
-
-  const toApi = function () {
-    return this.elements;
-  }
-
-  const forAttribute = function (attribute) {
-    this.elements = [];
-    return this.andAttribute(attribute);
-  }
-
-  return {
-    forAttribute: forAttribute,
-    andAttribute: andAttribute,
-    toApi: toApi,
-  };
-}
-
-const checkPassport = (base64Image) => {
-  const body = {
-    document_image: base64Image,
-    country_code: 'NZL',
-  };
-  return _apiSingleSourcePost('passports', body)
-    .then((result) => {
-      console.log(result);
-      return result;
-    });
-}
-
-const checkDriverLicence = (base64Image) => {
-  const body = {
-    document_image: base64Image,
-    country_code: 'NZL',
-  };
-  return _apiSingleSourcePost('drivers-licences', body)
-    .then((result) => {
-      console.log(result);
-      return result;
-    });
-}
-
-const _apiSingleSourcePost = (endpoint, body) => {
-  const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/${endpoint}`;
-  const headers = {
-    'Content-Type': 'application/json',
-    'x-api-key': SECOND_PRIVATE_TOKEN,
-  };
-  const options = {headers, body: JSON.stringify(body)};
-  console.log(options);
-  return fetch(url, {method: 'POST', ...options}).then((result) => {
-    console.log(result);
-    return result;
-  })
 };
