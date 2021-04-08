@@ -285,32 +285,30 @@
             <div v-if="!idCardToIssue">
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
-                    <fieldset>
-                        <div class="alert alert-warning" role="alert">
-                            The name on the document should match with
-                            <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
+                    <div class="alert alert-warning" role="alert">
+                        The name on the document should match with
+                        <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
+                        <label class="form-check-label" for="inlineRadio1">Passport</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
+                        <label class="form-check-label" for="inlineRadio2">License</label>
+                    </div>
+                    <div v-if="formDocumentType">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
-                            <label class="form-check-label" for="inlineRadio1">Passport</label>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary mb-3"
+                                    v-bind:disabled="!formBase64Image || requestInProgress"
+                                    v-on:click="uploadDocument()">Send
+                            </button>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                            <label class="form-check-label" for="inlineRadio2">License</label>
-                        </div>
-                        <div v-if="formDocumentType">
-                            <div class="input-group mb-3">
-                                <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
-                                <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                            </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-primary mb-3"
-                                        v-bind:disabled="!formBase64Image || requestInProgress"
-                                        v-on:click="uploadDocument()">Send
-                                </button>
-                            </div>
-                        </div>
-                    </fieldset>
+                    </div>
                 </form>
             </div>
 
