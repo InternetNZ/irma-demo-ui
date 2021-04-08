@@ -38,19 +38,6 @@
                 address: 'Fake address',
             };
 
-            const fakeIdentity = {
-                fullName: "First Last",
-                firstName: "First",
-                lastName: "Last",
-                birthdate: "01/01/1980",
-                expiryDate: "Yes",
-                issueDate: "Yes",
-                cardNumber: "Yes",
-                over18: "Yes",
-                over20: "Yes",
-                over65: "Yes",
-            };
-
             const IdCardApp = {
                 data() {
                     return {
@@ -66,7 +53,7 @@
                         statusMessage: null,
                         statusMessageClass: null,
                         finished: false,
-                        identity: null,
+                        idCardToIssue: null,
                         logged: false,
                         loggedUser: {},
                         purchaseMode: null,
@@ -74,40 +61,6 @@
                     }
                 },
                 methods: {
-                    confirmIdentity() {
-                        this.requestInProgress = true;
-
-                        if (this.formDocumentType === 'passport') {
-                            this.messageInfo('Uploading your passport. Please, wait.');
-                            return checkPassport(this.formBase64Image)
-                                .then((result) => {
-                                    this.requestInProgress = false;
-                                    this.messageClear();
-                                    return this.processPassportResult(result);
-                                })
-                                .catch(error => {
-                                    this.requestInProgress = false;
-                                    this.messageError(error);
-                                });
-                        } else if (this.formDocumentType === 'driverLicence') {
-                            this.messageInfo('Uploading your driver licence...');
-                            return checkDriverLicence(this.formBase64Image)
-                                .then((result) => {
-                                    console.log(result);
-
-                                    this.requestInProgress = false;
-                                    this.messageClear();
-                                    return result;
-                                })
-                                .catch(error => {
-                                    this.requestInProgress = false;
-                                    this.messageError(error);
-                                });
-                        }
-
-                        this.requestInProgress = false;
-                        this.messageError('Error selecting document');
-                    },
                     createBase64Image(fileObject) {
                         const reader = new FileReader();
                         reader.onload = (e) => {
@@ -118,52 +71,6 @@
                     handleImage(e) {
                         const selectedImage = e.target.files[0];
                         this.createBase64Image(selectedImage);
-                    },
-                    /**
-                     *
-                     *
-                     * Result example
-                     * {
-                     *      "givenNames": "Sam",
-                     *      "familyName": "Specimen",
-                     *      "gender": "F",
-                     *      "documentNumber": "PA1234567",
-                     *      "nationality": "NZL",
-                     *      "issuerCountry": "NZL",
-                     *      "birthDate": "1990-04-18",
-                     *      "dateOfExpiry": "2025-04-18",
-                     *      "governmentVerified": "verified",
-                     *      "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
-                     *  }
-                     *
-                     **/
-                    identityFromPassport(passport) {
-                        console.log(passport);
-                        const now = new Date();
-                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
-                        const birthdateArray = passport.birthDate.split('-');
-                        const birthDate = new Date(passport.birthDate);
-                        this.identity = {
-                            fullName: `${passport.givenNames} ${passport.familyName}`,
-                            firstName: passport.givenNames,
-                            lastName: passport.familyName,
-                            //birthdate: `${birthdateArray[2]}/${birthdateArray[1]}/${birthdateArray[0]}`,
-                            birthdate: `${birthDate.getDay()}/${birthDate.getMonth() + 1}/${birthDate.getFullYear()}`,
-                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
-                            issueDate: now.toLocaleDateString(LOCALE_NZ),
-                            cardNumber: now.getTime(),
-                            over18: this.overAge(birthDate, 18),
-                            over20: "Yes",
-                            over65: "Yes",
-                        };
-                    },
-                    overAge(birthDate, checkAge) {
-                        const diff_ms = Date.now() - birthDate.getTime();
-                        const age_dt = new Date(diff_ms);
-
-                        const age = Math.abs(age_dt.getUTCFullYear() - 1970);
-
-                        return age >= checkAge ? 'Yes' : 'No';
                     },
                     login() {
                         this.messageInfo('Verifying attributes to login with IRMA');
@@ -188,6 +95,23 @@
                                 this.messageError(error);
                             })
                     },
+                    makeIdCardToIssueFromDocument(document) {
+                        const now = new Date();
+                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
+                        const birthDate = new Date(document.birthDate);
+                        this.idCardToIssue = {
+                            fullName: `${document.givenNames} ${document.familyName}`,
+                            firstName: document.givenNames,
+                            lastName: document.familyName,
+                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
+                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
+                            issueDate: now.toLocaleDateString(LOCALE_NZ),
+                            cardNumber: now.getTime(),
+                            over18: this.overAge(birthDate, 18),
+                            over20: this.overAge(birthDate, 20),
+                            over65: this.overAge(birthDate, 65),
+                        };
+                    },
                     messageClear() {
                         this.statusMessage = null;
                         this.statusMessageClass = null;
@@ -205,6 +129,38 @@
 
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-danger';
+                    },
+                    overAge(birthDate, checkAge) {
+                        const diff_ms = Date.now() - birthDate.getTime();
+                        const age_dt = new Date(diff_ms);
+                        const age = Math.abs(age_dt.getUTCFullYear() - 1970);
+
+                        return age >= checkAge ? 'Yes' : 'No';
+                    },
+                    /**
+                     *
+                     * Result example
+                     * {
+                     *    "givenName": "Samantha Sam",
+                     *    "familyName": "Sample",
+                     *    "documentNumber": "BS123456",
+                     *    "documentVersion": "757",
+                     *    "birthDate": "1978-01-28",
+                     *    "dateOfExpiry": "2025-04-15",
+                     *    "governmentVerified": "verified",
+                     *    "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
+                     *  }
+                     */
+                    processDriverLicenceResult(driverLicenceResult) {
+                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`;
+
+                        if (fullname !== this.loggedUser.name) {
+                            this.messageError(
+                                `Your name "${this.loggedUser.name}" does not match with your driver licence name "${fullname}".`)
+                            return;
+                        }
+
+                        this.makeIdCardToIssueFromDocument(driverLicenceResult);
                     },
                     /**
                      *
@@ -226,21 +182,53 @@
                      *
                      */
                     processPassportResult(passportResult) {
-                        const passportFullName = `${passportResult.givenNames} ${passportResult.familyName}`;
+                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`;
 
-                        if (passportFullName !== this.loggedUser.name) {
+                        if (fullname !== this.loggedUser.name) {
                             this.messageError(
-                                `Your name "${this.loggedUser.name}" does not match with your passport name "${passportFullName}".`)
+                                `Your name "${this.loggedUser.name}" does not match with your passport name "${fullname}".`)
                             return;
                         }
 
-                        this.identityFromPassport(passportResult);
+                        this.makeIdCardToIssueFromDocument(passportResult);
                     },
                     reset() {
-                        this.logged = this.finished = false;
-                        this.identity = this.loggedUser = null;
+                        this.logged = this.finished = this.requestInProgress = false;
+                        this.idCardToIssue = this.loggedUser = null;
+                        this.messageClear();
                     },
+                    uploadDocument() {
+                        this.requestInProgress = true;
 
+                        if (this.formDocumentType === 'passport') {
+                            this.messageInfo('Uploading your passport. Please, wait.');
+                            return checkPassport(this.formBase64Image)
+                                .then((result) => {
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return this.processPassportResult(result);
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
+                                });
+                        } else if (this.formDocumentType === 'driverLicence') {
+                            this.messageInfo('Uploading your driver licence...');
+                            return checkDriverLicence(this.formBase64Image)
+                                .then((result) => {
+                                    this.requestInProgress = false;
+                                    this.messageClear();
+                                    return this.processDriverLicenceResult(result);
+                                })
+                                .catch(error => {
+                                    this.requestInProgress = false;
+                                    this.messageError(error);
+                                });
+                        }
+
+                        this.requestInProgress = false;
+                        this.messageError('Error selecting document');
+                    },
                 }
             };
 
@@ -287,14 +275,14 @@
         </div>
 
         <!-- Step 2 -->
-        <div xv-if="logged">
+        <div v-if="logged">
             <h4>You are in!</h4>
             <ul>
                 <li>Name: <strong>{{ loggedUser.name }}</strong></li>
                 <li>Email: <strong>{{ loggedUser.email }}</strong></li>
             </ul>
 
-            <div v-if="!identity">
+            <div v-if="!idCardToIssue">
                 <h3>Upload your passport or driver license</h3>
                 <form id="upload">
                     <fieldset>
@@ -318,7 +306,7 @@
                             <div class="col-auto">
                                 <button type="button" class="btn btn-primary mb-3"
                                         v-bind:disabled="!formBase64Image || requestInProgress"
-                                        v-on:click="confirmIdentity()">Confirm identity
+                                        v-on:click="uploadDocument()">Send
                                 </button>
                             </div>
                         </div>
@@ -327,25 +315,19 @@
             </div>
 
             <!-- Step 3 -->
-            <div v-if="identity">
-                <div class="alert alert-info" role="alert">
-                    Step 3 - User uploaded a readable image. We processed with Single Source and the application
-                    executed a validation, checking <strong>if the Document Name is equals to the provided Name</strong>.
-                    If valid, we present the option to issue de ID-Card with data below:
-                </div>
-
-                <h3>Confirmed identity</h3>
+            <div v-if="idCardToIssue">
+                <h3>Confirmed Information - ID Card</h3>
                 <ul>
-                    <li>Full name: {{ identity.fullName }} </li>
-                    <li>First name: {{ identity.firstName }} </li>
-                    <li>Last name: {{ identity.lastName }} </li>
-                    <li>Date of birth: {{ identity.birthdate }} </li>
-                    <li>Expiry date: {{ identity.expiryDate }} </li>
-                    <li>Issue Date: {{ identity.issueDate }} </li>
-                    <li>Card number: {{ identity.cardNumber }} </li>
-                    <li>Over18: {{ identity.over18 }} </li>
-                    <li>Over20: {{ identity.over20 }} </li>
-                    <li>Over65: {{ identity.over65 }} </li>
+                    <li>Full name: {{ idCardToIssue.fullName }} </li>
+                    <li>First name: {{ idCardToIssue.firstName }} </li>
+                    <li>Last name: {{ idCardToIssue.lastName }} </li>
+                    <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
+                    <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
+                    <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
+                    <li>Card number: {{ idCardToIssue.cardNumber }} </li>
+                    <li>Over18: {{ idCardToIssue.over18 }} </li>
+                    <li>Over20: {{ idCardToIssue.over20 }} </li>
+                    <li>Over65: {{ idCardToIssue.over65 }} </li>
                 </ul>
 
                 <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>
