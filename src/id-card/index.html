@@ -21,8 +21,8 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://unpkg.com/vue@next"></script>
 
-<!--    <script src="../assets/irma.js" defer></script>-->
-    <script src="../assets/irma-0.3.3.js" defer></script>
+    <script src="../assets/lib/irma-0.3.3.js" defer></script>
+    <script src="../assets/lib/luxon.min.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
     <script src="../assets/js/api-service.js" defer></script>
@@ -91,16 +91,15 @@
                     },
                     makeIdCardToIssueFromDocument(document) {
                         const now = new Date();
-                        const expiryDate = new Date(Date.UTC(now.getFullYear() + 10, now.getUTCMonth(), now.getDay()));
+                        const expiryDate = luxon.DateTime.now().plus({years: 10}).toUTC();
                         const birthDate = new Date(document.birthDate);
                         console.log(birthDate);
                         this.idCardToIssue = {
                             fullName: `${document.givenNames} ${document.familyName}`,
                             firstName: document.givenNames,
                             lastName: document.familyName,
-                            //birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
-                            birthdate: `${new Intl.DateTimeFormat(LOCALE_NZ).format(birthDate)}`,
-                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
+                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
+                            expiryDate: expiryDate.toFormat('dd/MM/yyyy'),
                             issueDate: now.toLocaleDateString(LOCALE_NZ),
                             cardNumber: now.getTime(),
                             over18: this.overAge(birthDate, 18),
