@@ -21,7 +21,8 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://unpkg.com/vue@next"></script>
 
-    <script src="../assets/irma.js" defer></script>
+    <script src="../assets/lib/irma-0.3.3.js" defer></script>
+    <script src="../assets/lib/luxon.min.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
     <script src="../assets/js/api-service.js" defer></script>
@@ -89,17 +90,19 @@
                             })
                     },
                     makeIdCardToIssueFromDocument(document) {
-                        const now = new Date();
-                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
-                        const birthDate = new Date(document.birthDate);
+                        luxon.Settings.defaultLocale = LOCALE_NZ;
+
+                        const now = luxon.DateTime.now().toUTC();
+                        const expiryDate = luxon.DateTime.now().plus({years: 10}).toUTC();
+                        const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd').toUTC();
                         this.idCardToIssue = {
                             fullName: `${document.givenNames} ${document.familyName}`,
                             firstName: document.givenNames,
                             lastName: document.familyName,
-                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
-                            expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
-                            issueDate: now.toLocaleDateString(LOCALE_NZ),
-                            cardNumber: now.getTime(),
+                            birthdate: birthDate.toLocaleString(),
+                            expiryDate: expiryDate.toLocaleString(),
+                            issueDate: now.toLocaleString(),
+                            cardNumber: now.toMillis(),
                             over18: this.overAge(birthDate, 18),
                             over20: this.overAge(birthDate, 20),
                             over65: this.overAge(birthDate, 65),
@@ -124,7 +127,7 @@
                         this.statusMessageClass = 'alert-danger';
                     },
                     overAge(birthDate, checkAge) {
-                        const diff_ms = Date.now() - birthDate.getTime();
+                        const diff_ms = Date.now() - birthDate.toSeconds();
                         const age_dt = new Date(diff_ms);
                         const age = Math.abs(age_dt.getUTCFullYear() - 1970);
 
@@ -145,7 +148,7 @@
                      *  }
                      */
                     processDriverLicenceResult(driverLicenceResult) {
-                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`;
+                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`.trim();
 
                         if (fullname !== this.loggedUser.name) {
                             this.messageError(
@@ -175,7 +178,7 @@
                      *
                      */
                     processPassportResult(passportResult) {
-                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`;
+                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`.trim();
 
                         if (fullname !== this.loggedUser.name) {
                             this.messageError(
