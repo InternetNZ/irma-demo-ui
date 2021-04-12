@@ -90,18 +90,19 @@
                             })
                     },
                     makeIdCardToIssueFromDocument(document) {
-                        const now = new Date();
+                        luxon.Settings.defaultLocale = LOCALE_NZ;
+
+                        const now = luxon.DateTime.now().toUTC();
                         const expiryDate = luxon.DateTime.now().plus({years: 10}).toUTC();
-                        const birthDate = new Date(document.birthDate);
-                        console.log(birthDate);
+                        const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd').toUTC();
                         this.idCardToIssue = {
                             fullName: `${document.givenNames} ${document.familyName}`,
                             firstName: document.givenNames,
                             lastName: document.familyName,
-                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
-                            expiryDate: expiryDate.toFormat('dd/MM/yyyy'),
-                            issueDate: now.toLocaleDateString(LOCALE_NZ),
-                            cardNumber: now.getTime(),
+                            birthdate: birthDate.toLocaleString(),
+                            expiryDate: expiryDate.toLocaleString(),
+                            issueDate: now.toLocaleString(),
+                            cardNumber: now.toMillis(),
                             over18: this.overAge(birthDate, 18),
                             over20: this.overAge(birthDate, 20),
                             over65: this.overAge(birthDate, 65),
@@ -126,7 +127,7 @@
                         this.statusMessageClass = 'alert-danger';
                     },
                     overAge(birthDate, checkAge) {
-                        const diff_ms = Date.now() - birthDate.getTime();
+                        const diff_ms = Date.now() - birthDate.toSeconds();
                         const age_dt = new Date(diff_ms);
                         const age = Math.abs(age_dt.getUTCFullYear() - 1970);
 
