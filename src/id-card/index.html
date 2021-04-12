@@ -21,7 +21,8 @@
     <!-- development version, includes helpful console warnings -->
     <script src="https://unpkg.com/vue@next"></script>
 
-    <script src="../assets/irma.js" defer></script>
+<!--    <script src="../assets/irma.js" defer></script>-->
+    <script src="../assets/irma-0.3.3.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
     <script src="../assets/js/api-service.js" defer></script>
@@ -90,13 +91,15 @@
                     },
                     makeIdCardToIssueFromDocument(document) {
                         const now = new Date();
-                        const expiryDate = new Date(now.getFullYear() + 10, now.getMonth(), now.getDay());
+                        const expiryDate = new Date(Date.UTC(now.getFullYear() + 10, now.getUTCMonth(), now.getDay()));
                         const birthDate = new Date(document.birthDate);
+                        console.log(birthDate);
                         this.idCardToIssue = {
                             fullName: `${document.givenNames} ${document.familyName}`,
                             firstName: document.givenNames,
                             lastName: document.familyName,
-                            birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
+                            //birthdate: `${birthDate.getDay()}/${birthDate.getUTCMonth() + 1}/${birthDate.getFullYear()}`,
+                            birthdate: `${new Intl.DateTimeFormat(LOCALE_NZ).format(birthDate)}`,
                             expiryDate: expiryDate.toLocaleDateString(LOCALE_NZ),
                             issueDate: now.toLocaleDateString(LOCALE_NZ),
                             cardNumber: now.getTime(),
@@ -145,7 +148,7 @@
                      *  }
                      */
                     processDriverLicenceResult(driverLicenceResult) {
-                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`;
+                        const fullname = `${driverLicenceResult.givenNames} ${driverLicenceResult.familyName}`.trim();
 
                         if (fullname !== this.loggedUser.name) {
                             this.messageError(
@@ -175,7 +178,7 @@
                      *
                      */
                     processPassportResult(passportResult) {
-                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`;
+                        const fullname = `${passportResult.givenNames} ${passportResult.familyName}`.trim();
 
                         if (fullname !== this.loggedUser.name) {
                             this.messageError(
