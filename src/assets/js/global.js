@@ -11,6 +11,7 @@ const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
 
 const CREDENTIAL = {
+  ID_CARD_ID_CARD: 'irma-demo.inz-id-card.idCard',
   INTERNETNZ_MEMBERSHIP: 'irma-demo.inz-internetnz.membership',
   INTERNETNZ_NETHUI_ACCESS_PASS: 'irma-demo.inz-internetnz.nethuiAccessPass',
   FAKE_EMAILER_EMAIL: 'irma-demo.inz-emailer.email',
@@ -61,6 +62,7 @@ const HEADER_MESSAGES = {
   ISSUE_AGE: 'Issuing your <b>age</b> address to',
   ISSUE_BIRTHDATE: 'Issuing your <b>birthdate</b> address to',
   ISSUE_INZ_MEMBERSHIP: 'Issuing your <b>InternetNZ membership</b> to',
+  ISSUE_ID_CARD_ID_CARD: 'Issuing your <b>IDNZ Card</b> to',
   ISSUE_NETHUI_ACCESS_PASS: 'Issuing your <b>NetHui access pass</b> to',
   DISCLOSE_ADDDRESS: 'Disclosing your <b>address</b> with',
   DISCLOSE_ADDDRESS_AND_NAME: 'Disclosing your <b>full address</b> and <b>full name</b> with',

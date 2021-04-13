@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/vue@next"></script>
 
     <script src="../assets/lib/irma-0.3.3.js" defer></script>
-    <script src="../assets/lib/luxon.min.js" defer></script>
+    <script src="../assets/lib/luxon-1.26.0.min.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
     <script src="../assets/js/api-service.js" defer></script>
@@ -193,6 +193,16 @@
                         this.idCardToIssue = this.loggedUser = null;
                         this.messageClear();
                     },
+                    saveIdCard: function () {
+                        console.log('saveIdCard');
+                        const self = this;
+                        return irmaIssueCredential(CREDENTIAL.ID_CARD_ID_CARD, this.idCardToIssue, HEADER_MESSAGES.ISSUE_ID_CARD_ID_CARD)
+                            .then((_) => {
+                                self.finished = true;
+                            }).catch(function (err) {
+                                self.messageError(err);
+                            });
+                    },
                     uploadDocument() {
                         this.requestInProgress = true;
 
@@ -324,7 +334,7 @@
                     <li>Over65: {{ idCardToIssue.over65 }} </li>
                 </ul>
 
-                <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>
+                <button type="button" class="btn btn-success mb-3" v-on:click="saveIdCard()">Issue your ID-Card!</button>
             </div>
 
             <!-- Step 4 -->
