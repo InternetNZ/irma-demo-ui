@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/vue@next"></script>
 
     <script src="../assets/lib/irma-0.3.3.js" defer></script>
-    <script src="../assets/lib/luxon.min.js" defer></script>
+    <script src="../assets/lib/luxon-1.26.0.min.js" defer></script>
     <script src="../assets/js/irma-functions.js" defer></script>
     <script src="../assets/js/ui-functions.js" defer></script>
     <script src="../assets/js/api-service.js" defer></script>
@@ -93,19 +93,21 @@
                         luxon.Settings.defaultLocale = LOCALE_NZ;
 
                         const now = luxon.DateTime.now().toUTC();
-                        const expiryDate = luxon.DateTime.now().plus({years: 10}).toUTC();
+                        const validity = now.plus({months: 1}).toUTC();
+                        const expiryDate = now.plus({years: 10});
                         const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd').toUTC();
                         this.idCardToIssue = {
-                            fullName: `${document.givenNames} ${document.familyName}`,
                             firstName: document.givenNames,
                             lastName: document.familyName,
+                            fullName: `${document.givenNames} ${document.familyName}`,
                             birthdate: birthDate.toLocaleString(),
-                            expiryDate: expiryDate.toLocaleString(),
-                            issueDate: now.toLocaleString(),
-                            cardNumber: now.toMillis(),
                             over18: this.overAge(birthDate, 18),
                             over20: this.overAge(birthDate, 20),
                             over65: this.overAge(birthDate, 65),
+                            issueDate: now.toLocaleString(),
+                            expiryDate: expiryDate.toLocaleString(),
+                            number: `${now.toMillis()}`,
+                            validity: parseInt(validity.toSeconds()),
                         };
                     },
                     messageClear() {
@@ -192,6 +194,16 @@
                         this.logged = this.finished = this.requestInProgress = false;
                         this.idCardToIssue = this.loggedUser = null;
                         this.messageClear();
+                    },
+                    saveIdCard: function () {
+                        console.log('saveIdCard');
+                        const self = this;
+                        return irmaIssueCredential(CREDENTIAL.ID_CARD_ID_CARD, this.idCardToIssue, HEADER_MESSAGES.ISSUE_ID_CARD_ID_CARD)
+                            .then((_) => {
+                                self.finished = true;
+                            }).catch(function (err) {
+                                self.messageError(err);
+                            });
                     },
                     uploadDocument() {
                         this.requestInProgress = true;
@@ -318,21 +330,17 @@
                     <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
                     <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
                     <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
-                    <li>Card number: {{ idCardToIssue.cardNumber }} </li>
+                    <li>Card number: {{ idCardToIssue.number }} </li>
                     <li>Over18: {{ idCardToIssue.over18 }} </li>
                     <li>Over20: {{ idCardToIssue.over20 }} </li>
                     <li>Over65: {{ idCardToIssue.over65 }} </li>
                 </ul>
 
-                <button type="button" class="btn btn-success mb-3" v-on:click="finished = true">Issue your ID-Card!</button>
+                <button type="button" class="btn btn-success mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
             </div>
 
             <!-- Step 4 -->
             <div v-if="finished">
-                <div class="alert alert-info" role="alert">
-                    Step 4 - Done. The credential should be stored on IRMA App.
-                </div>
-
                 <h3>Done</h3>
 
                 <p>Click on reset to start over.</p>

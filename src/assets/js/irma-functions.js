@@ -27,19 +27,25 @@ function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', la
 }
 
 function irmaIssueCredential(credential, attributes, header = 'Issuing credential with', disclosePayload = null) {
-    console.log('issueCredential');
-    const request = {
-        '@context': 'https://irma.app/ld/request/issuance/v2',
-        'credentials': [{
-            'credential': credential,
-            'attributes': attributes
-        }],
-        'disclose': disclosePayload,
-    };
-    return irmaDoSession(request, header).then(function (result) {
-        console.log("Successful issuing credential! 🎉", result)
-        return result;
-    });
+  console.log('issueCredential');
+  let validity = {};
+  if (attributes.validity) {
+    validity = {validity: attributes.validity};
+    delete attributes.validity;
+  }
+  const request = {
+    '@context': 'https://irma.app/ld/request/issuance/v2',
+    'credentials': [{
+      credential: credential,
+      attributes: attributes,
+      ...validity,
+    }],
+    'disclose': disclosePayload,
+  };
+  return irmaDoSession(request, header).then(function (result) {
+    console.log("Successful issuing credential! 🎉", result)
+    return result;
+  });
 }
 
 function irmaDoSession(request, header = '') {
