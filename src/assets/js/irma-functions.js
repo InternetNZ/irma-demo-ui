@@ -1,6 +1,6 @@
 // be sure that you are loading irmajs functions
 
-function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '') {
+function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '', revocation = []) {
     const labelRequest = !label ? {} : {
         'labels': {
             '0': {
@@ -12,11 +12,13 @@ function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', la
     const request = !message ? {
         '@context': 'https://irma.app/ld/request/disclosure/v2',
         'disclose': attributes,
+        'revocation': revocation,
         ...labelRequest
     } : {
         '@context': 'https://irma.app/ld/request/signature/v2',
         'message': message,
         'disclose': attributes,
+        'revocation': revocation,
         ...labelRequest
     };
 
@@ -26,7 +28,7 @@ function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', la
     });
 }
 
-function irmaIssueCredential(credential, attributes, header = 'Issuing credential with', disclosePayload = null) {
+function irmaIssueCredential(credential, attributes, header = 'Issuing credential with', disclosePayload = null, revocationKey = None) {
   console.log('issueCredential');
   let validity = {};
   if (attributes.validity) {
@@ -38,6 +40,7 @@ function irmaIssueCredential(credential, attributes, header = 'Issuing credentia
     'credentials': [{
       credential: credential,
       attributes: attributes,
+      revocationKey: revocationKey,
       ...validity,
     }],
     'disclose': disclosePayload,
