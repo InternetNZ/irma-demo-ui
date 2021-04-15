@@ -68,15 +68,15 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
-                        this.messageInfo('Verifying attributes to login with IRMA');
-
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
                             .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL);
 
+                        this.messageError('Test');
+
                         irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name and Email')
                             .then((result) => {
-                                this.logged = true;
+                                //this.logged = true;
                                 this.loggedUser = {
                                     name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
@@ -263,11 +263,11 @@
         </button>
     </div>
 
-    <div class="row" v-if="statusMessage">
-        <div id="result" class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
-    </div>
+<!--    <div class="row" v-if="statusMessage">-->
+<!--        <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>-->
+<!--    </div>-->
 
-    <div id="step1-first-div">
+    <div id="step1-first-div" class="row" v-if="!logged">
         <div id="step1-first-div-1">
             <h1>Get your IDNZ digital card.</h1>
             <p style="margin: 24px 0">
@@ -277,30 +277,37 @@
                 <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
                 <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
             </div>
+
+<!--            <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>-->
+
+            <span class="status alert mt-4 ms-3" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</span>
+        </div>
+        <div id="step1-first-div-2">
+            <img src="assets/images/landing-page.png" height="624" width="603">
         </div>
     </div>
 
     <div>
-        <h1>Get your IDNZ digital card.</h1>
+<!--        <h1>Get your IDNZ digital card.</h1>-->
 
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">How to:</h5>
-                <div class="card-text">
-                    <ol>
-                        <li>Login using your IRMA credentials (Name and Email)</li>
-                        <li>Upload your Passport or Driver Licence</li>
-                        <li>Issue your digital ID Card</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-        <br>
+<!--        <div class="card">-->
+<!--            <div class="card-body">-->
+<!--                <h5 class="card-title">How to:</h5>-->
+<!--                <div class="card-text">-->
+<!--                    <ol>-->
+<!--                        <li>Login using your IRMA credentials (Name and Email)</li>-->
+<!--                        <li>Upload your Passport or Driver Licence</li>-->
+<!--                        <li>Issue your digital ID Card</li>-->
+<!--                    </ol>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <br>-->
 
-        <!-- Step 1 -->
-        <div v-if="!logged" class="text-center">
-            <button class="btn btn-lg btn-primary" v-on:click="login()">Login with IRMA</button>
-        </div>
+<!--        &lt;!&ndash; Step 1 &ndash;&gt;-->
+<!--        <div v-if="!logged" class="text-center">-->
+<!--            <button class="btn btn-lg btn-primary" v-on:click="login()">Login with IRMA</button>-->
+<!--        </div>-->
 
         <!-- Step 2 -->
         <div v-if="logged">

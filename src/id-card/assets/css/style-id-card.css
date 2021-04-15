@@ -23,6 +23,18 @@ h1 {
     color: #004A5A;
 }
 
+.alert {
+    padding: 8px 16px 8px 8px;
+
+    font-family: Roboto, serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+    line-height: 24px;
+
+    color: #000000;
+}
+
 .btn {
     background-color: #ffffff;
     border: 1px solid #000000;
@@ -73,7 +85,12 @@ h1 {
     color: #FFFFFF;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active
+{
     background-color: #60CB9E;
     border-color: #60CB9E;
 }
