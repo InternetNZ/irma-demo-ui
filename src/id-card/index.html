@@ -68,15 +68,14 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
+                        this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
                             .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL);
 
-                        this.messageError('Test');
-
                         irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name and Email')
                             .then((result) => {
-                                //this.logged = true;
+                                this.logged = true;
                                 this.loggedUser = {
                                     name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
@@ -263,10 +262,6 @@
         </button>
     </div>
 
-<!--    <div class="row" v-if="statusMessage">-->
-<!--        <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>-->
-<!--    </div>-->
-
     <div id="step1-first-div" class="row" v-if="!logged">
         <div id="step1-first-div-1">
             <h1>Get your IDNZ digital card.</h1>
@@ -277,8 +272,6 @@
                 <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
                 <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
             </div>
-
-<!--            <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>-->
 
             <span class="status alert mt-4 ms-3" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</span>
         </div>
@@ -311,6 +304,10 @@
 
         <!-- Step 2 -->
         <div v-if="logged">
+            <div class="row" v-if="statusMessage">
+                <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
+            </div>
+
             <h4>You are in!</h4>
             <ul>
                 <li>Name: <strong>{{ loggedUser.name }}</strong></li>

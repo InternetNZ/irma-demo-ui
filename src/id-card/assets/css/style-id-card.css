@@ -79,6 +79,11 @@ h1 {
     margin: 0 16px;
 }
 
+.btn-check:focus + .btn-primary, .btn-primary:focus,
+.btn-check:checked + .btn-primary:focus, .btn-check:active + .btn-primary:focus, .btn-primary:active:focus, .btn-primary.active:focus, .show > .btn-primary.dropdown-toggle:focus {
+    box-shadow: none;
+}
+
 .btn-primary {
     background-color: #004A5A;
     border-color: #004A5A;
