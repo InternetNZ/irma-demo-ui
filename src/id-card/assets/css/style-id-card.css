@@ -1,4 +1,95 @@
 
+body {
+    font-family: Roboto, serif;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 32px;
+}
+
+h1 {
+    /* H1 */
+
+    font-family: 'Work Sans', serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 64px;
+    line-height: 68px;
+    /* or 106% */
+
+    display: flex;
+    align-items: center;
+
+    color: #004A5A;
+}
+
+.btn {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 4px;
+}
+
+.btn-sm {
+    /*padding: 8px;*/
+    background-color: #ffffff;
+
+    font-family: Roboto, serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+
+    border: 1px solid #000000;
+    box-sizing: border-box;
+}
+
+.btn-lg {
+    border-radius: 8px;
+    /*padding: 16px;*/
+
+    /*position: static;*/
+    /*width: 148px;*/
+    /*height: 23px;*/
+    /*left: 16px;*/
+    /*top: 16px;*/
+
+    font-family: 'Work Sans', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+
+    color: #FFFFFF;
+
+    /* Inside Auto Layout */
+
+    /*flex: none;*/
+    /*order: 0;*/
+    /*flex-grow: 0;*/
+    margin: 0 16px;
+}
+
+.btn-primary {
+    background-color: #004A5A;
+    border-color: #004A5A;
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #60CB9E;
+    border-color: #60CB9E;
+}
+
+.btn-secondary {
+    background-color: #FFFFFF;
+    border-color: #004A5A;
+    color: #004A5A;
+}
+
+.btn-secondary:hover {
+    background-color: #FFFFFF;
+    border-color: #60CB9E;
+    color: #004A5A;
+}
+
 #header {
     background-color: #004A5A;
     height: 56px;
@@ -6,8 +97,25 @@
     padding: 0 40px;
 }
 
-#2div-reset-button {
-    /* Frame 69 */
+#div-reset-button {
+    padding: 32px 8px 16px;
+}
+
+#reset-button {
+    /*width: 126px;*/
+    /*height: 35px;*/
+
+    color: #E31C79;
+    border-color: #E31C79;
+}
+
+#reset-button:hover {
+    color: #FFA4CE;
+    border: 1px solid #FFA4CE;
+}
+
+#step1-first-div {
+    /* Frame 77 */
 
 
     /* Auto Layout */
@@ -15,35 +123,39 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 32px 8px 16px;
+    padding: 0px 0px 0px 48px;
 
-    position: absolute;
-    width: 142.02px;
-    height: 83px;
-    left: 1238px;
-    top: 168px;
+    /*position: absolute;*/
+    width: 585px;
+    height: 479px;
+    /*left: 60px;*/
+    /*top: 248px;*/
 
-    border: 1px solid #000000;
-    box-sizing: border-box;
-    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+    background: #FFFFFF;
 }
 
-#div-reset-button {
-    padding: 32px 8px 16px;
-}
+#step1-first-div-1 {
+    /* Frame 67 */
 
-#reset-button {
-    width: 126.02px;
-    height: 35px;
 
-    background-color: #ffffff;
-    color: #E31C79;
-    border: 1px solid #E31C79;
-    box-sizing: border-box;
-    border-radius: 4px;
-}
+    /* Auto Layout */
 
-#reset-button:hover {
-    color: #FFA4CE;
-    border: 1px solid #FFA4CE;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 80px 0px 24px;
+
+    /*position: static;*/
+    width: 537px;
+    height: 360px;
+    /*left: 48px;*/
+    /*top: 0px;*/
+
+
+    /* Inside Auto Layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    margin: 24px 0px;
 }

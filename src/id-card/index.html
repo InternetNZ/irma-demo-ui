@@ -258,7 +258,7 @@
     </header>
 
     <div id="div-reset-button" class="text-end">
-        <button id="reset-button" v-on:click="reset()">
+        <button id="reset-button" class="btn-sm" v-on:click="reset()">
             <img src="assets/images/icon-refresh.png"> Reset demo
         </button>
     </div>
@@ -267,8 +267,21 @@
         <div id="result" class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
     </div>
 
+    <div id="step1-first-div">
+        <div id="step1-first-div-1">
+            <h1>Get your IDNZ digital card.</h1>
+            <p style="margin: 24px 0">
+                Issue a digital version of your IDNZ card into your IRMA wallet or refresh the expiry date of your current digital card.
+            </p>
+            <div>
+                <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
+                <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
+            </div>
+        </div>
+    </div>
+
     <div>
-        <h2>Welcome and get your ID-Card!</h2>
+        <h1>Get your IDNZ digital card.</h1>
 
         <div class="card">
             <div class="card-body">
