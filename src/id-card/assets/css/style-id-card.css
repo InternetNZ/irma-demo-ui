@@ -1,6 +1,6 @@
 
 body {
-    font-family: Roboto, serif;
+    font-family: Roboto, sans-serif;
     font-style: normal;
     font-weight: 300;
     font-size: 24px;
@@ -10,7 +10,7 @@ body {
 h1 {
     /* H1 */
 
-    font-family: 'Work Sans', serif;
+    font-family: 'Work Sans', sans-serif;
     font-style: normal;
     font-weight: bold;
     font-size: 64px;
@@ -26,7 +26,6 @@ h1 {
 .alert {
     padding: 8px 16px 8px 8px;
 
-    font-family: Roboto, serif;
     font-style: normal;
     font-weight: normal;
     font-size: 18px;
@@ -45,7 +44,6 @@ h1 {
     /*padding: 8px;*/
     background-color: #ffffff;
 
-    font-family: Roboto, serif;
     font-style: normal;
     font-weight: 500;
     font-size: 16px;
@@ -138,47 +136,29 @@ h1 {
 }
 
 #step1-first-div {
-    /* Frame 77 */
-
-
-    /* Auto Layout */
-
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 0px 0px 0px 48px;
 
-    /*position: absolute;*/
     width: 585px;
     height: 479px;
-    /*left: 60px;*/
-    /*top: 248px;*/
 
     background: #FFFFFF;
 }
 
 #step1-first-div-1 {
-    /* Frame 67 */
-
-
-    /* Auto Layout */
-
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 80px 0px 24px;
 
-    /*position: static;*/
     width: 537px;
     height: 360px;
-    /*left: 48px;*/
-    /*top: 0px;*/
-
-
-    /* Inside Auto Layout */
 
     flex: none;
     order: 0;
     flex-grow: 0;
-    margin: 24px 0px;
+    margin: 24px 0;
 }
+
