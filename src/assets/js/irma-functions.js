@@ -35,35 +35,18 @@ function irmaIssueCredential(credential, attributes, header = 'Issuing credentia
     validity = {validity: attributes.validity};
     delete attributes.validity;
   }
-  const request = {
-    '@context': 'https://irma.app/ld/request/issuance/v2',
-    'credentials': [{
-      credential: credential,
-      attributes: attributes,
-      ...validity,
-    }],
-    'disclose': disclosePayload,
-  };
-  return irmaDoSession(request, header).then(function (result) {
-    console.log("Successful issuing credential! 🎉", result)
-    return result;
-  });
-}
-
-function irmaIssueRevocableCredential(credential, attributes, revocationKey, header = 'Issuing credential with', disclosePayload = null) {
-  console.log('issueCredential');
-  let validity = {};
-  if (attributes.validity) {
-    validity = {validity: attributes.validity};
-    delete attributes.validity;
+  let revocationKey = {};
+  if (attributes.revocationKey) {
+    revocationKey = {revocationKey: attributes.revocationKey};
+    delete attributes.revocationKey;
   }
   const request = {
     '@context': 'https://irma.app/ld/request/issuance/v2',
     'credentials': [{
       credential: credential,
       attributes: attributes,
-      revocationKey: revocationKey,
       ...validity,
+      ...revocationKey,
     }],
     'disclose': disclosePayload,
   };
