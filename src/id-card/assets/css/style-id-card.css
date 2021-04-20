@@ -77,14 +77,9 @@ form {
 
 .btn-lg {
     border-radius: 8px;
-
-    font-family: Poppins, serif;
-    /*font-style: normal;*/
-    /*font-weight: 500;*/
-    font-size: 20px;
-
     color: #FFFFFF;
-
+    font-family: Poppins, serif;
+    font-size: 20px;
     margin: 0 16px;
 }
 
@@ -99,6 +94,11 @@ form {
     background-color: #004A5A;
     border-color: #004A5A;
     color: #FFFFFF;
+}
+
+.btn-primary.disabled, .btn-primary:disabled {
+    background-color: #004A5A;
+    border-color: #004A5A;
 }
 
 .btn-primary:hover,
@@ -179,7 +179,6 @@ form {
 
     flex: none;
     order: 0;
-    flex-grow: 0;
     margin: 24px 0;
 }
 
@@ -188,7 +187,7 @@ form {
 }
 
 #upload-doc-text {
-    padding: 72px 0px 24px;
+    padding: 72px 0 24px;
 }
 
 #image-upload .input-group-text {
@@ -196,7 +195,6 @@ form {
 }
 
 #image-upload .form-control::file-selector-button {
-    /*background-color: #FFF1F2;*/
     border: none;
     padding: 12px 12px 12px 20px;
 }
@@ -210,5 +208,5 @@ form {
     color: #8A8A8A;
     padding: 8px 0;
     text-align: right;
-    margin: 0px 0px;
+    margin: 0 0;
 }

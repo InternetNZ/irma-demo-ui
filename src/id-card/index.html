@@ -288,87 +288,84 @@
         </div>
     </div>
 
-    <div>
+    <!-- Step 2 -->
+    <div v-if="logged">
+        <div class="row" v-if="statusMessage">
+            <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
+        </div>
 
-        <!-- Step 2 -->
-        <div v-if="logged">
-            <div class="row" v-if="statusMessage">
-                <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
-            </div>
-
-            <div v-if="!idCardToIssue">
-                <div class="row">
-                    <div class="col-12 col-lg-8 col-xl-6">
-                        <div id="upload-doc-text">
-                            <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
-                            <h2>
-                                Please select and upload your document
-                            </h2>
+        <div v-if="!idCardToIssue">
+            <div class="row">
+                <div class="col-12 col-lg-8 col-xl-6">
+                    <div id="upload-doc-text">
+                        <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
+                        <h2>
+                            Please select and upload your document
+                        </h2>
+                    </div>
+                    <form id="upload">
+                        <div class="pt-3 pb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
+                                <label class="form-check-label" for="inlineRadio1">Passport</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
+                                <label class="form-check-label" for="inlineRadio2">License</label>
+                            </div>
                         </div>
-                        <form id="upload">
-                            <div class="pt-3 pb-3">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
-                                    <label class="form-check-label" for="inlineRadio1">Passport</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                                    <label class="form-check-label" for="inlineRadio2">License</label>
-                                </div>
+                        <div v-if="formDocumentType">
+                            <div class="input-group" id="image-upload">
+                                <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                                <label class="input-group-text" for="inputGroupFile02">Upload</label>
                             </div>
-                            <div v-if="formDocumentType">
-                                <div class="input-group" id="image-upload">
-                                    <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
-                                    <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                                </div>
-                                <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
+                            <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
 
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-primary mb-3"
-                                            v-bind:disabled="!formBase64Image || requestInProgress"
-                                            v-on:click="uploadDocument()">Upload
-                                    </button>
-                                </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary btn-lg mb-3"
+                                        v-bind:disabled="!formBase64Image || requestInProgress"
+                                        v-on:click="uploadDocument()">Upload
+                                </button>
                             </div>
-                            <div>
+                        </div>
+                        <div>
                                 <span class="alert alert-warning" role="alert">
                                     <img src="assets/images/icon-alert-warning.png">
                                     The name on the document should match with
                                     <strong>{{ loggedUser.name }}</strong>
                                 </span>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Step 3 -->
-            <div v-if="idCardToIssue">
-                <h3>Confirmed Information - ID Card</h3>
-                <ul>
-                    <li>Full name: {{ idCardToIssue.fullName }} </li>
-                    <li>First name: {{ idCardToIssue.firstName }} </li>
-                    <li>Last name: {{ idCardToIssue.lastName }} </li>
-                    <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
-                    <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
-                    <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
-                    <li>Card number: {{ idCardToIssue.number }} </li>
-                    <li>Over18: {{ idCardToIssue.over18 }} </li>
-                    <li>Over20: {{ idCardToIssue.over20 }} </li>
-                    <li>Over65: {{ idCardToIssue.over65 }} </li>
-                </ul>
-
-                <button type="button" class="btn btn-success mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
-            </div>
-
-            <!-- Step 4 -->
-            <div v-if="finished">
-                <h3>Done</h3>
-
-                <p>Click on reset to start over.</p>
-            </div>
-
         </div>
+
+        <!-- Step 3 -->
+        <div v-if="idCardToIssue">
+            <h3>Confirmed Information - ID Card</h3>
+            <ul>
+                <li>Full name: {{ idCardToIssue.fullName }} </li>
+                <li>First name: {{ idCardToIssue.firstName }} </li>
+                <li>Last name: {{ idCardToIssue.lastName }} </li>
+                <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
+                <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
+                <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
+                <li>Card number: {{ idCardToIssue.number }} </li>
+                <li>Over18: {{ idCardToIssue.over18 }} </li>
+                <li>Over20: {{ idCardToIssue.over20 }} </li>
+                <li>Over65: {{ idCardToIssue.over65 }} </li>
+            </ul>
+
+            <button type="button" class="btn btn-success mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+        </div>
+
+        <!-- Step 4 -->
+        <div v-if="finished">
+            <h3>Done</h3>
+
+            <p>Click on reset to start over.</p>
+        </div>
+
     </div>
 
 </div>
