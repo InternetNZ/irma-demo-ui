@@ -51,6 +51,7 @@ form {
     color: #000000;
 }
 
+
 .alert-warning {
     color: #000000;
     background-color: #F5F8FA;
@@ -134,9 +135,6 @@ form {
 }
 
 .small-text {
-    /*font-family: Roboto sans-serif;*/
-    /*font-style: normal;*/
-    /*font-weight: normal;*/
     font-size: 18px;
     line-height: 24px;
 }
@@ -165,7 +163,7 @@ form {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 0px 0px 0px 48px;
+    padding: 0 0 0 48px;
 
     width: 585px;
     height: 479px;
@@ -174,10 +172,7 @@ form {
 }
 
 #step1-first-div-1 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 80px 0px 24px;
+    padding: 80px 0 24px;
 
     width: 537px;
     height: 360px;

@@ -70,10 +70,6 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
-                        this.logged = true;
-                        this.loggedUser = {name: 'Sarah Kelly Delavan', email: 'email'};
-                        return;
-
                         this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
@@ -274,14 +270,17 @@
             <p style="margin: 24px 0 48px 0">
                 Issue a digital version of your IDNZ card into your IRMA wallet or refresh the expiry date of your current digital card.
             </p>
+
             <div style="margin-left:-16px">
                 <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
                 <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
             </div>
 
-            <div class="status alert mt-4" v-if="statusMessage" v-bind:class="statusMessageClass" role="alert">
-                <img :src="`assets/images/icon-${statusMessageClass}.png`">
-                {{ statusMessage }}
+            <div class="mt-4">
+                <span class="status alert" v-if="statusMessage" v-bind:class="statusMessageClass" role="alert">
+                    <img :src="`assets/images/icon-${statusMessageClass}.png`">
+                    {{ statusMessage }}
+                </span>
             </div>
         </div>
         <div class="ms-5">
@@ -327,14 +326,16 @@
                                 <div class="col-auto">
                                     <button type="button" class="btn btn-primary mb-3"
                                             v-bind:disabled="!formBase64Image || requestInProgress"
-                                            v-on:click="uploadDocument()">Send
+                                            v-on:click="uploadDocument()">Upload
                                     </button>
                                 </div>
                             </div>
-                            <div class="alert alert-warning" role="alert">
-                                <img src="assets/images/icon-alert-warning.png">
-                                The name on the document should match with
-                                <strong>{{ loggedUser.name }}</strong>
+                            <div>
+                                <span class="alert alert-warning" role="alert">
+                                    <img src="assets/images/icon-alert-warning.png">
+                                    The name on the document should match with
+                                    <strong>{{ loggedUser.name }}</strong>
+                                </span>
                             </div>
                         </form>
                     </div>
