@@ -31,8 +31,14 @@ h1 {
     font-size: 18px;
     line-height: 24px;
 
+    border: none;
     color: #000000;
 }
+
+/*.alert-danger:before {*/
+/*    content:url('../images/icon-alert-danger.png') ;*/
+/*    padding: 2px;*/
+/*}*/
 
 .btn {
     background-color: #ffffff;

@@ -275,7 +275,10 @@
                 <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
             </div>
 
-            <span class="status alert mt-4" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</span>
+            <div class="status alert mt-4" v-if="statusMessage" v-bind:class="statusMessageClass" role="alert">
+                <img :src="`assets/images/icon-${statusMessageClass}.png`">
+                {{ statusMessage }}
+            </div>
         </div>
         <div class="ms-5">
             <img src="assets/images/landing-page.png" height="624" width="602">
@@ -290,19 +293,13 @@
                 <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
             </div>
 
-            <h4>You are in!</h4>
-            <ul>
-                <li>Name: <strong>{{ loggedUser.name }}</strong></li>
-                <li>Email: <strong>{{ loggedUser.email }}</strong></li>
-            </ul>
+            <h3>Welcome, <span>{{ loggedUser.name }}</span></h3>
 
             <div v-if="!idCardToIssue">
-                <h3>Upload your passport or driver license</h3>
+                <h2>
+                    Please select and upload your document
+                </h2>
                 <form id="upload">
-                    <div class="alert alert-warning" role="alert">
-                        The name on the document should match with
-                        <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
-                    </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
                         <label class="form-check-label" for="inlineRadio1">Passport</label>
@@ -310,6 +307,10 @@
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
                         <label class="form-check-label" for="inlineRadio2">License</label>
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                        The name on the document should match with
+                        <strong>{{ loggedUser.name }}</strong>, otherwise the ID Card will not be issued.
                     </div>
                     <div v-if="formDocumentType">
                         <div class="input-group mb-3">
