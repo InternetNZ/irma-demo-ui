@@ -4,7 +4,7 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
-const LOCAL_IRMA_SERVER = 'https://62059f86eb86.ngrok.io';
+const LOCAL_IRMA_SERVER = 'https://72e3545ec016.ngrok.io';
 //const LOCAL_IRMA_SERVER = 'http://0.0.0.0:8088';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
