@@ -86,12 +86,12 @@ function irmaDoSession(request, header = '') {
     return irmaPopup.start()
 }
 
-const irmaDisclosedResultSingleRawValueFromIndex = function (result, index) {
-  return result.disclosed[index][0].rawvalue || '';
+const irmaDisclosedResultSingleRawValueFromIndex = function (result, credential_index=0, attribute_index=0) {
+  return result.disclosed[credential_index][attribute_index].rawvalue || '';
 };
 
 const irmaDisclosedResultSingleRawValue = function (result) {
-  return irmaDisclosedResultSingleRawValueFromIndex(result, 0);
+  return irmaDisclosedResultSingleRawValueFromIndex(result, credential_index=0);
 };
 
 const DiscloseQueryGenerator = function () {
