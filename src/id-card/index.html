@@ -193,8 +193,11 @@
                         this.makeIdCardToIssueFromDocument(passportResult);
                     },
                     reset() {
-                        this.logged = this.finished = this.requestInProgress = false;
-                        this.idCardToIssue = this.loggedUser = null;
+                        this.finished = false;
+                        this.requestInProgress = false;
+                        this.logged = false;
+                        this.idCardToIssue = {};
+                        this.loggedUser = {};
                         this.messageClear();
                     },
                     saveIdCard: function () {
@@ -321,14 +324,14 @@
                             </div>
                             <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
 
-                            <div class="col-auto">
+                            <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
                                 <button type="button" class="btn btn-primary btn-lg mb-3"
-                                        v-bind:disabled="!formBase64Image || requestInProgress"
+                                        v-bind:v-disabled="!formBase64Image || requestInProgress"
                                         v-on:click="uploadDocument()">Upload
                                 </button>
                             </div>
                         </div>
-                        <div>
+                        <div class="mt-4">
                                 <span class="alert alert-warning" role="alert">
                                     <img src="assets/images/icon-alert-warning.png">
                                     The name on the document should match with
