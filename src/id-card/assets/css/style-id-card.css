@@ -195,7 +195,10 @@ form {
 }
 
 #image-upload .form-control::file-selector-button {
+    background-color: #004A5A;
     border: none;
+    color: #FFFFFF;
+    font-weight: 500;
     padding: 12px 12px 12px 20px;
 }
 
