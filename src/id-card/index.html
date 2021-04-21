@@ -80,7 +80,7 @@
                     },
                     login() {
                         this.logged = true;
-                        this.loggedUser = { ...fakeUser };
+                        this.loggedUser = {...fakeUser};
                         return;
 
                         this.messageClear();
@@ -261,7 +261,7 @@
                     },
                     refreshExpiryDate() {
                         this.messageClear();
- 
+
                         const toDisclose = [[
                             [
                             ATTRIBUTE.ID_CARD.FIRST_NAME,
@@ -299,11 +299,11 @@
                                     number: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 9),
                                     validity: parseInt(validity.toSeconds()),
                                 };
-                                
+
                                 // TODO: We need to decide if the credential is expired or not when we have
                                 // an expired credential
                                 this.credentialIsNotValid = false;
-                                
+
                                 const expiryDate = luxon.DateTime.fromFormat(this.idCardToIssue.expiryDate, 'dd/MM/yyyy').toUTC();
 
                                 if (expiryDate < now) {
@@ -372,12 +372,7 @@
 
     <!-- Step 2 -->
     <div v-if="logged">
-        <div class="row" v-if="statusMessage">
-            <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
-        </div>
-
-        <div v-if="!refreshing">
-            <div v-if="!idCardToIssue">
+            <div v-if="!refreshing && !idCardToIssue">
                 <div class="row">
                     <div class="col-12 col-lg-8 col-xl-6">
                         <div id="upload-doc-text">
@@ -402,11 +397,17 @@
                                     <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
                                     <label class="input-group-text" for="inputGroupFile02">Upload</label>
                                 </div>
-                                <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
-    
+                                <div class="row" id="image-file-size">
+                                    <div class="col-4">
+                                        <img src="assets/images/loading.gif" alt="Uploading..." title="Uploading..." width="24" height="24"
+                                             v-if="formBase64Image && requestInProgress">
+                                    </div>
+                                    <div class="col-8 text-end mb-3">Maximum file size: 10 MB</div>
+                                </div>
+
                                 <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
                                     <button type="button" class="btn btn-primary btn-lg mb-3"
-                                            v-bind:v-disabled="!formBase64Image || requestInProgress"
+                                            v-if="!requestInProgress"
                                             v-on:click="uploadDocument()">Upload
                                     </button>
                                 </div>
@@ -422,7 +423,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Step 3 -->
         <div v-if="idCardToIssue">
