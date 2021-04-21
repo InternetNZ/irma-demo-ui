@@ -55,6 +55,9 @@
                         loggedUser: {},
                         purchaseMode: null,
                         requestInProgress: false,
+                        refreshing: false,
+                        credentialIsNotValid: true,
+                        newValidity: ''
                     }
                 },
                 methods: {
@@ -79,8 +82,8 @@
                             .then((result) => {
                                 this.logged = true;
                                 this.loggedUser = {
-                                    name: irmaDisclosedResultSingleRawValueFromIndex(result, 0),
-                                    email: irmaDisclosedResultSingleRawValueFromIndex(result, 1),
+                                    name: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 0),
+                                    email: irmaDisclosedResultSingleRawValueFromIndex(result, 1, 0),
                                 };
 
                                 this.messageClear();
@@ -246,6 +249,68 @@
                         this.requestInProgress = false;
                         this.messageError('Error selecting document');
                     },
+                    refreshExpiryDate() {
+                        this.messageClear();
+ 
+                        const toDisclose = [[
+                            [
+                            ATTRIBUTE.ID_CARD.FIRST_NAME,
+                            ATTRIBUTE.ID_CARD.LAST_NAME,
+                            ATTRIBUTE.ID_CARD.FULL_NAME,
+                            ATTRIBUTE.ID_CARD.BIRTH_DATE,
+                            ATTRIBUTE.ID_CARD.OVER_18,
+                            ATTRIBUTE.ID_CARD.OVER_20,
+                            ATTRIBUTE.ID_CARD.OVER_65,
+                            ATTRIBUTE.ID_CARD.ISSUE_DATE,
+                            ATTRIBUTE.ID_CARD.EXPIRY_DATE,
+                            ATTRIBUTE.ID_CARD.NUMBER
+                            ]
+                        ]];
+
+                        irmaDiscloseOrSign(toDisclose, 'Please, provide your IDNZ card details.')
+                            .then((result) => {
+                                this.messageClear();
+                                this.logged = true;
+                                this.refreshing = true;
+                                const now = luxon.DateTime.now().toUTC();
+                                const validity = now.plus({months: 1}).toUTC();
+                                this.newValidity = validity.toLocal().toLocaleString();
+
+                                this.idCardToIssue = {
+                                    firstName: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 0),
+                                    lastName: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 1),
+                                    fullName: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 2),
+                                    birthdate: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 3),
+                                    over18: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 4),
+                                    over20: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 5),
+                                    over65: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 6),
+                                    issueDate: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 7),
+                                    expiryDate: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 8),
+                                    number: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 9),
+                                    validity: parseInt(validity.toSeconds()),
+                                };
+                                
+                                // DOTO: We need to decide if the credential is expired or not when we have
+                                // an expired credential
+                                this.credentialIsNotValid = false;
+                                
+                                const expiryDate = luxon.DateTime.fromFormat(this.idCardToIssue.expiryDate, 'dd/MM/yyyy').toUTC();
+
+                                if (expiryDate < now) {
+                                    this.logged = false;
+                                    this.refreshing = false;
+                                    this.statusMessage = "Your physical NZID Card is expired! You need to go through the onboarding process again!"
+                                    this.statusMessageClass = 'alert-danger';
+                                }
+                            })
+                            .catch((error) => {
+                                this.logged = false;
+                                this.refreshing = false;
+                                this.loggedUser = null;
+                                this.newValidity = '';
+                                this.messageError(error);
+                            })
+                    },
                 }
             };
 
@@ -301,66 +366,70 @@
             <div class="status alert col-12" v-bind:class="statusMessageClass" role="alert">{{ statusMessage }}</div>
         </div>
 
-        <div v-if="!idCardToIssue">
-            <div class="row">
-                <div class="col-12 col-lg-8 col-xl-6">
-                    <div id="upload-doc-text">
-                        <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
-                        <h2>
-                            Please select and upload your document
-                        </h2>
+        <div v-if="!refreshing">
+            <div v-if="!idCardToIssue">
+                <div class="row">
+                    <div class="col-12 col-lg-8 col-xl-6">
+                        <div id="upload-doc-text">
+                            <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
+                            <h2>
+                                Please select and upload your document
+                            </h2>
+                        </div>
+                        <form id="upload">
+                            <div class="pt-3 pb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
+                                    <label class="form-check-label" for="inlineRadio1">Passport</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
+                                    <label class="form-check-label" for="inlineRadio2">License</label>
+                                </div>
+                            </div>
+                            <div v-if="formDocumentType">
+                                <div class="input-group" id="image-upload">
+                                    <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                                    <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                                </div>
+                                <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
+    
+                                <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
+                                    <button type="button" class="btn btn-primary btn-lg mb-3"
+                                            v-bind:v-disabled="!formBase64Image || requestInProgress"
+                                            v-on:click="uploadDocument()">Upload
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                    <span class="alert alert-warning" role="alert">
+                                        <img src="assets/images/icon-alert-warning.png">
+                                        The name on the document should match with
+                                        <strong>{{ loggedUser.name }}</strong>
+                                    </span>
+                            </div>
+                        </form>
                     </div>
-                    <form id="upload">
-                        <div class="pt-3 pb-3">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
-                                <label class="form-check-label" for="inlineRadio1">Passport</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                                <label class="form-check-label" for="inlineRadio2">License</label>
-                            </div>
-                        </div>
-                        <div v-if="formDocumentType">
-                            <div class="input-group" id="image-upload">
-                                <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
-                                <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                            </div>
-                            <div id="image-file-size" class="mb-3">Maximum file size: 10 MB</div>
-
-                            <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
-                                <button type="button" class="btn btn-primary btn-lg mb-3"
-                                        v-bind:v-disabled="!formBase64Image || requestInProgress"
-                                        v-on:click="uploadDocument()">Upload
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                                <span class="alert alert-warning" role="alert">
-                                    <img src="assets/images/icon-alert-warning.png">
-                                    The name on the document should match with
-                                    <strong>{{ loggedUser.name }}</strong>
-                                </span>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
 
         <!-- Step 3 -->
         <div v-if="idCardToIssue">
-            <h3>Confirmed Information - ID Card</h3>
-            <ul>
+            <h3 v-if="!refreshing">Confirmed Information - ID Card</h3>
+            <h3 v-if="refreshing && !credentialIsNotValid">Your NZID Card is still valid so you can renew your digital card with your current credential.</h3>
+        <ul>
                 <li>Full name: {{ idCardToIssue.fullName }} </li>
                 <li>First name: {{ idCardToIssue.firstName }} </li>
                 <li>Last name: {{ idCardToIssue.lastName }} </li>
                 <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
                 <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
-                <li>Issue Date: {{ idCardToIssue.issueDate }} </li>
+                <li>Issue date: {{ idCardToIssue.issueDate }} </li>
                 <li>Card number: {{ idCardToIssue.number }} </li>
                 <li>Over18: {{ idCardToIssue.over18 }} </li>
                 <li>Over20: {{ idCardToIssue.over20 }} </li>
                 <li>Over65: {{ idCardToIssue.over65 }} </li>
+                <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b> </li>
             </ul>
 
             <button type="button" class="btn btn-success mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>

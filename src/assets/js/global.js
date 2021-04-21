@@ -7,7 +7,7 @@ const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws
 const LOCAL_IRMA_SERVER = 'https://62059f86eb86.ngrok.io';
 //const LOCAL_IRMA_SERVER = 'http://0.0.0.0:8088';
 
-const IRMA_SERVER = LOCAL_IRMA_SERVER;
+const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
 const PRIVATE_TOKEN = 'secret-fake-token';
 
