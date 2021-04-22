@@ -394,7 +394,9 @@
                             </div>
                             <div v-if="formDocumentType">
                                 <div class="input-group" id="image-upload">
-                                    <input type="file" class="form-control" id="inputGroupFile02" accept="image/*" @change="handleImage">
+                                    <input type="file" class="form-control" id="inputGroupFile02" accept="image/*"
+                                           @change="handleImage"
+                                           :disabled="requestInProgress">
                                     <label class="input-group-text" for="inputGroupFile02">Upload</label>
                                 </div>
                                 <div class="row" id="image-file-size">
@@ -442,7 +444,7 @@
                 <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b> </li>
             </ul>
 
-            <button type="button" class="btn btn-success mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+            <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
         </div>
 
         <!-- Step 4 -->
