@@ -86,7 +86,7 @@
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1, 0),
                                 };
 
-                                this.messageClear();
+                                this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
                             })
                             .catch((error) => {
                                 this.logged = false;
@@ -119,19 +119,32 @@
                         this.statusMessage = null;
                         this.statusMessageClass = null;
                     },
-                    messageInfo(message) {
-                        this.statusMessage = message;
-                        this.statusMessageClass = 'alert-info';
-                    },
                     messageError(message) {
+                        console.log(typeof message);
+
+                        if (message.message) {
+                            message = message.message;
+                        }
+
                         if (message === 'Aborted') {
                             message = 'Session was aborted';
                         } else {
+                            if (typeof message === 'object') {
+                                message = message.toString();
+                            }
                             message = `Error: ${message}`;
                         }
 
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-danger';
+                    },
+                    messageInfo(message) {
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-info';
+                    },
+                    messageWarning(message) {
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-warning';
                     },
                     overAge(birthDate, checkAge) {
                         const diff_ms = Date.now() - birthDate.toSeconds();
@@ -222,11 +235,9 @@
                         this.requestInProgress = true;
 
                         if (this.formDocumentType === 'passport') {
-                            this.messageInfo('Uploading your passport. Please, wait.');
                             return checkPassport(this.formBase64Image)
                                 .then((result) => {
                                     this.requestInProgress = false;
-                                    this.messageClear();
                                     return this.processPassportResult(result);
                                 })
                                 .catch(error => {
@@ -234,11 +245,9 @@
                                     this.messageError(error);
                                 });
                         } else if (this.formDocumentType === 'driverLicence') {
-                            this.messageInfo('Uploading your driver licence...');
                             return checkDriverLicence(this.formBase64Image)
                                 .then((result) => {
                                     this.requestInProgress = false;
-                                    this.messageClear();
                                     return this.processDriverLicenceResult(result);
                                 })
                                 .catch(error => {
@@ -406,11 +415,9 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="alert alert-warning" role="alert">
-                                <img src="assets/images/icon-alert-warning.png">
-                                The name on the document should match with
-                                <strong>{{ loggedUser.name }}</strong>
-                            </span>
+                            <span class="status alert" role="alert"
+                                  v-if="statusMessage" v-bind:class="statusMessageClass"
+                                  v-html="`<img src='assets/images/icon-${statusMessageClass}.png'> ${statusMessage}`"></span>
                         </div>
                     </form>
                 </div>

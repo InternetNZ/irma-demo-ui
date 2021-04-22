@@ -30,5 +30,15 @@ const _apiSingleSourcePost = (endpoint, body) => {
   };
 
   return fetch(url, {method: 'POST', ...options})
-    .then(response => response.json());
+    .then(response => {
+      if (!response.status || response.status >= 300) {
+        return response.json()
+          .then(json => {
+            console.error(json);
+            return Promise.reject(json);
+          });
+      }
+
+      return response.json();
+    });
 };
