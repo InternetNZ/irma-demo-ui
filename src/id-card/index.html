@@ -79,10 +79,6 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
-                        this.logged = true;
-                        this.loggedUser = {...fakeUser};
-                        return;
-
                         this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
