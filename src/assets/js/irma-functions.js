@@ -91,7 +91,7 @@ const irmaDisclosedResultSingleRawValueFromIndex = function (result, credentialI
 };
 
 const irmaDisclosedResultSingleRawValue = function (result) {
-  return irmaDisclosedResultSingleRawValueFromIndex(result, credential_index=0);
+  return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
 const DiscloseQueryGenerator = function () {
