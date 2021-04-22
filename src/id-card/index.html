@@ -65,6 +65,7 @@
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.formBase64Image = e.target.result.split(';').pop().replace('base64,', '');
+                            this.messageUploadDocument();
                         };
                         reader.readAsDataURL(fileObject);
                     },
@@ -86,7 +87,8 @@
                                     email: irmaDisclosedResultSingleRawValueFromIndex(result, 1, 0),
                                 };
 
-                                this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
+                                //this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
+                                this.messageUploadDocument();
                             })
                             .catch((error) => {
                                 this.logged = false;
@@ -120,8 +122,7 @@
                         this.statusMessageClass = null;
                     },
                     messageError(message) {
-                        console.log(typeof message);
-
+                        // handle common Error objects
                         if (message.message) {
                             message = message.message;
                         }
@@ -141,6 +142,9 @@
                     messageInfo(message) {
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-info';
+                    },
+                    messageUploadDocument() {
+                        this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
                     },
                     messageWarning(message) {
                         this.statusMessage = message;
