@@ -74,6 +74,23 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
+                        this.logged = true;
+                        this.loggerUser = {name: 'sss'};
+                        this.idCardToIssue = {
+                            firstName: `document.givenNames`,
+                            lastName: `document.familyName`,
+                            fullName: `${document.givenNames} ${document.familyName}`,
+                            birthdate: '1/1/2000',
+                            over18: 'Yes',
+                            over20: 'Yes',
+                            over65: 'Yes',
+                            issueDate: '1/1/2000',
+                            expiryDate: '1/1/2000',
+                            number: '1/1/2000',
+                            validity: 11111,
+                        };
+                        return;
+
                         this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
@@ -332,135 +349,141 @@
         };
     </script>
 </head>
-<body>
-<div id="app" class="container" v-cloak>
-
-    <header id="header" class="d-flex align-items-center">
-        <div class="flex-grow-1">
-            <img src="assets/images/Logo_negative.png" title="IDNZCard" alt="IDNZCard">
-        </div>
-        <div class="flex-shrink-1">
-            <img src="assets/images/menu.png" title="IDNZCard" alt="IDNZCard">
-        </div>
-    </header>
-
-    <div id="div-reset-button" class="text-end">
-        <button id="reset-button" class="btn-sm" v-on:click="reset()">
-            <img src="assets/images/icon-refresh.png"> Reset demo
-        </button>
-    </div>
-
-    <div id="step1-first-div" class="row" v-if="!logged">
-        <div id="step1-first-div-1">
-            <h1>Get your IDNZ digital card.</h1>
-            <p style="margin: 24px 0 48px 0">
-                Issue a digital version of your IDNZ card into your IRMA wallet or refresh the expiry date of your current digital card.
-            </p>
-
-            <div style="margin-left:-16px">
-                <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
-                <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
+<body id="app" v-cloak>
+<div class="container-fluid" :class="{ 'container-issuance': (idCardToIssue != null) }">
+    <div class="container">
+        <header id="header" class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                <img src="assets/images/Logo_negative.png" title="IDNZCard" alt="IDNZCard">
             </div>
+            <div class="flex-shrink-1">
+                <img src="assets/images/menu.png" title="IDNZCard" alt="IDNZCard">
+            </div>
+        </header>
 
-            <div class="mt-4">
+        <div id="div-reset-button" class="text-end">
+            <button id="reset-button" class="btn-sm" v-on:click="reset()">
+                <img src="assets/images/icon-refresh.png"> Reset demo
+            </button>
+        </div>
+
+        <div id="step1-first-div" class="row" v-if="!logged">
+            <div id="step1-first-div-1">
+                <h1>Get your IDNZ digital card.</h1>
+                <p style="margin: 24px 0 48px 0">
+                    Issue a digital version of your IDNZ card into your IRMA wallet or refresh the expiry date of your current digital card.
+                </p>
+
+                <div style="margin-left:-16px">
+                    <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
+                    <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
+                </div>
+
+                <div class="mt-4">
                 <span class="status alert" v-if="statusMessage" v-bind:class="statusMessageClass" role="alert">
                     <img :src="`assets/images/icon-${statusMessageClass}.png`">
                     {{ statusMessage }}
                 </span>
+                </div>
+            </div>
+            <div class="ms-5">
+                <img src="assets/images/landing-page.png" height="624" width="602">
             </div>
         </div>
-        <div class="ms-5">
-            <img src="assets/images/landing-page.png" height="624" width="602">
-        </div>
-    </div>
 
-    <!-- Step 2 -->
-    <div v-if="logged">
-        <div v-if="!refreshing && !idCardToIssue">
-            <div class="row">
-                <div class="col-12 col-lg-8 col-xl-6">
-                    <div id="upload-doc-text">
-                        <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
-                        <h2>
-                            Please select and upload your document
-                        </h2>
-                    </div>
-                    <form id="upload">
-                        <div class="pt-3 pb-3">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
-                                <label class="form-check-label" for="inlineRadio1">Passport</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                                <label class="form-check-label" for="inlineRadio2">License</label>
-                            </div>
+        <!-- Step 2 -->
+        <div v-if="logged">
+            <div v-if="!refreshing && !idCardToIssue">
+                <div class="row">
+                    <div class="col-12 col-lg-8 col-xl-6">
+                        <div id="upload-doc-text">
+                            <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
+                            <h2>
+                                Please select and upload your document
+                            </h2>
                         </div>
-                        <div v-if="formDocumentType">
-                            <div class="input-group" id="image-upload">
-                                <input type="file" class="form-control" id="inputGroupFile02" accept="image/*"
-                                       @change="handleImage"
-                                       :disabled="requestInProgress">
-                                <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                            </div>
-                            <div class="row" id="image-file-size">
-                                <div class="col-4">
-                                    <img src="assets/images/loading.gif" alt="Uploading..." title="Uploading..." width="24" height="24"
-                                         v-if="formBase64Image && requestInProgress">
+                        <form id="upload">
+                            <div class="pt-3 pb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" v-model="formDocumentType" value="passport">
+                                    <label class="form-check-label" for="inlineRadio1">Passport</label>
                                 </div>
-                                <div class="col-8 text-end mb-3">Maximum file size: 10 MB</div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
+                                    <label class="form-check-label" for="inlineRadio2">License</label>
+                                </div>
                             </div>
+                            <div v-if="formDocumentType">
+                                <div class="input-group" id="image-upload">
+                                    <input type="file" class="form-control" id="inputGroupFile02" accept="image/*"
+                                           @change="handleImage"
+                                           :disabled="requestInProgress">
+                                    <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                                </div>
+                                <div class="row" id="image-file-size">
+                                    <div class="col-4">
+                                        <img src="assets/images/loading.gif" alt="Uploading..." title="Uploading..." width="24" height="24"
+                                             v-if="formBase64Image && requestInProgress">
+                                    </div>
+                                    <div class="col-8 text-end mb-3">Maximum file size: 10 MB</div>
+                                </div>
 
-                            <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
-                                <button type="button" class="btn btn-primary btn-lg mb-3"
-                                        v-if="!requestInProgress"
-                                        v-on:click="uploadDocument()">Upload
-                                </button>
+                                <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
+                                    <button type="button" class="btn btn-primary btn-lg mb-3"
+                                            v-if="!requestInProgress"
+                                            v-on:click="uploadDocument()">Upload
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-4" style="line-height: 30px">
+                            <div class="mt-4" style="line-height: 30px">
                             <span class="status alert" role="alert"
                                   v-if="statusMessage" v-bind:class="statusMessageClass"
                                   v-html="`<img src='assets/images/icon-${statusMessageClass}.png'> ${statusMessage}`"></span>
-                        </div>
-                    </form>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Step 3 -->
-        <div v-if="idCardToIssue">
-            <h3>{{
-                    refreshing && !credentialIsNotValid
-                        ? 'Your IDNZ Card is still valid so you can renew your digital card with your current credential'
-                        : 'Confirmed Information - ID Card'
-                }}</h3>
-            <ul>
-                <li>Full name: {{ idCardToIssue.fullName }} </li>
-                <li>First name: {{ idCardToIssue.firstName }} </li>
-                <li>Last name: {{ idCardToIssue.lastName }} </li>
-                <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
-                <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
-                <li>Issue date: {{ idCardToIssue.issueDate }} </li>
-                <li>Card number: {{ idCardToIssue.number }} </li>
-                <li>Over18: {{ idCardToIssue.over18 }} </li>
-                <li>Over20: {{ idCardToIssue.over20 }} </li>
-                <li>Over65: {{ idCardToIssue.over65 }} </li>
-                <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b></li>
-            </ul>
+            <!-- Step 3 -->
+            <div id="step3-1" class="col-10 m-auto" v-if="idCardToIssue">
+                <h2>Check the information below and issue your IDNZ digital card</h2>
+                <h4 v-if="refreshing && !credentialIsNotValid">Your IDNZ Card is still valid so you can renew your digital card with your current credential</h4>
+                <div class="row">
+                    <div class="col-6">
+                        Personal details
+                    </div>
+                    <div class="col-6">
+                        IDNZ card details
+                    </div>
+                </div>
+                <ul>
+                    <li>Full name: {{ idCardToIssue.fullName }} </li>
+                    <li>First name: {{ idCardToIssue.firstName }} </li>
+                    <li>Last name: {{ idCardToIssue.lastName }} </li>
+                    <li>Date of birth: {{ idCardToIssue.birthdate }} </li>
+                    <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
+                    <li>Issue date: {{ idCardToIssue.issueDate }} </li>
+                    <li>Card number: {{ idCardToIssue.number }} </li>
+                    <li>Over18: {{ idCardToIssue.over18 }} </li>
+                    <li>Over20: {{ idCardToIssue.over20 }} </li>
+                    <li>Over65: {{ idCardToIssue.over65 }} </li>
+                    <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b></li>
+                </ul>
 
-            <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
-        </div>
+                <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+            </div>
 
-        <!-- Step 4 -->
-        <div v-if="finished">
-            <h3>Done</h3>
+            <!-- Step 4 -->
+            <div v-if="finished">
+                <h3>Done</h3>
 
-            <p>Click on reset to start over.</p>
+                <p>Click on reset to start over.</p>
+            </div>
+
         </div>
 
     </div>
-
 </div>
 </body>
 </html>

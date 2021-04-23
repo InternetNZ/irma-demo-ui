@@ -1,3 +1,6 @@
+html, body {
+    height: 100%;
+}
 
 body {
     font-family: Roboto, sans-serif;
@@ -51,6 +54,10 @@ form {
     color: #000000;
 }
 
+.container-issuance {
+    background-color: #F5F8FA;
+    height: 100%;
+}
 
 .alert-warning {
     color: #000000;
@@ -212,4 +219,8 @@ form {
     font-weight: 400;
     margin: 0 0;
     padding: 8px 0;
+}
+
+#step3-1 {
+
 }
