@@ -103,11 +103,13 @@
                         const validity = now.plus({months: 1}).toUTC();
                         const expiryDate = now.plus({years: 10});
                         const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd').toUTC();
+                        const birthDateArray = document.birthDate.split('-');
                         this.idCardToIssue = {
                             firstName: document.givenNames,
                             lastName: document.familyName,
                             fullName: `${document.givenNames} ${document.familyName}`,
-                            birthdate: birthDate.toLocaleString(),
+                            //birthdate: birthDate.toLocaleString(),
+                            birthdate: `${birthDateArray[2]}/${birthDateArray[1]}/${birthDateArray[0]}`,
                             over18: this.overAge(birthDate, 18),
                             over20: this.overAge(birthDate, 20),
                             over65: this.overAge(birthDate, 65),
@@ -409,7 +411,13 @@
                                         <img src="assets/images/loading.gif" alt="Uploading..." title="Uploading..." width="24" height="24"
                                              v-if="formBase64Image && requestInProgress">
                                     </div>
-                                    <div class="col-8 text-end mb-3">Maximum file size: 10 MB</div>
+                                    <div class="col-8 text-end mb-3" v-if="statusMessageClass !== 'alert-danger'">Maximum file size: 10 MB</div>
+                                </div>
+
+                                <div style="line-height: 30px; margin: 8px 0 32px" v-if="statusMessageClass === 'alert-danger'">
+                                    <span class="status alert" role="alert"
+                                  v-if="statusMessage" v-bind:class="statusMessageClass"
+                                  v-html="`<img src='assets/images/icon-${statusMessageClass}.png'> ${statusMessage}`"></span>
                                 </div>
 
                                 <div class="col-auto button-at-left" v-if="formBase64Image">
@@ -419,7 +427,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="mt-4" style="line-height: 30px">
+                            <div class="mt-4" style="line-height: 30px" v-if="statusMessageClass !== 'alert-danger'">
                             <span class="status alert" role="alert"
                                   v-if="statusMessage" v-bind:class="statusMessageClass"
                                   v-html="`<img src='assets/images/icon-${statusMessageClass}.png'> ${statusMessage}`"></span>
