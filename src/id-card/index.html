@@ -15,7 +15,7 @@
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="assets/css/style-id-card.css" rel="stylesheet">
 
     <!-- JavaScript Bundle with Popper -->
@@ -65,7 +65,7 @@
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.formBase64Image = e.target.result.split(';').pop().replace('base64,', '');
-                            this.messageUploadDocument();
+                            this.showMessageUploadDocument();
                         };
                         reader.readAsDataURL(fileObject);
                     },
@@ -74,22 +74,22 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
-                        this.logged = true;
-                        this.loggerUser = {name: 'sss'};
-                        this.idCardToIssue = {
-                            firstName: `document.givenNames`,
-                            lastName: `document.familyName`,
-                            fullName: `${document.givenNames} ${document.familyName}`,
-                            birthdate: '1/1/2000',
-                            over18: 'Yes',
-                            over20: 'Yes',
-                            over65: 'Yes',
-                            issueDate: '1/1/2000',
-                            expiryDate: '1/1/2000',
-                            number: '1/1/2000',
-                            validity: 11111,
-                        };
-                        return;
+                        // this.logged = true;
+                        // this.loggerUser = {name: 'sss'};
+                        // this.idCardToIssue = {
+                        //     firstName: `document.givenNames`,
+                        //     lastName: `document.familyName`,
+                        //     fullName: `${document.givenNames} ${document.familyName}`,
+                        //     birthdate: '1/1/2000',
+                        //     over18: 'Yes',
+                        //     over20: 'Yes',
+                        //     over65: 'Yes',
+                        //     issueDate: '1/1/2000',
+                        //     expiryDate: '1/1/2000',
+                        //     number: '1/1/2000',
+                        //     validity: 11111,
+                        // };
+                        // return;
 
                         this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
@@ -105,7 +105,7 @@
                                 };
 
                                 //this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
-                                this.messageUploadDocument();
+                                this.showMessageUploadDocument();
                             })
                             .catch((error) => {
                                 this.logged = false;
@@ -159,9 +159,6 @@
                     messageInfo(message) {
                         this.statusMessage = message;
                         this.statusMessageClass = 'alert-info';
-                    },
-                    messageUploadDocument() {
-                        this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
                     },
                     messageWarning(message) {
                         this.statusMessage = message;
@@ -252,8 +249,12 @@
                                 self.messageError(err);
                             });
                     },
+                    showMessageUploadDocument() {
+                        this.messageWarning(`The name on the document should match with <strong>${this.loggedUser.name}</strong>`);
+                    },
                     uploadDocument() {
                         this.requestInProgress = true;
+                        this.showMessageUploadDocument();
 
                         if (this.formDocumentType === 'passport') {
                             return checkPassport(this.formBase64Image)
@@ -374,7 +375,7 @@
                     Issue a digital version of your IDNZ card into your IRMA wallet or refresh the expiry date of your current digital card.
                 </p>
 
-                <div style="margin-left:-16px">
+                <div class="button-at-left">
                     <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
                     <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
                 </div>
@@ -410,7 +411,7 @@
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" v-model="formDocumentType" value="driverLicence">
-                                    <label class="form-check-label" for="inlineRadio2">License</label>
+                                    <label class="form-check-label" for="inlineRadio2">NZ Driver's Licence</label>
                                 </div>
                             </div>
                             <div v-if="formDocumentType">
@@ -428,7 +429,7 @@
                                     <div class="col-8 text-end mb-3">Maximum file size: 10 MB</div>
                                 </div>
 
-                                <div class="col-auto" style="margin-left:-16px" v-if="formBase64Image">
+                                <div class="col-auto button-at-left" v-if="formBase64Image">
                                     <button type="button" class="btn btn-primary btn-lg mb-3"
                                             v-if="!requestInProgress"
                                             v-on:click="uploadDocument()">Upload
@@ -446,7 +447,7 @@
             </div>
 
             <!-- Step 3 -->
-            <div id="step3-1" class="col-10 m-auto" v-if="idCardToIssue">
+            <div id="step3-1" class="col-10 m-auto" v-if="idCardToIssue && !finished">
                 <h2>Check the information below and issue your IDNZ digital card</h2>
                 <h4 v-if="refreshing && !credentialIsNotValid">Your IDNZ Card is still valid so you can renew your digital card with your current credential</h4>
 
@@ -511,16 +512,24 @@
                 </div>
 
                 <div class="text-center">
-                    <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+                    <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">
+                        Issue your IDNZ Digital card
+                    </button>
                 </div>
             </div>
 
 
             <!-- Step 4 -->
-            <div v-if="finished">
-                <h3>Done</h3>
+            <div id="step4-1" v-if="finished">
+                <div class="row">
+                    <div class="col-12 col-lg-8 col-xl-6">
+                        <h2>Success! Your IDNZ digital card was added to your IRMA wallet.</h2>
 
-                <p>Click on reset to start over.</p>
+                        <div class="col-auto button-at-left">
+                            <button type="button" class="btn btn-lg btn-primary mb-3" v-on:click="reset()">Start over</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
