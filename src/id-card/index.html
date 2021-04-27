@@ -74,23 +74,6 @@
                         this.createBase64Image(selectedImage);
                     },
                     login() {
-                        // this.logged = true;
-                        // this.loggerUser = {name: 'sss'};
-                        // this.idCardToIssue = {
-                        //     firstName: `document.givenNames`,
-                        //     lastName: `document.familyName`,
-                        //     fullName: `${document.givenNames} ${document.familyName}`,
-                        //     birthdate: '1/1/2000',
-                        //     over18: 'Yes',
-                        //     over20: 'Yes',
-                        //     over65: 'Yes',
-                        //     issueDate: '1/1/2000',
-                        //     expiryDate: '1/1/2000',
-                        //     number: '1/1/2000',
-                        //     validity: 11111,
-                        // };
-                        // return;
-
                         this.messageClear();
                         const toDisclose = new DiscloseQueryGenerator()
                             .forAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME)
@@ -351,7 +334,7 @@
     </script>
 </head>
 <body id="app" v-cloak>
-<div class="container-fluid" :class="{ 'container-issuance': (idCardToIssue != null) }">
+<div class="container-fluid" :class="{ 'container-issuance': (idCardToIssue != null && !finished) }">
     <div class="container">
         <header id="header" class="d-flex align-items-center">
             <div class="flex-grow-1">
@@ -447,7 +430,7 @@
             </div>
 
             <!-- Step 3 -->
-            <div id="step3-1" class="col-10 m-auto" v-if="idCardToIssue && !finished">
+            <div id="step3-1" class="col-10 m-auto container-issuance" v-if="idCardToIssue && !finished">
                 <h2>Check the information below and issue your IDNZ digital card</h2>
                 <h4 v-if="refreshing && !credentialIsNotValid">Your IDNZ Card is still valid so you can renew your digital card with your current credential</h4>
 
@@ -511,10 +494,12 @@
                     </div>
                 </div>
 
-                <div class="text-center">
+                <div class="text-center p-5">
                     <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">
                         Issue your IDNZ Digital card
                     </button>
+
+                    <p>&nbsp;</p>
                 </div>
             </div>
 
