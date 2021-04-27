@@ -221,30 +221,41 @@ form {
     padding: 8px 0;
 }
 
-/*#step3-1 .row > * {*/
-/*    !*flex-shrink: 0;*!*/
-/*    !*width: 100%;*!*/
-/*    max-width: 100%;*/
-/*    padding-right: calc(var(--bs-gutter-x)/ 5);*/
-/*    !* padding-left: calc(var(--bs-gutter-x)/ 2); *!*/
-/*    margin-top: var(--bs-gutter-y);*/
-/*}*/
+#card-to-issue {
+    margin-top: 48px;
+}
 
 #step3-1 .row > * {
-    /*flex-shrink: 0;*/
-    /*width: 100%;*/
     max-width: 100%;
     padding-right: 2px;
     padding-left: 2px;
     margin-top: var(--bs-gutter-y);
 }
 
+#step3-1 .detail-row {
+    margin-left: 0.5px;
+}
+
 #step3-1 .card {
     border: none;
     border-radius: 0;
+    height: 100%;
+    padding: 36px 46px;
 }
 
-/*#credential-to-issue .cell {*/
-/*    background-color: #FFF;*/
-/*    padding: 32px 45px;*/
-/*}*/
+#step3-1 .card-title {
+    color: #004A5A;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#step3-1 .title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 16px;
+    text-transform: uppercase;
+}
+
+#step3-1 h2 {
+    padding: 56px 0px 24px;
+}

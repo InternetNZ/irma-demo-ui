@@ -449,29 +449,37 @@
             <div id="step3-1" class="col-10 m-auto" v-if="idCardToIssue">
                 <h2>Check the information below and issue your IDNZ digital card</h2>
                 <h4 v-if="refreshing && !credentialIsNotValid">Your IDNZ Card is still valid so you can renew your digital card with your current credential</h4>
-<!--                <div class="row" id="credential-to-issue">-->
-<!--                    <div class="col-6 cell">-->
-<!--                        Personal details-->
-<!--                    </div>-->
-<!--                    <div class="col-6 cell m-1">-->
-<!--                        IDNZ card details-->
-<!--                    </div>-->
-<!--                </div>-->
 
-
-                <div class="row">
+                <div class="row" id="card-to-issue">
                     <div class="col-6">
                         <div class="card rounded-start">
                             <div class="card-body">
                                 <h5 class="card-title">Personal details</h5>
 
-                                <div class="title">Full name:</div> <div>{{ idCardToIssue.fullName }} </div>
-                                <div class="title">First name: </div> <div>{{ idCardToIssue.firstName }} </div>
-                                <div class="title">Last name: </div> <div>{{ idCardToIssue.lastName }} </div>
-                                <div class="title">Date of birth: </div> <div>{{ idCardToIssue.birthdate }} </div>
-                                <div class="title">Over18: </div> <div>{{ idCardToIssue.over18 }} </div>
-                                <div class="title">Over20: </div> <div>{{ idCardToIssue.over20 }} </div>
-                                <div class="title">Over65: </div> <div>{{ idCardToIssue.over65 }} </div>
+                                <div class="title">Full name</div>
+                                <div>{{ idCardToIssue.fullName }}</div>
+                                <div class="title">First name</div>
+                                <div>{{ idCardToIssue.firstName }}</div>
+                                <div class="title">Last name</div>
+                                <div>{{ idCardToIssue.lastName }}</div>
+                                <br>
+                                <br>
+                                <div class="title">Date of birth</div>
+                                <div>{{ idCardToIssue.birthdate }}</div>
+                                <div class="row detail-row">
+                                    <div class="col-4">
+                                        <div class="title">Over 18</div>
+                                        <div>{{ idCardToIssue.over18 }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="title">Over 20</div>
+                                        <div>{{ idCardToIssue.over20 }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="title">Over 65</div>
+                                        <div>{{ idCardToIssue.over65 }}</div>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -479,33 +487,34 @@
                     <div class="col-6">
                         <div class="card rounded-end">
                             <div class="card-body">
-                                <h5 class="card-title">IDNZ card details</h5>
+                                <h5 class="card-title">IDNZ Card details</h5>
 
-                                <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>
-                                <li>Issue date: {{ idCardToIssue.issueDate }} </li>
-                                <li>Card number: {{ idCardToIssue.number }} </li>
-                                <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b></li>
+                                <div class="row detail-row">
+                                    <div class="col-6">
+                                        <div class="title">Expiry date</div>
+                                        <div>{{ idCardToIssue.expiryDate }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="title">Issue date</div>
+                                        <div>{{ idCardToIssue.issueDate }}</div>
+                                    </div>
+                                </div>
+                                <div class="title">Card number</div>
+                                <div>{{ idCardToIssue.number }}</div>
+                                <div class="title" v-if="refreshing && !credentialIsNotValid">
+                                    New digital card expiry date
+                                </div>
+                                <div> {{ newValidity }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-<!--                <ul>-->
-<!--                    <li>Full name: {{ idCardToIssue.fullName }} </li>-->
-<!--                    <li>First name: {{ idCardToIssue.firstName }} </li>-->
-<!--                    <li>Last name: {{ idCardToIssue.lastName }} </li>-->
-<!--                    <li>Date of birth: {{ idCardToIssue.birthdate }} </li>-->
-<!--                    <li>Expiry date: {{ idCardToIssue.expiryDate }} </li>-->
-<!--                    <li>Issue date: {{ idCardToIssue.issueDate }} </li>-->
-<!--                    <li>Card number: {{ idCardToIssue.number }} </li>-->
-<!--                    <li>Over18: {{ idCardToIssue.over18 }} </li>-->
-<!--                    <li>Over20: {{ idCardToIssue.over20 }} </li>-->
-<!--                    <li>Over65: {{ idCardToIssue.over65 }} </li>-->
-<!--                    <li v-if="refreshing && !credentialIsNotValid"><b>New digital card expiry date: {{ newValidity }}</b></li>-->
-<!--                </ul>-->
-
-                <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+                <div class="text-center">
+                    <button type="button" class="btn btn-lg btn-primary mb-3" v-if="!finished" v-on:click="saveIdCard()">Issue your ID-Card!</button>
+                </div>
             </div>
+
 
             <!-- Step 4 -->
             <div v-if="finished">
