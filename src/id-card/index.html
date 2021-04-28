@@ -102,14 +102,12 @@
                         const now = luxon.DateTime.now().toUTC();
                         const validity = now.plus({months: 1}).toUTC();
                         const expiryDate = now.plus({years: 10});
-                        const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd').toUTC();
-                        const birthDateArray = document.birthDate.split('-');
+                        const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd');
                         this.idCardToIssue = {
                             firstName: document.givenNames,
                             lastName: document.familyName,
                             fullName: `${document.givenNames} ${document.familyName}`,
-                            //birthdate: birthDate.toLocaleString(),
-                            birthdate: `${birthDateArray[2]}/${birthDateArray[1]}/${birthDateArray[0]}`,
+                            birthdate: birthDate.toLocaleString(),
                             over18: this.overAge(birthDate, 18),
                             over20: this.overAge(birthDate, 20),
                             over65: this.overAge(birthDate, 65),
