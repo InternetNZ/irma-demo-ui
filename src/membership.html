@@ -25,7 +25,6 @@
   <link type="text/css" rel="stylesheet"
     href="https://members.internetnz.nz/sites/default/files/css/css_S1SKPYV-rmiTH7oD4myqMAsMOJcP3aNMY_ryOkm4ARo.css"
     media="all" />
-  <!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
   <link type="text/css" rel="stylesheet"
     href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css"
     media="all">
@@ -138,7 +137,14 @@
                 [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
               ]
             ];
-            return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
+
+              const toDisclose = new DiscloseQueryGenerator()
+                  .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                  //.andAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME);
+                  .orAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME);
+
+            //return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
+            return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
               showSuccess('Success');
 
               const fullName = result.disclosed[1][0].rawvalue;
