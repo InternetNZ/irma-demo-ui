@@ -128,33 +128,24 @@
             clearOutput();
           },
 
-          discloseEmailAndName: function () {
-            const discloseAttributes = [
-              [
-                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
-              ],
-              [
-                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-              ]
-            ];
+            discloseEmailAndName: function () {
+                const toDisclose = new DiscloseQueryGenerator()
+                    .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                    .orAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME);
 
-              const toDisclose = new DiscloseQueryGenerator()
-                  .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                  .orAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME);
+                return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
+                    showSuccess('Success');
 
-            return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
-              showSuccess('Success');
-
-              const fullName = result.disclosed[1][0].rawvalue;
-              const names = fullName.split(' ');
-              app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
-              app.userMembershipAttributes.name = fullName;
-              app.userMembershipAttributes.firstName = names.shift();
-              app.userMembershipAttributes.lastName = names.join(' ');
-            }).catch(function (err) {
-              showError(err);
-            });
-          }
+                    const fullName = result.disclosed[1][0].rawvalue;
+                    const names = fullName.split(' ');
+                    app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+                    app.userMembershipAttributes.name = fullName;
+                    app.userMembershipAttributes.firstName = names.shift();
+                    app.userMembershipAttributes.lastName = names.join(' ');
+                }).catch(function (err) {
+                    showError(err);
+                });
+            }
         }
       })
     };
