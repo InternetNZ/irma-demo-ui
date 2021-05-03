@@ -140,10 +140,8 @@
 
               const toDisclose = new DiscloseQueryGenerator()
                   .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                  //.andAttribute(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME);
                   .orAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME);
 
-            //return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
             return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
               showSuccess('Success');
 

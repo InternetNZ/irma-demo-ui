@@ -97,6 +97,11 @@ const irmaDisclosedResultSingleRawValue = function (result) {
 const DiscloseQueryGenerator = function () {
   this.elements = [];
 
+  const _init = function () {
+    this.elements = [];
+    return this;
+  }
+
   const andAttribute = function (attribute) {
     this.elements.push([
       [attribute]
@@ -116,23 +121,21 @@ const DiscloseQueryGenerator = function () {
 
   const orAttributes = function (...attributes) {
     const or = [];
-    console.log(attributes);
-    const attributesArray = attributes[0].length > 1 ? attributes[0] : attributes;
-    console.log(attributesArray);
-    attributesArray.forEach(attribute => or.push([attribute]));
+    attributes.forEach(attribute => {
+      if (Array.isArray(attribute)) {
+        or.push(attribute);
+      } else {
+        or.push([attribute]);
+      }
+    });
     this.elements.push(or);
     return this;
   }
 
-  const forOrAttributes = function (...attributes) {
-    this.elements = [];
-    return this.orAttributes(attributes);
-  }
-
   return {
+    _init: _init,
     andAttribute: andAttribute,
     forAttribute: forAttribute,
-    forOrAttributes: forOrAttributes,
     orAttributes: orAttributes,
     toApi: toApi,
   };

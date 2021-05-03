@@ -66,7 +66,8 @@
 
                     discloseOver18: function () {
                         const toDisclose = new DiscloseQueryGenerator()
-                            .forOrAttributes(
+                            ._init()
+                            .orAttributes(
                                 ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18,
                                 ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS.OVER18,
                                 ATTRIBUTE.ID_CARD.OVER_18,
@@ -134,23 +135,24 @@
                     },
 
                     discloseNameAndAddress: function () {
-                        const disclosePayload = [
-                            // disclose
-                            [
-                                [
+                        const toDisclose = new DiscloseQueryGenerator()
+                            ._init()
+                            .orAttributes([
                                     ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
                                     ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
                                 ],
-                                // or
-                                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-                                // or
-                                [ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS],
-                            ]
-                        ];
+                                [
+                                    ATTRIBUTE.ID_CARD.FULL_NAME,
+                                    ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
+                                ],
+                                ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
+                                ATTRIBUTE.ID_CARD.FULL_NAME,
+                                ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS,
+                            );
 
                         clearOutput();
 
-                        return irmaDiscloseOrSign(disclosePayload, HEADER_MESSAGES.DISCLOSE_ADDDRESS_AND_NAME)
+                        return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_ADDDRESS_AND_NAME)
                             .then(result => {
                                 showSuccess();
 
