@@ -4,7 +4,8 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
-const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
+const LOCAL_IRMA_SERVER = 'https://72e3545ec016.ngrok.io';
+//const LOCAL_IRMA_SERVER = 'http://0.0.0.0:8088';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
@@ -52,6 +53,18 @@ const ATTRIBUTE = {
   // attribute from irma-demo scheme
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS: {
     OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
+  },
+  ID_CARD: {
+    FIRST_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.firstName`,
+    LAST_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.lastName`,
+    FULL_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.fullName`,
+    BIRTH_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.birthdate`,
+    OVER_18: `${CREDENTIAL.ID_CARD_ID_CARD}.over18`,
+    OVER_20: `${CREDENTIAL.ID_CARD_ID_CARD}.over20`,
+    OVER_65: `${CREDENTIAL.ID_CARD_ID_CARD}.over65`,
+    ISSUE_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.issueDate`,
+    EXPIRY_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.expiryDate`,
+    NUMBER: `${CREDENTIAL.ID_CARD_ID_CARD}.number`,
   },
 };
 

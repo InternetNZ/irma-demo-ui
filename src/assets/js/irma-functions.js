@@ -57,53 +57,58 @@ function irmaIssueCredential(credential, attributes, header = 'Issuing credentia
 }
 
 function irmaDoSession(request, header = '') {
-    console.log('doSession');
+  console.log('doSession');
 
-    let options = {
-        // Developer options
-        debugging: true,
+  let options = {
+    // Developer options
+    debugging: true,
 
-        // Front-end options
-        language: 'en',
-        translations: {
-            header: `${header} <i class="irma-web-logo">IRMA</i>`,
-            loading: 'Just one second please!'
+    // Front-end options
+    language: 'en',
+    translations: {
+      header: `${header} <i class="irma-web-logo">IRMA</i>`,
+      loading: 'Just one second please!'
+    },
+
+    // Back-end options
+    session: {
+      // Point this to your IRMA server:
+      url: IRMA_SERVER,
+
+      // Define your disclosure request:
+      start: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': PRIVATE_TOKEN,
         },
+        body: JSON.stringify(request)
+      }
+    }
+  };
 
-        // Back-end options
-        session: {
-            // Point this to your IRMA server:
-            url: IRMA_SERVER,
+  console.log(options);
 
-            // Define your disclosure request:
-            start: {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': PRIVATE_TOKEN,
-                },
-                body: JSON.stringify(request)
-            }
-        }
-    };
+  let irmaPopup = irma.newPopup(options);
 
-    console.log(options);
-
-    let irmaPopup = irma.newPopup(options);
-
-    return irmaPopup.start()
+  return irmaPopup.start()
 }
 
-const irmaDisclosedResultSingleRawValueFromIndex = function (result, index) {
-  return result.disclosed[index][0].rawvalue || '';
+const irmaDisclosedResultSingleRawValueFromIndex = function (result, credentialIndex = 0, attributeIndex = 0) {
+  return result.disclosed[credentialIndex][attributeIndex].rawvalue || '';
 };
 
 const irmaDisclosedResultSingleRawValue = function (result) {
-  return irmaDisclosedResultSingleRawValueFromIndex(result, 0);
+  return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
 const DiscloseQueryGenerator = function () {
   this.elements = [];
+
+  const _init = function () {
+    this.elements = [];
+    return this;
+  }
 
   const andAttribute = function (attribute) {
     this.elements.push([
@@ -122,9 +127,24 @@ const DiscloseQueryGenerator = function () {
     return this.andAttribute(attribute);
   }
 
+  const orAttributes = function (...attributes) {
+    const or = [];
+    attributes.forEach(attribute => {
+      if (Array.isArray(attribute)) {
+        or.push(attribute);
+      } else {
+        or.push([attribute]);
+      }
+    });
+    this.elements.push(or);
+    return this;
+  }
+
   return {
-    forAttribute: forAttribute,
+    _init: _init,
     andAttribute: andAttribute,
+    forAttribute: forAttribute,
+    orAttributes: orAttributes,
     toApi: toApi,
   };
 }
