@@ -1,43 +1,48 @@
 // be sure that you are loading irmajs functions
 
-function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '', revocation = []) {
-    const labelRequest = !label ? {} : {
-        'labels': {
-            '0': {
-                'en': label,
-                'nl': label
-            }
-        }
-    };
-    const request = !message ? {
-        '@context': 'https://irma.app/ld/request/disclosure/v2',
-        'disclose': attributes,
-        'revocation': revocation,
-        ...labelRequest
-    } : {
-        '@context': 'https://irma.app/ld/request/signature/v2',
-        'message': message,
-        'disclose': attributes,
-        'revocation': revocation,
-        ...labelRequest
-    };
+function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '',
+revocation = null) {
+  const labelRequest = !label ? {} : {
+    'labels': {
+      '0': {
+        'en': label,
+        'nl': label
+      }
+    }
+  };
+  const request = !message ? {
+    '@context': 'https://irma.app/ld/request/disclosure/v2',
+    'disclose': attributes,
+    'revocation': revocation,
+    ...labelRequest
+  } : {
+    '@context': 'https://irma.app/ld/request/signature/v2',
+    'message': message,
+    'disclose': attributes,
+    'revocation': revocation,
+    ...labelRequest
+  };
 
-    return irmaDoSession(request, header).then(result => {
-        console.log("Successful disclosure! 🎉", result)
-        return result;
-    });
+  return irmaDoSession(request, header).then(result => {
+    console.log("Successful disclosure! 🎉", result)
+    return result;
+  });
 }
 
 function irmaIssueCredential(credential, attributes, header = 'Issuing credential with', disclosePayload = null) {
   console.log('issueCredential');
   let validity = {};
   if (attributes.validity) {
-    validity = {validity: attributes.validity};
+    validity = {
+      validity: attributes.validity
+    };
     delete attributes.validity;
   }
   let revocationKey = {};
   if (attributes.revocationKey) {
-    revocationKey = {revocationKey: attributes.revocationKey};
+    revocationKey = {
+      revocationKey: attributes.revocationKey
+    };
     delete attributes.revocationKey;
   }
   const request = {
