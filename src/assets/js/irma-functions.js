@@ -21,7 +21,7 @@ function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', la
   };
 
   return irmaDoSession(request, header).then(result => {
-    console.log("Successful disclosure! 🎉", result)
+    console.log("Successful disclosure!", result)
     return result;
   });
 }
@@ -43,7 +43,7 @@ function irmaIssueCredential(credential, attributes, header = 'Issuing credentia
     'disclose': disclosePayload,
   };
   return irmaDoSession(request, header).then(function (result) {
-    console.log("Successful issuing credential! 🎉", result)
+    console.log("Successful issuing credential!", result)
     return result;
   });
 }
@@ -78,8 +78,6 @@ function irmaDoSession(request, header = '') {
       }
     }
   };
-
-  console.log(options);
 
   let irmaPopup = irma.newPopup(options);
 
