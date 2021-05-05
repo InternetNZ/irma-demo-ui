@@ -223,6 +223,7 @@
                     },
                     saveIdCard: function () {
                         console.log('saveIdCard');
+                        this.idCardToIssue['revocationKey'] = luxon.DateTime.now().ts;
                         const self = this;
                         return irmaIssueCredential(CREDENTIAL.ID_CARD_ID_CARD, this.idCardToIssue, HEADER_MESSAGES.ISSUE_ID_CARD_ID_CARD)
                             .then((_) => {
@@ -281,7 +282,7 @@
                             ]
                         ]];
 
-                        irmaDiscloseOrSign(toDisclose, 'Please, provide your IDNZ card details.')
+                        irmaDiscloseOrSign(toDisclose, 'Please, provide your IDNZ card details.', '', '', [CREDENTIAL.ID_CARD_ID_CARD])
                             .then((result) => {
                                 this.messageClear();
                                 this.logged = true;
