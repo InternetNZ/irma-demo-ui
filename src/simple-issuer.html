@@ -255,7 +255,7 @@
                     <input type="text" id="message" class="form-control" placeholder="Sign with your email" v-model="messageForEmailSigning">
                 </div>
                 <div class="col-2">
-                    <input type="button" class="btn btn-primary" value="Issue" v-if="messageForEmailSigning"
+                    <input type="button" class="btn btn-primary" value="Sign" v-if="messageForEmailSigning"
                            v-on:click="signMessageWithEmail(messageForEmailSigning)">
                 </div>
             </div>
