@@ -223,7 +223,7 @@
                     },
                     saveIdCard: function () {
                         console.log('saveIdCard');
-                        this.idCardToIssue['revocationKey'] = `${luxon.DateTime.now().ts}`;
+                        this.idCardToIssue['revocationKey'] = this.idCardToIssue.number;
                         const self = this;
                         return irmaIssueCredential(CREDENTIAL.ID_CARD_ID_CARD, this.idCardToIssue, HEADER_MESSAGES.ISSUE_ID_CARD_ID_CARD)
                             .then((_) => {
