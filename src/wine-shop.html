@@ -74,7 +74,7 @@
 
                         clearOutput();
 
-                        return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_AGE, '', '', [CREDENTIAL.ID_CARD_ID_CARD])
+                        return irmaDiscloseOrSign(toDisclose.toApi(), HEADER_MESSAGES.DISCLOSE_AGE)
                             .then(result => {
                                 showSuccess('Success');
                                 return irmaDisclosedResultSingleRawValue(result);
