@@ -48,7 +48,7 @@
                         statusMessage: null,
                         statusMessageClass: null,
                         finished: false,
-                        idCardToIssue: null,
+                        signatureToSave: null,
                         logged: false,
                         loggedUser: {},
                         purchaseMode: null,
@@ -93,27 +93,6 @@
                                 this.messageError(error);
                             })
                     },
-                    makeIdCardToIssueFromDocument(document) {
-                        luxon.Settings.defaultLocale = LOCALE_NZ;
-
-                        const now = luxon.DateTime.now().toUTC();
-                        const validity = now.plus({months: 1}).toUTC();
-                        const expiryDate = now.plus({years: 10});
-                        const birthDate = luxon.DateTime.fromFormat(document.birthDate, 'yyyy-MM-dd');
-                        this.idCardToIssue = {
-                            firstName: document.givenNames,
-                            lastName: document.familyName,
-                            fullName: `${document.givenNames} ${document.familyName}`,
-                            birthdate: birthDate.toLocaleString(),
-                            over18: this.overAge(birthDate, 18),
-                            over20: this.overAge(birthDate, 20),
-                            over65: this.overAge(birthDate, 65),
-                            issueDate: now.toLocaleString(),
-                            expiryDate: expiryDate.toLocaleString(),
-                            number: `${now.toMillis()}`,
-                            validity: parseInt(validity.toSeconds()),
-                        };
-                    },
                     messageClear() {
                         this.statusMessage = null;
                         this.statusMessageClass = null;
@@ -152,22 +131,27 @@
                         this.requestInProgress = false;
 
                         this.formDocumentType = null;
-                        this.idCardToIssue = null;
+                        this.signatureToSave = null;
 
                         this.loggedUser = {};
 
                         this.messageClear();
                     },
-                    saveIdCard: function () {
-                        console.log('saveIdCard');
-                        this.idCardToIssue['revocationKey'] = luxon.DateTime.now().toUTC().toMillis().toString();
-                        const self = this;
-                        return irmaIssueCredential(CREDENTIAL.ID_CARD_ID_CARD, this.idCardToIssue, HEADER_MESSAGES.ISSUE_ID_CARD_ID_CARD)
-                            .then((_) => {
-                                self.finished = true;
-                            }).catch(function (err) {
-                                self.messageError(err);
-                            });
+                    saveSignedMessage: function (signature) {
+                        console.log('saveSignedMessage');
+                        localStorage.setItem('irmaSignature', JSON.stringify(signature));
+
+                        let signatures = localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [];
+                        const signatureWithIdCard = {
+                            idCardNumber: irmaDisclosedResultSingleRawValueFromIndex(signature, 0),
+                            signature: signature,
+                        };
+                        signatures.push(signatureWithIdCard);
+                        localStorage.setItem('irmaSignatures', JSON.stringify(signatures));
+                        console.log(localStorage.getItem('irmaSignatures'));
+
+                        this.signatureToSave = true;
+                        this.finished = true;
                     },
                     signMessage: function () {
                         let self = this;
@@ -176,10 +160,16 @@
                             'Sign this message with your IDNZ number',
                             'Label',
                             self.CONSENT_MESSAGE
-                        );
+                        )
+                            .then((result) => {
+                                console.log('here');
+                                console.log(result);
+                                this.saveSignedMessage(result);
+                            });
                     },
                     showMessageDisclosedData() {
-                        this.messageWarning(`Name: <strong>${this.loggedUser.name}</strong> | E-mail: <strong>${this.loggedUser.email}</strong>`);
+                        this.messageWarning(
+                            `Name: <strong>${this.loggedUser.name}</strong> | E-mail: <strong>${this.loggedUser.email}</strong>`);
                     },
                 }
             };
@@ -189,7 +179,7 @@
     </script>
 </head>
 <body id="app" v-cloak>
-<div class="container-fluid" :class="{ 'container-issuance': (idCardToIssue != null && !finished) }">
+<div class="container-fluid" :class="{ 'container-issuance': (signatureToSave != null && !finished) }">
     <div class="container">
         <header id="header" class="d-flex align-items-center">
             <div class="flex-grow-1">
@@ -231,7 +221,7 @@
 
         <!-- Step 2 -->
         <div v-if="logged">
-            <div v-if="!refreshing && !idCardToIssue">
+            <div v-if="!refreshing && !signatureToSave">
                 <div class="row">
                     <div class="col-12 col-lg-8 col-xl-6">
                         <div id="upload-doc-text">
@@ -263,7 +253,7 @@
         </div>
 
         <!-- Step 3 -->
-        <div id="step3-1" class="col-10 m-auto container-issuance" v-if="idCardToIssue && !finished">
+        <div id="step3-1" class="col-10 m-auto container-issuance" v-if="signatureToSave && !finished">
             <h2>Check the information below and issue your IDNZ digital card</h2>
             <h4 v-if="refreshing && !credentialIsNotValid">Your IDNZ Card is still valid so you can renew your digital card with your current credential</h4>
 
@@ -274,27 +264,27 @@
                             <h5 class="card-title">Personal details</h5>
 
                             <div class="title">Full name</div>
-                            <div>{{ idCardToIssue.fullName }}</div>
+                            <div>{{ signatureToSave.fullName }}</div>
                             <div class="title">First name</div>
-                            <div>{{ idCardToIssue.firstName }}</div>
+                            <div>{{ signatureToSave.firstName }}</div>
                             <div class="title">Last name</div>
-                            <div>{{ idCardToIssue.lastName }}</div>
+                            <div>{{ signatureToSave.lastName }}</div>
                             <br>
                             <br>
                             <div class="title">Date of birth</div>
-                            <div>{{ idCardToIssue.birthdate }}</div>
+                            <div>{{ signatureToSave.birthdate }}</div>
                             <div class="row detail-row">
                                 <div class="col-4">
                                     <div class="title">Over 18</div>
-                                    <div>{{ idCardToIssue.over18 }}</div>
+                                    <div>{{ signatureToSave.over18 }}</div>
                                 </div>
                                 <div class="col-4">
                                     <div class="title">Over 20</div>
-                                    <div>{{ idCardToIssue.over20 }}</div>
+                                    <div>{{ signatureToSave.over20 }}</div>
                                 </div>
                                 <div class="col-4">
                                     <div class="title">Over 65</div>
-                                    <div>{{ idCardToIssue.over65 }}</div>
+                                    <div>{{ signatureToSave.over65 }}</div>
                                 </div>
                             </div>
 
@@ -309,15 +299,15 @@
                             <div class="row detail-row">
                                 <div class="col-6">
                                     <div class="title">Expiry date</div>
-                                    <div>{{ idCardToIssue.expiryDate }}</div>
+                                    <div>{{ signatureToSave.expiryDate }}</div>
                                 </div>
                                 <div class="col-6">
                                     <div class="title">Issue date</div>
-                                    <div>{{ idCardToIssue.issueDate }}</div>
+                                    <div>{{ signatureToSave.issueDate }}</div>
                                 </div>
                             </div>
                             <div class="title">Card number</div>
-                            <div>{{ idCardToIssue.number }}</div>
+                            <div>{{ signatureToSave.number }}</div>
                             <div class="title" v-if="refreshing && !credentialIsNotValid">
                                 New digital card expiry date
                             </div>
@@ -341,7 +331,7 @@
         <div id="step4-1" v-if="finished">
             <div class="row">
                 <div class="col-12 col-lg-8 col-xl-6">
-                    <h2>Success! Your IDNZ digital card was added to your IRMA wallet.</h2>
+                    <h2>Success! Your consent is save.</h2>
 
                     <div class="col-auto button-at-left">
                         <button type="button" class="btn btn-lg btn-primary mb-3" v-on:click="reset()">Start over</button>
@@ -352,7 +342,6 @@
 
     </div>
 
-</div>
 </div>
 </body>
 </html>
