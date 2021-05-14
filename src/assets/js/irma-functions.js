@@ -1,7 +1,7 @@
 // be sure that you are loading irmajs functions
 
 function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '',
-revocation = null) {
+                            revocation = null) {
   const labelRequest = !label ? {} : {
     'labels': {
       '0': {
@@ -121,6 +121,14 @@ const DiscloseQueryGenerator = function () {
     return this;
   }
 
+  const andAttributeWithValue = function (attribute, value) {
+    this.elements.push([
+      [{type: attribute, value: value}]
+    ]);
+
+    return this;
+  }
+
   const toApi = function () {
     return this.elements;
   }
@@ -130,7 +138,7 @@ const DiscloseQueryGenerator = function () {
     return this.andAttribute(attribute);
   }
 
-  const orAttributes = function (...attributes) {
+  const andAnyOfAttributes = function (...attributes) {
     const or = [];
     attributes.forEach(attribute => {
       if (Array.isArray(attribute)) {
@@ -145,9 +153,10 @@ const DiscloseQueryGenerator = function () {
 
   return {
     _init: _init,
+    andAnyOfAttributes: andAnyOfAttributes,
     andAttribute: andAttribute,
+    andAttributeWithValue: andAttributeWithValue,
     forAttribute: forAttribute,
-    orAttributes: orAttributes,
     toApi: toApi,
   };
 }

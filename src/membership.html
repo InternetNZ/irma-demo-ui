@@ -54,7 +54,7 @@
             MEMBERSHIP_UNIT_PRICE: 21,
             DISCLOSE_PAYLOAD_NAME_AND_EMAIL: new DiscloseQueryGenerator()
                 .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
-                .orAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME).toApi(),
+                .andAnyOfAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME).toApi(),
           membershipIssued: false,
           resetedUsermembershipAttributes: {
             email: null,
