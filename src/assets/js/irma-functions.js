@@ -105,40 +105,40 @@ const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
-const DiscloseQueryGenerator = function () {
-  this.elements = [];
+class DiscloseQueryGenerator
+{
+  constructor() {
+    this._elements = [];
+  }
 
-  const _init = function () {
-    this.elements = [];
+  _init() {
+    this._elements = [];
     return this;
   }
 
-  const andAttribute = function (attribute) {
-    this.elements.push([
+  andAttribute(attribute) {
+    this._elements.push([
       [attribute]
     ]);
 
     return this;
   }
 
-  const andAttributeWithValue = function (attribute, value) {
-    this.elements.push([
+  andAttributeWithValue(attribute, value) {
+    this._elements.push([
       [{type: attribute, value: value}]
     ]);
 
     return this;
   }
 
-  const toApi = function () {
-    return this.elements;
-  }
-
-  const forAttribute = function (attribute) {
-    this.elements = [];
-    return this.andAttribute(attribute);
-  }
-
-  const andAnyOfAttributes = function (...attributes) {
+  /**
+   * Used for OR disclosures
+   *
+   * @param attributes
+   * @returns {DiscloseQueryGenerator}
+   */
+  andAnyOfAttributes(...attributes) {
     const or = [];
     attributes.forEach(attribute => {
       if (Array.isArray(attribute)) {
@@ -147,16 +147,16 @@ const DiscloseQueryGenerator = function () {
         or.push([attribute]);
       }
     });
-    this.elements.push(or);
+    this._elements.push(or);
     return this;
   }
 
-  return {
-    _init: _init,
-    andAnyOfAttributes: andAnyOfAttributes,
-    andAttribute: andAttribute,
-    andAttributeWithValue: andAttributeWithValue,
-    forAttribute: forAttribute,
-    toApi: toApi,
-  };
+  forAttribute(attribute) {
+    this._elements = [];
+    return this.andAttribute(attribute);
+  }
+
+  toApi() {
+    return this._elements;
+  }
 }
