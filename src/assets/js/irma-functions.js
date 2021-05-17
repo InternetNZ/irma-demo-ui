@@ -133,7 +133,7 @@ class DiscloseQueryGenerator
   }
 
   /**
-   * Used for OR disclosures
+   * a.k.a disclosures using `OR` condition
    *
    * @param attributes
    * @returns {DiscloseQueryGenerator}

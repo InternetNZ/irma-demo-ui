@@ -47,7 +47,6 @@
                         logged: false,
                         loggedUser: null,
                         requestInProgress: false,
-                        refreshing: false,
                     }
                 },
                 methods: {
@@ -57,7 +56,6 @@
                         this.loggedUser = null;
 
                         const toDisclose = new DiscloseQueryGenerator()
-                            ._init()
                             .andAnyOfAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME)
                             .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
                             .andAttributeWithValue(ATTRIBUTE.ID_CARD.NUMBER, idCardNumber);
