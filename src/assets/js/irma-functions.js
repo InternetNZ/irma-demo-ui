@@ -111,11 +111,6 @@ class DiscloseQueryGenerator
     this._elements = [];
   }
 
-  _init() {
-    this._elements = [];
-    return this;
-  }
-
   andAttribute(attribute) {
     this._elements.push([
       [attribute]
