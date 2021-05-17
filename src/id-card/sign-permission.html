@@ -39,23 +39,19 @@
             const IdCardApp = {
                 data() {
                     return {
-                        CONSENT_MESSAGE: 'I consent IDNZ company to share my name and email with PartyB company.',
+                        CONSENT_MESSAGE: 'I consent IDNZ to share my disclosed name and email with Centrality for the purpose of associating my IDNZ card with a CENNZnet account',
                         // credentials
                         email: '',
                         fullName: '',
                         // controls
-                        formDocumentType: null,
                         statusMessage: null,
                         statusMessageClass: null,
                         finished: false,
                         signatureToSave: null,
                         logged: false,
                         loggedUser: {},
-                        purchaseMode: null,
                         requestInProgress: false,
-                        refreshing: false,
                         credentialIsNotValid: true,
-                        newValidity: ''
                     }
                 },
                 methods: {
@@ -259,7 +255,7 @@
 
                     <div class="col-auto button-at-left">
                         <button type="button" class="btn btn-lg btn-primary mb-3" v-on:click="reset()">Start over</button>
-                        <a href="sign-permission-confirmation.html">PartyB page</a>
+                        <a href="sign-permission-confirmation.html">[Centrality consent confirmation page]</a>
                     </div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-    <title>InternetNZ | IRMA examples - ID-Card Sign Permission confirmation consent with PartyB</title>
+    <title>InternetNZ | IRMA examples - ID-Card Sign Permission confirmation consent with Centrality</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,8 +37,6 @@
             const IdCardApp = {
                 data() {
                     return {
-                        CONSENT_MESSAGE: 'I consent IDNZ company to share my name and email with PartyB company.',
-                        // credentials
                         savedSignatures: localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [],
                         // controls
                         statusMessage: null,
@@ -122,8 +120,11 @@
     </script>
 </head>
 <body id="app" v-cloak>
-<div class="container-fluid" :class="{ 'container-issuance': (signatureToSave != null && !finished) }">
+<div class="container-fluid">
     <div class="container">
+
+        <h1>Centrality</h1>
+        <hr>
 
         <div class="text-end">
             <button class="btn btn-sm btn-outline-danger" v-on:click="reset()">
