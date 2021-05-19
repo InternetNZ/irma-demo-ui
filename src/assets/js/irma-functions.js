@@ -156,16 +156,15 @@ const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
-const irmaVerifySignature = function (signature, id) {
-  // return promisse
-  return {
+const irmaVerifySignature = function (signature) {
+  return Promise.resolve({
     "proofStatus": "VALID",
     "credentialList": [
       [
         {
-          "rawvalue": id,
+          "rawvalue": signature.idCardNumber,
           "value": {
-            "": id,
+            "": signature.idCardNumber,
             "en": "1620810220240",
             "nl": "1620810220240"
           },
@@ -175,9 +174,9 @@ const irmaVerifySignature = function (signature, id) {
         }
       ]
     ]
-  };
+  });
 }
 
-const irmaVerifiedSignatureIsValid = function (signature) {
-  return signature.proofStatus && signature.proofStatus === "VALID";
+const irmaSignatureVerificationResultIsValid = function (result) {
+  return result.proofStatus && result.proofStatus === "VALID";
 }

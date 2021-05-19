@@ -106,6 +106,7 @@
                     reset() {
                         this.logged = false;
                         this.loggedUser = null;
+                        this.signatureBeingVerified = null;
                         this.messageClear();
                     },
                     resetStorage() {
@@ -114,6 +115,21 @@
                     },
                     verifySignature(signature) {
                         this.signatureBeingVerified = signature;
+
+                        this.messageInfo('Verifying signature');
+
+                        return irmaVerifySignature(this.signatureBeingVerified)
+                            .then(result => {
+                                if (!irmaSignatureVerificationResultIsValid(result)) {
+                                    this.reset();
+                                    this.messageError('Invalid signature');
+                                    return;
+                                }
+
+                                this.messageInfo('Success. Fetching name and email.');
+                                return this.getNameAndEmail(result.credentialList[0][0].rawvalue);
+                            })
+                            .catch(error => this.messageError(error));
                     },
                 }
             };
@@ -163,13 +179,12 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="signature in savedSignatures" v-bind:class="''">
+                    <tr v-for="signature in savedSignatures" v-bind:class="{'table-primary': signatureBeingVerified === signature}">
                         <td>{{ signature.idCardNumber }}</td>
                         <td>{{ signature.signature.token }}</td>
                         <td class="text-end">
                             <button class="btn btn-outline-primary"
                                     v-on:click="verifySignature(signature)"
-                                    xxx-v-on:click="getNameAndEmail(signature.idCardNumber)"
                                     v-if="!signatureBeingVerified || signatureBeingVerified === signature"
                             >
                                 <img src='assets/images/icon-alert-warning.png'> {{ signature.idCardNumber }}
