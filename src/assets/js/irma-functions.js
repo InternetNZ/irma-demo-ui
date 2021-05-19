@@ -1,5 +1,56 @@
 // be sure that you are loading irmajs functions
 
+class DiscloseQueryGenerator
+{
+  constructor() {
+    this._elements = [];
+  }
+
+  andAttribute(attribute) {
+    this._elements.push([
+      [attribute]
+    ]);
+
+    return this;
+  }
+
+  andAttributeWithValue(attribute, value) {
+    this._elements.push([
+      [{type: attribute, value: value}]
+    ]);
+
+    return this;
+  }
+
+  /**
+   * a.k.a disclosures using `OR` condition
+   *
+   * @param attributes
+   * @returns {DiscloseQueryGenerator}
+   */
+  andAnyOfAttributes(...attributes) {
+    const or = [];
+    attributes.forEach(attribute => {
+      if (Array.isArray(attribute)) {
+        or.push(attribute);
+      } else {
+        or.push([attribute]);
+      }
+    });
+    this._elements.push(or);
+    return this;
+  }
+
+  forAttribute(attribute) {
+    this._elements = [];
+    return this.andAttribute(attribute);
+  }
+
+  toApi() {
+    return this._elements;
+  }
+}
+
 function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '',
                             revocation = null) {
   const labelRequest = !label ? {} : {
@@ -105,53 +156,28 @@ const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
-class DiscloseQueryGenerator
-{
-  constructor() {
-    this._elements = [];
-  }
+const irmaVerifySignature = function (signature, id) {
+  // return promisse
+  return {
+    "proofStatus": "VALID",
+    "credentialList": [
+      [
+        {
+          "rawvalue": id,
+          "value": {
+            "": id,
+            "en": "1620810220240",
+            "nl": "1620810220240"
+          },
+          "id": "irma-demo.inz-id-card.idCard.number",
+          "status": "EXTRA",
+          "issuancetime": 1620259200
+        }
+      ]
+    ]
+  };
+}
 
-  andAttribute(attribute) {
-    this._elements.push([
-      [attribute]
-    ]);
-
-    return this;
-  }
-
-  andAttributeWithValue(attribute, value) {
-    this._elements.push([
-      [{type: attribute, value: value}]
-    ]);
-
-    return this;
-  }
-
-  /**
-   * a.k.a disclosures using `OR` condition
-   *
-   * @param attributes
-   * @returns {DiscloseQueryGenerator}
-   */
-  andAnyOfAttributes(...attributes) {
-    const or = [];
-    attributes.forEach(attribute => {
-      if (Array.isArray(attribute)) {
-        or.push(attribute);
-      } else {
-        or.push([attribute]);
-      }
-    });
-    this._elements.push(or);
-    return this;
-  }
-
-  forAttribute(attribute) {
-    this._elements = [];
-    return this.andAttribute(attribute);
-  }
-
-  toApi() {
-    return this._elements;
-  }
+const irmaVerifiedSignatureIsValid = function (signature) {
+  return signature.proofStatus && signature.proofStatus === "VALID";
 }

@@ -37,14 +37,14 @@
             const IdCardApp = {
                 data() {
                     return {
-                        savedSignatures: localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [],
-                        // controls
-                        statusMessage: null,
-                        statusMessageClass: null,
                         finished: false,
                         logged: false,
                         loggedUser: null,
                         requestInProgress: false,
+                        savedSignatures: localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [],
+                        signatureBeingVerified: null,
+                        statusMessage: null,
+                        statusMessageClass: null,
                     }
                 },
                 methods: {
@@ -112,6 +112,9 @@
                         localStorage.removeItem('irmaSignatures');
                         this.reset();
                     },
+                    verifySignature(signature) {
+                        this.signatureBeingVerified = signature;
+                    },
                 }
             };
 
@@ -151,25 +154,32 @@
                         Clear storage
                     </button>
                 </div>
-                <table class="table table-responsive table-striped">
+                <table class="table table-responsive table-striped table-hover">
                     <thead>
                     <tr>
                         <th>ID</th>
                         <th>Token</th>
-                        <th>Get name and email</th>
+                        <th class="text-end">Get name and email</th>
                     </tr>
                     </thead>
-                    <tr v-for="signature in savedSignatures">
+                    <tbody>
+                    <tr v-for="signature in savedSignatures" v-bind:class="''">
                         <td>{{ signature.idCardNumber }}</td>
                         <td>{{ signature.signature.token }}</td>
-                        <td>
-                            <button class="btn btn-outline-primary" v-on:click="getNameAndEmail(signature.idCardNumber)">
+                        <td class="text-end">
+                            <button class="btn btn-outline-primary"
+                                    v-on:click="verifySignature(signature)"
+                                    xxx-v-on:click="getNameAndEmail(signature.idCardNumber)"
+                                    v-if="!signatureBeingVerified || signatureBeingVerified === signature"
+                            >
                                 <img src='assets/images/icon-alert-warning.png'> {{ signature.idCardNumber }}
                             </button>
                         </td>
                     </tr>
+                    </tbody>
                 </table>
 
+                <!-- Step 3 -->
                 <div class="mt-4" v-if="loggedUser">
                 <span class="status alert alert-success" role="alert">
                     <img src="assets/images/icon-alert-warning.png">
