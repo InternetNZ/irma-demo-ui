@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+    <title>InternetNZ | IRMA examples - ID-Card Sign Permission confirmation consent with Centrality</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <script src="../assets/lib/irma-0.3.3.js" defer></script>
+    <script src="../assets/lib/luxon-1.26.0.min.js" defer></script>
+    <script src="../assets/js/irma-functions.js" defer></script>
+    <script src="../assets/js/ui-functions.js" defer></script>
+    <script src="../assets/js/api-service.js" defer></script>
+    <script src="../assets/js/global.js">
+        // --------------------------------
+        // globals loaded from globals file
+        // --------------------------------
+    </script>
+    <script type="text/javascript">
+        window.onload = function () {
+            const IdCardApp = {
+                data() {
+                    return {
+                        savedSignatures: localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [],
+                        // controls
+                        statusMessage: null,
+                        statusMessageClass: null,
+                        finished: false,
+                        logged: false,
+                        loggedUser: null,
+                        requestInProgress: false,
+                    }
+                },
+                methods: {
+                    getNameAndEmail(idCardNumber) {
+                        this.messageClear();
+                        this.logged = false;
+                        this.loggedUser = null;
+
+                        const toDisclose = new DiscloseQueryGenerator()
+                            .andAnyOfAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME)
+                            .andAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                            .andAttributeWithValue(ATTRIBUTE.ID_CARD.NUMBER, idCardNumber);
+
+                        irmaDiscloseOrSign(toDisclose.toApi(), 'Please, provide your Name and Email', '', '')
+                            .then((result) => {
+                                this.logged = true;
+                                this.loggedUser = {
+                                    name: irmaDisclosedResultSingleRawValueFromIndex(result, 0, 0),
+                                    email: irmaDisclosedResultSingleRawValueFromIndex(result, 1, 0),
+                                };
+                            })
+                            .catch((error) => {
+                                this.logged = false;
+                                this.loggedUser = null;
+                                this.messageError(error);
+                            })
+                    },
+                    messageClear() {
+                        this.statusMessage = null;
+                        this.statusMessageClass = null;
+                    },
+                    messageError(message) {
+                        // handle common Error objects
+                        if (message.message) {
+                            message = message.message;
+                        }
+
+                        if (message === 'Aborted') {
+                            message = 'Session was aborted';
+                        } else {
+                            if (typeof message === 'object') {
+                                message = message.toString();
+                            }
+                            message = `Error: ${message}`;
+                        }
+
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-danger';
+                    },
+                    messageInfo(message) {
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-info';
+                    },
+                    messageWarning(message) {
+                        this.statusMessage = message;
+                        this.statusMessageClass = 'alert-warning';
+                    },
+
+                    reset() {
+                        this.logged = false;
+                        this.loggedUser = null;
+                        this.messageClear();
+                    },
+                    resetStorage() {
+                        localStorage.removeItem('irmaSignatures');
+                        this.reset();
+                    },
+                }
+            };
+
+            Vue.createApp(IdCardApp).mount('#app');
+        };
+    </script>
+</head>
+<body id="app" v-cloak>
+<div class="container-fluid">
+    <div class="container">
+
+        <h1>Centrality</h1>
+        <hr>
+
+        <div class="text-end">
+            <button class="btn btn-sm btn-outline-danger" v-on:click="reset()">
+                Reset demo
+            </button>
+        </div>
+
+        <div id="step1-first-div" class="row">
+            <div id="step1-first-div-1">
+                <h1>IDNZ digital card and IRMA Signing</h1>
+                <p style="margin: 24px 0 48px 0">
+                    Use your IDNZ card to cryptographically sign a message.
+                </p>
+
+                <div class="mt-4">
+                <span class="status alert" v-if="statusMessage" v-bind:class="statusMessageClass" role="alert">
+                    <img :src="`assets/images/icon-${statusMessageClass}.png`">
+                    {{ statusMessage }}
+                </span>
+                </div>
+
+                <div class="text-end">
+                    <button class="btn btn-sm btn-danger" v-on:click="resetStorage()">
+                        Clear storage
+                    </button>
+                </div>
+                <table class="table table-responsive table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Token</th>
+                        <th>Get name and email</th>
+                    </tr>
+                    </thead>
+                    <tr v-for="signature in savedSignatures">
+                        <td>{{ signature.idCardNumber }}</td>
+                        <td>{{ signature.signature.token }}</td>
+                        <td>
+                            <button class="btn btn-outline-primary" v-on:click="getNameAndEmail(signature.idCardNumber)">
+                                <img src='assets/images/icon-alert-warning.png'> {{ signature.idCardNumber }}
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="mt-4" v-if="loggedUser">
+                <span class="status alert alert-success" role="alert">
+                    <img src="assets/images/icon-alert-warning.png">
+                    Successfully disclosed: Name <strong>{{ loggedUser.name }}</strong> | E-mail: <strong>{{ loggedUser.email }}</strong>
+                </span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="p-5 text-center clear mt-5">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="../index.html">Main</a></li>
+            <li class="list-inline-item"><a href="index.html">IDNZ Card</a></li>
+            <li class="list-inline-item"><a href="sign-permission.html">IDNZ Card - Sign permission</a></li>
+            <li class="list-inline-item"><a href="../simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="../simple-verifier.html">Simple verifier</a></li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>

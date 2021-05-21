@@ -65,8 +65,7 @@
 
                     discloseOver18: function () {
                         const toDisclose = new DiscloseQueryGenerator()
-                            ._init()
-                            .orAttributes(
+                            .andAnyOfAttributes(
                                 ATTRIBUTE.FAKE_PERSONAL_DATA_AGE_LIMITS.OVER_18,
                                 ATTRIBUTE.IRMA_DEMO_NIJMEGEN_AGE_LIMITS.OVER18,
                                 ATTRIBUTE.ID_CARD.OVER_18,
@@ -135,8 +134,7 @@
 
                     discloseNameAndAddress: function () {
                         const toDisclose = new DiscloseQueryGenerator()
-                            ._init()
-                            .orAttributes([
+                            .andAnyOfAttributes([
                                     ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME,
                                     ATTRIBUTE.FAKE_NZPOST_ADDRESS.FULL_ADDRESS
                                 ],

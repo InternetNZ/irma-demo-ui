@@ -1,7 +1,7 @@
 // be sure that you are loading irmajs functions
 
 function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '',
-revocation = null) {
+                            revocation = null) {
   const labelRequest = !label ? {} : {
     'labels': {
       '0': {
@@ -105,32 +105,35 @@ const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
 
-const DiscloseQueryGenerator = function () {
-  this.elements = [];
-
-  const _init = function () {
-    this.elements = [];
-    return this;
+class DiscloseQueryGenerator
+{
+  constructor() {
+    this._elements = [];
   }
 
-  const andAttribute = function (attribute) {
-    this.elements.push([
+  andAttribute(attribute) {
+    this._elements.push([
       [attribute]
     ]);
 
     return this;
   }
 
-  const toApi = function () {
-    return this.elements;
+  andAttributeWithValue(attribute, value) {
+    this._elements.push([
+      [{type: attribute, value: value}]
+    ]);
+
+    return this;
   }
 
-  const forAttribute = function (attribute) {
-    this.elements = [];
-    return this.andAttribute(attribute);
-  }
-
-  const orAttributes = function (...attributes) {
+  /**
+   * a.k.a disclosures using `OR` condition
+   *
+   * @param attributes
+   * @returns {DiscloseQueryGenerator}
+   */
+  andAnyOfAttributes(...attributes) {
     const or = [];
     attributes.forEach(attribute => {
       if (Array.isArray(attribute)) {
@@ -139,15 +142,16 @@ const DiscloseQueryGenerator = function () {
         or.push([attribute]);
       }
     });
-    this.elements.push(or);
+    this._elements.push(or);
     return this;
   }
 
-  return {
-    _init: _init,
-    andAttribute: andAttribute,
-    forAttribute: forAttribute,
-    orAttributes: orAttributes,
-    toApi: toApi,
-  };
+  forAttribute(attribute) {
+    this._elements = [];
+    return this.andAttribute(attribute);
+  }
+
+  toApi() {
+    return this._elements;
+  }
 }
