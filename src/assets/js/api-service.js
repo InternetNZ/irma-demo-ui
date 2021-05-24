@@ -44,15 +44,6 @@ const verifySignature = function (signature) {
 
 const _apiSingleSourcePost = (endpoint, body) => {
   const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/${endpoint}`;
-  const options = {
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': SECOND_PRIVATE_TOKEN,
-    },
-    mode: 'cors',
-  };
-
   return _doFetchPost(url, body);
 };
 
