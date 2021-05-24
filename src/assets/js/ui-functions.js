@@ -37,11 +37,11 @@ function showSuccess(text = 'Success') {
 }
 
 function hideElement(elementID, hidden) {
-    var e = document.getElementById(elementID);
-    if (hidden) {
-      e.setAttribute('hidden', 'true');
-    } else {
-      e.removeAttribute('hidden');
-    }
-    return e;
+  var e = document.getElementById(elementID);
+  if (hidden) {
+    e.setAttribute('hidden', 'true');
+  } else {
+    e.removeAttribute('hidden');
   }
+  return e;
+}

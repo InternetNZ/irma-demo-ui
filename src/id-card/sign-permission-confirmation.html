@@ -77,21 +77,7 @@
                         this.statusMessageClass = null;
                     },
                     messageError(message) {
-                        // handle common Error objects
-                        if (message.message) {
-                            message = message.message;
-                        }
-
-                        if (message === 'Aborted') {
-                            message = 'Session was aborted';
-                        } else {
-                            if (typeof message === 'object') {
-                                message = message.toString();
-                            }
-                            message = `Error: ${message}`;
-                        }
-
-                        this.statusMessage = message;
+                        this.statusMessage = handleErrorMessage(message);
                         this.statusMessageClass = 'alert-danger';
                     },
                     messageInfo(message) {
@@ -118,7 +104,7 @@
 
                         this.messageInfo('Verifying signature');
 
-                        return irmaVerifySignature(this.signatureBeingVerified)
+                        return verifySignature(this.signatureBeingVerified.signaturePayload.signature)
                             .then(result => {
                                 if (!irmaSignatureVerificationResultIsValid(result)) {
                                     this.reset();
