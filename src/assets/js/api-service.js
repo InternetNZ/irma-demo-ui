@@ -40,28 +40,6 @@ const handleErrorMessage = (message) => {
 const verifySignature = function (signature) {
   const url = `${AWS_IRMA_BACKEND_SERVER}/irma/signature/verify`;
   return _doFetchPost(url, signature);
-  // return Promise.resolve({
-  //   "proofStatus": "VALID",
-  //   "credentialList": [
-  //     [
-  //       {
-  //         "rawvalue": signature.idCardNumber,
-  //         "value": {
-  //           "": signature.idCardNumber,
-  //           "en": "1620810220240",
-  //           "nl": "1620810220240"
-  //         },
-  //         "id": "irma-demo.inz-id-card.idCard.number",
-  //         "status": "EXTRA",
-  //         "issuancetime": 1620259200
-  //       }
-  //     ]
-  //   ]
-  // });
-}
-
-const irmaSignatureVerificationResultIsValid = function (result) {
-  return result.proofStatus && result.proofStatus === "VALID";
 }
 
 const _apiSingleSourcePost = (endpoint, body) => {

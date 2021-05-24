@@ -120,8 +120,6 @@
                         this.messageClear();
                     },
                     saveSignedMessage: function (signature) {
-                        localStorage.setItem('irmaSignature', JSON.stringify(signature));
-
                         let signatures = localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [];
                         const signatureWithIdCard = {
                             idCardNumber: irmaDisclosedResultSingleRawValueFromIndex(signature, 0),

@@ -167,7 +167,7 @@
                     <tbody>
                     <tr v-for="signature in savedSignatures" v-bind:class="{'table-primary': signatureBeingVerified === signature}">
                         <td>{{ signature.idCardNumber }}</td>
-                        <td>{{ signature.signature.token }}</td>
+                        <td>{{ signature.signaturePayload.token }}</td>
                         <td class="text-end">
                             <button class="btn btn-outline-primary"
                                     v-on:click="verifySignature(signature)"

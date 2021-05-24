@@ -155,3 +155,7 @@ const irmaDisclosedResultSingleRawValueFromIndex = function (result, credentialI
 const irmaDisclosedResultSingleRawValue = function (result) {
   return irmaDisclosedResultSingleRawValueFromIndex(result, credentialIndex = 0);
 };
+
+const irmaSignatureVerificationResultIsValid = function (result) {
+  return result.proofStatus && result.proofStatus === "VALID";
+}
