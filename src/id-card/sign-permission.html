@@ -94,21 +94,7 @@
                         this.statusMessageClass = null;
                     },
                     messageError(message) {
-                        // handle common Error objects
-                        if (message.message) {
-                            message = message.message;
-                        }
-
-                        if (message === 'Aborted') {
-                            message = 'Session was aborted';
-                        } else {
-                            if (typeof message === 'object') {
-                                message = message.toString();
-                            }
-                            message = `Error: ${message}`;
-                        }
-
-                        this.statusMessage = message;
+                        this.statusMessage = handleErrorMessage(message);
                         this.statusMessageClass = 'alert-danger';
                     },
                     messageInfo(message) {
@@ -134,17 +120,13 @@
                         this.messageClear();
                     },
                     saveSignedMessage: function (signature) {
-                        console.log('saveSignedMessage');
-                        localStorage.setItem('irmaSignature', JSON.stringify(signature));
-
                         let signatures = localStorage.getItem('irmaSignatures') ? JSON.parse(localStorage.getItem('irmaSignatures')) : [];
                         const signatureWithIdCard = {
                             idCardNumber: irmaDisclosedResultSingleRawValueFromIndex(signature, 0),
-                            signature: signature,
+                            signaturePayload: signature,
                         };
                         signatures.push(signatureWithIdCard);
                         localStorage.setItem('irmaSignatures', JSON.stringify(signatures));
-                        console.log(localStorage.getItem('irmaSignatures'));
 
                         this.signatureToSave = true;
                         this.finished = true;
