@@ -39,7 +39,7 @@
             const IdCardApp = {
                 data() {
                     return {
-                        CONSENT_MESSAGE: 'I consent IDNZ to share my disclosed name and email with Centrality for the purpose of associating my IDNZ card with a CENNZnet account',
+                        CONSENT_MESSAGE: 'I consent IDNZ to disclose my name and email with <delegated person> for the purpose of this person presenting these credentials on my behalf',
                         // credentials
                         email: '',
                         fullName: '',
@@ -237,7 +237,7 @@
 
                     <div class="col-auto button-at-left">
                         <button type="button" class="btn btn-lg btn-primary mb-3" v-on:click="reset()">Start over</button>
-                        <a href="sign-permission-confirmation.html">[Centrality consent confirmation page]</a>
+                        <a href="sign-permission-confirmation.html">[Consent confirmation page]</a>
                     </div>
                 </div>
             </div>
