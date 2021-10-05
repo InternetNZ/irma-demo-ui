@@ -15,7 +15,7 @@
   <!-- development version, includes helpful console warnings -->
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-  <script src="assets/irma.js" defer></script>
+  <script src="assets/lib/irma-0.4.2.js" defer></script>
   <script src="assets/js/irma-functions.js" defer></script>
   <script src="assets/js/ui-functions.js" defer></script>
   <script src="assets/js/global.js">
@@ -45,8 +45,10 @@
 
     const getDiscloseResultRawValue = function (result) {
       return {
-        id: hashCode(result.disclosed[0][0].rawvalue || ''),
-        validUntil: result.disclosed[1][0].rawvalue || '',
+        election: result.disclosed[0][0].rawvalue || '',
+        start: result.disclosed[0][1].rawvalue || '',
+        end: result.disclosed[0][2].rawvalue || '',
+        voting_number: result.disclosed[0][3].rawvalue || '',
       };
     };
 
@@ -54,18 +56,23 @@
       let app = new Vue({
         el: '#app',
         data: {
+          election: 'Cake Election',
           HEADER_MESSAGES: HEADER_MESSAGES,
-          userMembershipAttributes: {
-            id: '',
-            validUntil: ''
+          votingcardAttributes: {
+            election: '',
+            start: '',
+            end: '',
+            voting_number: '',
           },
           vote: '',
-          membetshipAttributes: [
+          votingcardDiscloseAttributes: [
             [
-              [ATTRIBUTE.INTERNETNZ_MEMBERSHIP.ID]
-            ],
-            [
-              [ATTRIBUTE.INTERNETNZ_MEMBERSHIP.VALID_UNTIL]
+              [
+                ATTRIBUTE.VOTING_CARD.ELECTION,
+                ATTRIBUTE.VOTING_CARD.START,
+                ATTRIBUTE.VOTING_CARD.END,
+                ATTRIBUTE.VOTING_CARD.VOTING_NUMBER
+              ],
             ],
           ],
         },
@@ -83,27 +90,33 @@
         },
 
         methods: {
-          verifyINZMembership: function () {
-            console.log('verifyINZMembership');
-            return irmaDiscloseOrSign(this.membetshipAttributes, HEADER_MESSAGES.DISCLOSE_INZ_MEMBERSHIP)
+          verifyVotingCard: function () {
+            console.log('verifyVotingCard');
+            return irmaDiscloseOrSign(this.votingcardDiscloseAttributes, HEADER_MESSAGES.DISCLOSE_VOTING_CARD)
               .then((result) => {
-                showSuccess('Success, Your IRMA ID is : <strong>' + result.disclosed[0][0].rawvalue +
+                showSuccess('Success, Your Voting Number is : <strong>' + result.disclosed[0][3].rawvalue +
                   '</strong>');
 
-                app.userMembershipAttributes = getDiscloseResultRawValue(result);
+                app.votingcardAttributes = getDiscloseResultRawValue(result);
 
                 var voters = JSON.parse(localStorage.getItem("voters"));
 
                 hideElement('vote-with-irma', true);
 
-                if (voters.indexOf(app.userMembershipAttributes.id) > -1) {
-                  showError('Seems you already voted! You can only vote once for your favorite cake!');
+                if (app.election.localeCompare(app.votingcardAttributes.election) != 0) {
+                  showError('Your voting card is not valid for this election. You need a voting card for ' + app.election + '.');
                 }
 
-                // Change date format to ISO
-                var dateParts = app.userMembershipAttributes.validUntil.split("/");
-                if (Date.parse(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`) < Date.now()) {
-                  showError('Your membership has been expired. You need a valid membership to vote.');
+                if (Date.parse(app.votingcardAttributes.end) < Date.now()) {
+                  showError('Your voting card has been expired. You need a valid voting card to vote.');
+                } 
+
+                if (Date.parse(app.votingcardAttributes.start) > Date.now()) {
+                  showError('The voting has not started yet.');
+                }
+
+                if (voters.indexOf(app.votingcardAttributes.voting_number) > -1) {
+                  showError('Seems you already voted! You can only vote once for your favorite cake!');
                 }
 
                 hideElement('vote-options', false);
@@ -120,7 +133,7 @@
 
             var voters = JSON.parse(localStorage.getItem("voters"));
 
-            voters.push(app.userMembershipAttributes.id)
+            voters.push(app.votingcardAttributes.voting_number)
             localStorage.setItem("voters", JSON.stringify(voters))
 
             var votes = JSON.parse(localStorage.getItem("votes"));
@@ -133,9 +146,11 @@
           },
 
           reset: function () {
-            app.userMembershipAttributes = {
-              id: '',
-              validUntil: ''
+            votingcardAttributes = {
+              election: '',
+              start: '',
+              end: '',
+              voting_number: '',
             };
             app.vote = '';
             resetForm();
@@ -153,7 +168,7 @@
       <h2>Cake Election Website</h2>
       <h2>Vote for your favorite Cake!</h2>
       <p class="lead">Below is a demo of how Digital Identity can be use for voting.
-        You can use your InternetNZ membership to signup for voting.</p>
+        You need a <a href="votingcard.html"><strong>Cake Election</strong> Voting Card</a> to be able to vote.</p>
     </div>
 
     <div>
@@ -162,7 +177,7 @@
 
     <div id="vote-with-irma" class="text-center">
       <button id="vote-with-irma-btn" type="button" class="btn btn-primary btn-lg"
-        v-on:click="verifyINZMembership()">Vote with IRMA
+        v-on:click="verifyVotingCard()">Vote with IRMA
       </button>
     </div>
 
@@ -198,6 +213,7 @@
     <div class="p-5 text-center">
         <ul class="list-inline">
             <li class="list-inline-item"><a href="index.html">Main</a></li>
+            <li class="list-inline-item"><a href="votingcard.html">Voting Card</a></li>
             <li class="list-inline-item"><a href="simple-issuer.html">Issue Name, Address and Email</a></li>
             <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
             <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
@@ -205,7 +221,7 @@
             <li class="list-inline-item"><a href="wine-shop.html">Wine shop</a></li>
         </ul>
 
-      <p class="mb-1">© 2020 Cake Elections</p>
+      <p class="mb-1">© 2021 Cake Elections</p>
       <ul class="list-inline">
         <li class="list-inline-item"><a href="#">Privacy</a></li>
         <li class="list-inline-item"><a href="#">Terms</a></li>

@@ -37,8 +37,36 @@ const checkDriverLicence = (base64Image) => {
          });
 }
 
+const handleErrorMessage = (message) => {
+  if (message.message) {
+    message = message.message;
+  } else if (message.description) {
+    message = message.description;
+  }
+
+  if (message === 'Aborted') {
+    message = 'Session was aborted';
+  } else {
+    if (typeof message === 'object') {
+      message = message.toString();
+    }
+    message = `Error: ${message}`;
+  }
+
+  return message;
+}
+
+const verifySignature = function (signature) {
+  const url = `${AWS_IRMA_BACKEND_SERVER}/irma/signature/verify`;
+  return _doFetchPost(url, signature);
+}
+
 const _apiSingleSourcePost = (endpoint, body) => {
   const url = `${AWS_IRMA_BACKEND_SERVER}/single-source/${endpoint}`;
+  return _doFetchPost(url, body);
+};
+
+const _doFetchPost = (url, body) => {
   const options = {
     body: JSON.stringify(body),
     headers: {
@@ -47,7 +75,16 @@ const _apiSingleSourcePost = (endpoint, body) => {
     },
     mode: 'cors',
   };
-
   return fetch(url, {method: 'POST', ...options})
-    .then(response => response.json());
+    .then(response => {
+      if (!response.status || response.status >= 300) {
+        return response.json()
+          .then(json => {
+            console.error(json);
+            return Promise.reject(json);
+          });
+      }
+
+      return response.json();
+    });
 };

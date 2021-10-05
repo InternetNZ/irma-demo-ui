@@ -4,7 +4,7 @@ const LOCALE_NZ = 'en-NZ';
 
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
-const LOCAL_IRMA_SERVER = 'https://2838d2a173e7.ngrok.io';
+const LOCAL_IRMA_SERVER = 'https://b3b70dde5bee.ngrok.io';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
@@ -20,6 +20,7 @@ const CREDENTIAL = {
   FAKE_PERSONAL_DATA_BIRTHDATE: 'irma-demo.inz-personal-data.birthdate',
   FAKE_NZPOST_FULL_ADDRESS: 'irma-demo.inz-postal-service.address',
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS: 'irma-demo.nijmegen.ageLimits',
+  IRMA_DEMO_VOTING_CARD: 'irma-demo.inz-internetnz.votingcard',
 };
 
 const ATTRIBUTE = {
@@ -53,6 +54,24 @@ const ATTRIBUTE = {
   IRMA_DEMO_NIJMEGEN_AGE_LIMITS: {
     OVER18: `${CREDENTIAL.IRMA_DEMO_NIJMEGEN_AGE_LIMITS}.over18`,
   },
+  ID_CARD: {
+    FIRST_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.firstName`,
+    LAST_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.lastName`,
+    FULL_NAME: `${CREDENTIAL.ID_CARD_ID_CARD}.fullName`,
+    BIRTH_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.birthdate`,
+    OVER_18: `${CREDENTIAL.ID_CARD_ID_CARD}.over18`,
+    OVER_20: `${CREDENTIAL.ID_CARD_ID_CARD}.over20`,
+    OVER_65: `${CREDENTIAL.ID_CARD_ID_CARD}.over65`,
+    ISSUE_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.issueDate`,
+    EXPIRY_DATE: `${CREDENTIAL.ID_CARD_ID_CARD}.expiryDate`,
+    NUMBER: `${CREDENTIAL.ID_CARD_ID_CARD}.number`,
+  },
+  VOTING_CARD: {
+    ELECTION: `${CREDENTIAL.IRMA_DEMO_VOTING_CARD}.election`,
+    START: `${CREDENTIAL.IRMA_DEMO_VOTING_CARD}.start`,
+    END: `${CREDENTIAL.IRMA_DEMO_VOTING_CARD}.end`,
+    VOTING_NUMBER: `${CREDENTIAL.IRMA_DEMO_VOTING_CARD}.votingnumber`,
+  },
 };
 
 const HEADER_MESSAGES = {
@@ -64,6 +83,7 @@ const HEADER_MESSAGES = {
   ISSUE_INZ_MEMBERSHIP: 'Issuing your <b>InternetNZ membership</b> to',
   ISSUE_ID_CARD_ID_CARD: 'Issuing your <b>IDNZ Card</b> to',
   ISSUE_NETHUI_ACCESS_PASS: 'Issuing your <b>NetHui access pass</b> to',
+  ISSUE_VOTING_CARD: 'Issuing your <b>Voting Card</b> to',
   DISCLOSE_ADDDRESS: 'Disclosing your <b>address</b> with',
   DISCLOSE_ADDDRESS_AND_NAME: 'Disclosing your <b>full address</b> and <b>full name</b> with',
   DISCLOSE_AGE: 'Disclosing your <b>age</b> with',
@@ -71,4 +91,5 @@ const HEADER_MESSAGES = {
   DISCLOSE_EMAIL_NAME: 'Disclosing your <b>e-mail address</b> and <b>full name</b> with',
   DISCLOSE_NAME_EMAIL_MEMBERSHIP: 'Disclosing your <b>e-mail address</b>, <b>full name</b> and <b>InternetNZ membership</b> with',
   DISCLOSE_NETHUI_ACCESS_PASS: 'Disclosing your <b>NetHui access pass</b> to',
+  DISCLOSE_VOTING_CARD: 'Disclosing your <b>Voting Card</b> to',
 };

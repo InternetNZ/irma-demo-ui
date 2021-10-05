@@ -23,10 +23,6 @@
     href="https://members.internetnz.nz/sites/default/files/css/css_BYS6l8MYdx4ZFt71Bo-5FHQgBgF8GbKo_9xQnGiiRqI.css"
     media="all" />
   <link type="text/css" rel="stylesheet"
-    href="https://members.internetnz.nz/sites/default/files/css/css_S1SKPYV-rmiTH7oD4myqMAsMOJcP3aNMY_ryOkm4ARo.css"
-    media="all" />
-  <!--    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.0.2/css/bootstrap.min.css" media="all"/>-->
-  <link type="text/css" rel="stylesheet"
     href="https://members.internetnz.nz/sites/default/files/css/css_8ufypnDNQk75Rq7rELaiJAxQi7nq3BphaLnrKktW52w.css"
     media="all">
 
@@ -37,7 +33,7 @@
   <!-- production version, optimized for size and speed -->
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
-  <script src="assets/irma.js" defer></script>
+  <script src="assets/lib/irma-0.4.2.js" defer></script>
   <script src="assets/js/irma-functions.js" defer></script>
   <script src="assets/js/ui-functions.js" defer></script>
   <script src="assets/js/global.js">
@@ -52,10 +48,13 @@
       let app = new Vue({
         el: '#app',
         data: {
-          MEMBERSHIP_INDIVIDUAL: 'Individual',
-          MEMBERSHIP_ORGANIZATION: 'Organization',
-          HEADER_MESSAGES: HEADER_MESSAGES,
-          MEMBERSHIP_UNIT_PRICE: 21,
+            MEMBERSHIP_INDIVIDUAL: 'Individual',
+            MEMBERSHIP_ORGANIZATION: 'Organization',
+            HEADER_MESSAGES: HEADER_MESSAGES,
+            MEMBERSHIP_UNIT_PRICE: 21,
+            DISCLOSE_PAYLOAD_NAME_AND_EMAIL: new DiscloseQueryGenerator()
+                .forAttribute(ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL)
+                .andAnyOfAttributes(ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME, ATTRIBUTE.ID_CARD.FULL_NAME).toApi(),
           membershipIssued: false,
           resetedUsermembershipAttributes: {
             email: null,
@@ -79,16 +78,9 @@
           saveMembership: function () {
             console.log('saveMembership');
             app.membershipCredential = app.createMembership(app.userMembershipAttributes);
-            const disclosePayload = [
-              [
-                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
-              ],
-              [
-                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-              ]
-            ];
+
             return irmaIssueCredential(CREDENTIAL.INTERNETNZ_MEMBERSHIP, app.membershipCredential,
-                HEADER_MESSAGES.ISSUE_INZ_MEMBERSHIP, disclosePayload)
+                HEADER_MESSAGES.ISSUE_INZ_MEMBERSHIP, this.DISCLOSE_PAYLOAD_NAME_AND_EMAIL)
               .then((_) => {
                 app.membershipIssued = true;
               }).catch(function (err) {
@@ -129,28 +121,21 @@
             clearOutput();
           },
 
-          discloseEmailAndName: function () {
-            const discloseAttributes = [
-              [
-                [ATTRIBUTE.FAKE_EMAILER_EMAIL.EMAIL],
-              ],
-              [
-                [ATTRIBUTE.FAKE_PERSONAL_DATA_PERSON_NAME.FULL_NAME],
-              ]
-            ];
-            return irmaDiscloseOrSign(discloseAttributes, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(function (result) {
-              showSuccess('Success');
+            discloseEmailAndName: function () {
+                return irmaDiscloseOrSign(this.DISCLOSE_PAYLOAD_NAME_AND_EMAIL, HEADER_MESSAGES.DISCLOSE_EMAIL_NAME).then(
+                    function (result) {
+                        showSuccess('Success');
 
-              const fullName = result.disclosed[1][0].rawvalue;
-              const names = fullName.split(' ');
-              app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
-              app.userMembershipAttributes.name = fullName;
-              app.userMembershipAttributes.firstName = names.shift();
-              app.userMembershipAttributes.lastName = names.join(' ');
-            }).catch(function (err) {
-              showError(err);
-            });
-          }
+                        const fullName = result.disclosed[1][0].rawvalue;
+                        const names = fullName.split(' ');
+                        app.userMembershipAttributes.email = result.disclosed[0][0].rawvalue;
+                        app.userMembershipAttributes.name = fullName;
+                        app.userMembershipAttributes.firstName = names.shift();
+                        app.userMembershipAttributes.lastName = names.join(' ');
+                    }).catch(function (err) {
+                    showError(err);
+                });
+            }
         }
       })
     };
@@ -420,6 +405,7 @@
             <ul class="list-inline text-center">
                 <li class="list-inline-item"><a href="index.html">Main</a></li>
                 <li class="list-inline-item"><a href="simple-issuer.html">Issue Name, Address and Email</a></li>
+                <li class="list-inline-item"><a href="votingcard.html">Voting Card</a></li>
                 <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
                 <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
                 <li class="list-inline-item"><a href="wine-shop.html">Wine shop</a></li>

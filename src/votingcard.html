@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en-NZ">
+
+<head>
+    <title>IRMA example - Voting Card</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="assets/css/style-votingcard.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/style.css">
+
+    <script src="https://kit.fontawesome.com/0acfb72420.js" crossorigin="anonymous"></script>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="assets/lib/irma-0.4.2.js" defer></script>
+    <script src="assets/js/irma-functions.js" defer></script>
+    <script src="assets/js/ui-functions.js" defer></script>
+    <script src="assets/js/global.js">
+        // --------------------------------
+        // globals loaded from globals file
+        // --------------------------------
+
+    </script>
+    <script type="text/javascript">
+        window.onload = function () {
+            let app = new Vue({
+                el: '#app',
+                data: {
+                    ATTRIBUTE: ATTRIBUTE,
+                    CREDENTIAL: CREDENTIAL,
+                    HEADER_MESSAGES: HEADER_MESSAGES,
+                    election: '',
+                    startDate: '',
+                    endDate: '',
+                    votingCardToIssue: {},
+                },
+                methods: {
+                    reset: function () {
+                        app.election = '';
+                        app.startDate = '';
+                        app.endDate = '';
+                        clearOutput();
+                    },
+                    validateForm: function () {
+                        if (!this.election || !this.startDate || !this.endDate) {
+                            showWarning('All the fields should be filled!')
+                            return false
+                        } else {
+                            return true
+                        }
+                    },
+                    issueVotingCard: function () {
+                        console.log('issueVotingCard');
+                        clearOutput();
+                        showSuccess('Demo running...');
+                        var form = document.getElementById('votigcard-form')
+
+                        if (!app.validateForm()) {
+                            return;
+                        }
+                        
+                        this.votingCardToIssue = {
+                            election: this.election,
+                            start: this.startDate,
+                            end: this.endDate,
+                        }
+                        return irmaIssueCredential(CREDENTIAL.IRMA_DEMO_VOTING_CARD, this.votingCardToIssue, HEADER_MESSAGES.ISSUE_VOTING_CARD)
+                            .then((_) => {
+                                showSuccess("success!");
+                            }).catch(function (err) {
+                                showError(err);
+                            });
+                    }
+                }
+            })
+        };
+
+    </script>
+</head>
+
+<body>
+    <div id="app" class="container" v-cloak>
+
+        <header>
+            <h2>Voting Card Issuer</h2>
+            <hr>
+        </header>
+
+        <p>&nbsp;</p>
+
+        <div class="row">
+            <div id="result" class="status alert col-12" hidden></div>
+        </div>
+
+        <form id="votigcard-form">
+            <div class="mb-3">
+                <label for="election" class="form-label">Election Title</label>
+                <input type="text" class="form-control" id="election" v-model="election" required>
+            </div>
+            <div class="mb-3">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" v-model="startDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" v-model="endDate" required>
+            </div>
+            <button type="button" class="btn btn-primary" v-on:click="issueVotingCard()">Issue</button>
+        </form>
+    </div>
+    <div class="p-5 text-center clear">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="index.html">Main</a></li>
+            <li class="list-inline-item"><a href="membership.html">INZ Membership</a></li>
+            <li class="list-inline-item"><a href="election.html">Cake Election</a></li>
+            <li class="list-inline-item"><a href="event-access-pass.html">Event Access Pass</a></li>
+            <li class="list-inline-item"><a href="wine-shop.html">Wine Shop</a></li>
+            <li class="list-inline-item"><a href="simple-issuer.html">Simple issuer</a></li>
+            <li class="list-inline-item"><a href="simple-verifier.html">Simple verifier</a></li>
+        </ul>
+    </div>
+</body>
+
+</html>
