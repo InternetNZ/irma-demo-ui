@@ -240,7 +240,7 @@
                         this.showMessageUploadDocument();
 
                         if (this.formDocumentType === 'passport') {
-                            return checkPassport(this.formBase64Image)
+                            return checkPassport(this.formBase64Image, this.loggedUser.name.split(' '))
                                 .then((result) => {
                                     this.requestInProgress = false;
                                     return this.processPassportResult(result);
@@ -250,7 +250,7 @@
                                     this.messageError(error);
                                 });
                         } else if (this.formDocumentType === 'driverLicence') {
-                            return checkDriverLicence(this.formBase64Image)
+                            return checkDriverLicence(this.formBase64Image, this.loggedUser.name.split(' '))
                                 .then((result) => {
                                     this.requestInProgress = false;
                                     return this.processDriverLicenceResult(result);
