@@ -7,7 +7,7 @@ const SECOND_PRIVATE_TOKEN = 'slU2raoR4f6q1eiVQbYuk5GGI3j2qaL25BdB6SSA';
 const checkPassport = (base64Image, nameArray) => {
   familyName = nameArray.pop();
   return {
-           "givenNames": nameArray.join(' ');,
+           "givenNames": nameArray.join(' '),
            "familyName": familyName,
            "gender": "F",
            "documentNumber": "PA1234567",
@@ -17,26 +17,26 @@ const checkPassport = (base64Image, nameArray) => {
            "dateOfExpiry": "2025-04-18",
            "governmentVerified": "verified",
            "verificationReference": "3d7f9ed3-8bf7-41e8-868b-7cc679a0397f"
-         });
+         };
 }
 
 const checkDriverLicence = (base64Image, nameArray) => {
   familyName = nameArray.pop();
   return {
-           "givenNames": nameArray.join(' ');,
+           "givenNames": nameArray.join(' '),
            "familyName": familyName,
            "documentNumber": "DT1234565",
            "birthDate": "1984-04-06",
            "dateOfExpiry": "",
            "governmentVerified": {
-               "driverLicence": True,
-               "familyName": True,
-               "givenName": True,
-               "birthDate": True
+               "driverLicence": true,
+               "familyName": true,
+               "givenName": true,
+               "birthDate": true
            },
            "verificationReference": "a5f433c58-f516-4352-845f-055534f6698c",
            "documentVersion": "980"
-         });
+         };
 }
 
 const handleErrorMessage = (message) => {
