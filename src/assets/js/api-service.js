@@ -5,10 +5,9 @@ const AWS_IRMA_BACKEND_SERVER = 'https://f9emnttxd6.execute-api.ap-southeast-2.a
 const SECOND_PRIVATE_TOKEN = 'slU2raoR4f6q1eiVQbYuk5GGI3j2qaL25BdB6SSA';
 
 const checkPassport = (base64Image, nameArray) => {
-  familyName = nameArray.pop();
   return {
-           "givenNames": nameArray.join(' '),
-           "familyName": familyName,
+           "givenNames": nameArray.shift(),
+           "familyName": nameArray.join(' '),
            "gender": "F",
            "documentNumber": "PA1234567",
            "nationality": "NZL",
@@ -21,10 +20,9 @@ const checkPassport = (base64Image, nameArray) => {
 }
 
 const checkDriverLicence = (base64Image, nameArray) => {
-  familyName = nameArray.pop();
   return {
-           "givenNames": nameArray.join(' '),
-           "familyName": familyName,
+           "givenNames": nameArray.shift(),
+           "familyName": nameArray.join(' '),
            "documentNumber": "DT1234565",
            "birthDate": "1984-04-06",
            "dateOfExpiry": "",
