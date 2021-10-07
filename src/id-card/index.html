@@ -240,25 +240,9 @@
                         this.showMessageUploadDocument();
 
                         if (this.formDocumentType === 'passport') {
-                            return checkPassport(this.formBase64Image)
-                                .then((result) => {
-                                    this.requestInProgress = false;
-                                    return this.processPassportResult(result);
-                                })
-                                .catch(error => {
-                                    this.requestInProgress = false;
-                                    this.messageError(error);
-                                });
+                            return this.processPassportResult(checkPassport(this.formBase64Image, this.loggedUser.name.split(' ')));
                         } else if (this.formDocumentType === 'driverLicence') {
-                            return checkDriverLicence(this.formBase64Image)
-                                .then((result) => {
-                                    this.requestInProgress = false;
-                                    return this.processDriverLicenceResult(result);
-                                })
-                                .catch(error => {
-                                    this.requestInProgress = false;
-                                    this.messageError(error);
-                                });
+                            return this.processDriverLicenceResult(checkDriverLicence(this.formBase64Image, this.loggedUser.name.split(' ')))
                         }
 
                         this.requestInProgress = false;
