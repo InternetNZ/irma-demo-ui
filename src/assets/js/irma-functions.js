@@ -52,7 +52,7 @@ class DiscloseQueryGenerator
 }
 
 function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', label = '', message = '',
-                            revocation = null) {
+                            revocation = null, nextSessionUrl = '') {
   const labelRequest = !label ? {} : {
     'labels': {
       '0': {
@@ -74,7 +74,17 @@ function irmaDiscloseOrSign(attributes, header = 'Disclosing attribute with', la
     ...labelRequest
   };
 
-  return irmaDoSession(request, header).then(result => {
+  payload = {
+    'request': request
+  }
+
+  if (nextSessionUrl) {
+    payload['nextSession'] = {
+      'url': nextSessionUrl
+    }
+  }
+
+  return irmaDoSession(payload, header).then(result => {
     console.log("Successful disclosure!", result)
     return result;
   });

@@ -248,6 +248,51 @@
                         this.requestInProgress = false;
                         this.messageError('Error selecting document');
                     },
+                    refreshExpiryDateChainedSession() {
+                        this.messageClear();
+
+                        const toDisclose = [[
+                            [
+                                ATTRIBUTE.ID_CARD.FIRST_NAME,
+                                ATTRIBUTE.ID_CARD.LAST_NAME,
+                                ATTRIBUTE.ID_CARD.FULL_NAME,
+                                ATTRIBUTE.ID_CARD.BIRTH_DATE,
+                                ATTRIBUTE.ID_CARD.OVER_18,
+                                ATTRIBUTE.ID_CARD.OVER_20,
+                                ATTRIBUTE.ID_CARD.OVER_65,
+                                ATTRIBUTE.ID_CARD.ISSUE_DATE,
+                                ATTRIBUTE.ID_CARD.EXPIRY_DATE,
+                                ATTRIBUTE.ID_CARD.NUMBER
+                            ]
+                        ]];
+
+                        irmaDiscloseOrSign(toDisclose, 'Please, provide your IDNZ card details.', '', '', [CREDENTIAL.ID_CARD_ID_CARD], ID_CARD_NEXT_SESSION_ENDPOINT)
+                            .then((result) => {
+                                this.messageClear();
+                                this.logged = true;
+                                this.finished = true;
+                                this.refreshing = true;
+                                
+                                const now = luxon.DateTime.now().toUTC();
+                                const expiryDate = luxon.DateTime.fromFormat(irmaDisclosedResultSingleRawValueFromIndex(result, 0, 8), 'dd/MM/yyyy').toUTC();
+
+                                if (expiryDate < now) {
+                                    this.logged = false;
+                                    this.refreshing = false;
+                                    this.finished = false;
+                                    this.statusMessage = "Your physical IDNZ Card is expired. You need to go through the onboarding process again."
+                                    this.statusMessageClass = 'alert-danger';
+                                }
+                            })
+                            .catch((error) => {
+                                this.logged = false;
+                                this.refreshing = false;
+                                this.loggedUser = null;
+                                this.newValidity = '';
+                                this.messageError(error);
+                            })
+
+                    },
                     refreshExpiryDate() {
                         this.messageClear();
 
@@ -344,7 +389,7 @@
 
                 <div class="button-at-left">
                     <button class="btn btn-lg btn-primary" v-on:click="login()">Issue digital card</button>
-                    <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDate()">Refresh expiry date</button>
+                    <button class="btn btn-lg btn-secondary" v-on:click="refreshExpiryDateChainedSession()">Refresh expiry date</button>
                 </div>
 
                 <div class="mt-4">
@@ -367,7 +412,7 @@
                         <div id="upload-doc-text">
                             <h3 class="pb-3">Welcome, <span id="logged-name">{{ loggedUser.name.split(' ').shift() }}</span></h3>
                             <h2>
-                                Please select and upload your document
+                                Please select and upload your document (Any dummy file works!)
                             </h2>
                         </div>
                         <form id="upload">

@@ -5,6 +5,7 @@ const LOCALE_NZ = 'en-NZ';
 //const AWS_IRMA_SERVER = 'http://13.54.7.159:8088';
 const AWS_IRMA_SERVER = 'https://pnonvsmdy9.execute-api.ap-southeast-2.amazonaws.com/dev';
 const LOCAL_IRMA_SERVER = 'https://b3b70dde5bee.ngrok.io';
+const ID_CARD_NEXT_SESSION_ENDPOINT = 'https://3lldb1i3nh.execute-api.ap-southeast-2.amazonaws.com/demo/id-card/refresh';
 
 const IRMA_SERVER = AWS_IRMA_SERVER;
 const AUTH_METHOD_TOKEN = 'token';
